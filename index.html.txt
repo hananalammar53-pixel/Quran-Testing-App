@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق اختبارات القرآن الكريم</title>
+    <style>
+        :root {
+            --primary-green: #2d5a27;
+            --gold: #c5a059;
+            --light-beige: #f9f7f2;
+            --teacher-blue: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-beige);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* صفحة الترحيب */
+        #welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .main-title {
+            color: var(--primary-green);
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .choice-container {
+            display: flex;
+            gap: 25px;
+        }
+
+        .btn-choice {
+            width: 180px;
+            height: 180px;
+            background: white;
+            border: 3px solid var(--gold);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary-green);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .btn-choice:hover {
+            transform: translateY(-10px);
+            background-color: var(--gold);
+            color: white;
+        }
+
+        /* صفحة المعلمة */
+        #teacher-screen {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        .grid-30 {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .part-box {
+            background: white;
+            border: 2px solid var(--primary-green);
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .part-box:hover {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        /* النافذة المنبثقة (النماذج والمقاطع) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .model-btn {
+            background: #eee;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+        }
+
+        .model-btn.active {
+            background: var(--gold);
+            color: white;
+        }
+
+        .clips-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+            display: none; /* تظهر عند اختيار نموذج */
+        }
+
+        .clip-item {
+            background: var(--primary-green);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .quran-view {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px dashed var(--gold);
+            background: #fffdf5;
+            display: none;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px; left: 10px;
+            background: none; border: none; font-size: 1.5rem; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الشاشة الأولى: الترحيب -->
+    <div id="welcome-screen">
+        <h1 class="main-title">مرحباً بك في برنامج الاختبارات</h1>
+        <div class="choice-container">
+            <div class="btn-choice" onclick="showTeacherScreen()">
+                <span>👩‍🏫</span>
+                <span>معلمة قرآن</span>
+            </div>
+            <div class="btn-choice" onclick="alert('صفحة الطالبة قيد التطوير حالياً')">
+                <span>👩‍🎓</span>
+                <span>طالبة</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- الشاشة الثانية: واجهة المعلمة -->
+    <div id="teacher-screen">
+        <button onclick="location.reload()">⬅ عودة</button>
+        <h2 style="color: var(--primary-green); text-align: center;">لوحة اختبارات الأجزاء</h2>
+        <div class="grid-30" id="parts-container">
+            <!-- سيتم توليد 30 جزء هنا -->
+        </div>
+    </div>
+
+    <!-- النافذة المنبثقة للنماذج والمقاطع -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">✕</button>
+            <h3 id="modal-title" style="color: var(--primary-green);">الجزء 1</h3>
+            <p>اختر نموذج الاختبار (1-10):</p>
+            <div class="models-grid" id="models-container">
+                <!-- 10 نماذج -->
+            </div>
+
+            <div id="clips-area" class="clips-grid">
+                <!-- 6 مقاطع -->
+            </div>
+
+            <div id="quran-display" class="quran-view">
+                <p style="color: var(--gold); font-weight: bold;">صورة المصحف المجود الملون تظهر هنا...</p>
+                <div style="font-size: 1.2rem; line-height: 2;">(نص تجريبي للآيات بالرسم العثماني)</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // توليد الأجزاء الثلاثين
+        const partsContainer = document.getElementById('parts-container');
+        for (let i = 1; i <= 30; i++) {
+            const div = document.createElement('div');
+            div.className = 'part-box';
+            div.innerHTML = 'الجزء ' + i;
+            div.onclick = () => openPart(i);
+            partsContainer.appendChild(div);
+        }
+
+        function showTeacherScreen() {
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('teacher-screen').style.display = 'block';
+        }
+
+        function openPart(partNum) {
+            document.getElementById('modal-title').innerText = 'الجزء ' + partNum;
+            const modelsContainer = document.getElementById('models-container');
+            modelsContainer.innerHTML = '';
+            
+            // توليد 10 نماذج
+            for (let m = 1; m <= 10; m++) {
+                const btn = document.createElement('button');
+                btn.className = 'model-btn';
+                btn.innerText = 'نموذج ' + m;
+                btn.onclick = () => showClips(m);
+                modelsContainer.appendChild(btn);
+            }
+            
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function showClips(modelNum) {
+            // إبراز النموذج المختار
+            const btns = document.querySelectorAll('.model-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const clipsArea = document.getElementById('clips-area');
+            clipsArea.innerHTML = '';
+            clipsArea.style.display = 'grid';
+
+            // توليد 6 مقاطع
+            for (let c = 1; c <= 6; c++) {
+                const clip = document.createElement('div');
+                clip.className = 'clip-item';
+                clip.innerText = 'مقطع اختبار ' + c;
+                clip.onclick = () => showQuranPage();
+                clipsArea.appendChild(clip);
+            }
+        }
+
+        function showQuranPage() {
+            document.getElementById('quran-display').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('quran-display').style.display = 'none';
+            document.getElementById('clips-area').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
