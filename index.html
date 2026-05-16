@@ -3,284 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق اختبارات القرآن الكريم</title>
+    <title>تطبيق اختبارات القرآن</title>
     <style>
         :root {
-            --primary-green: #2d5a27;
-            --gold: #c5a059;
-            --light-beige: #f9f7f2;
-            --teacher-blue: #2c3e50;
+            --primary-green: #1e4d2b;
+            --gold-accent: #d4af37;
+            --bg-color: #fdfbf7;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-beige);
+            background-color: var(--bg-color);
             margin: 0;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
         }
 
-        /* صفحة الترحيب */
-        #welcome-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-        }
-
-        .main-title {
-            color: var(--primary-green);
-            font-size: 2.5rem;
-            margin-bottom: 40px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .choice-container {
-            display: flex;
-            gap: 25px;
-        }
-
-        .btn-choice {
-            width: 180px;
-            height: 180px;
-            background: white;
-            border: 3px solid var(--gold);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: var(--primary-green);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-
-        .btn-choice:hover {
-            transform: translateY(-10px);
-            background-color: var(--gold);
-            color: white;
-        }
-
-        /* صفحة المعلمة */
-        #teacher-screen {
+        .page {
             display: none;
             width: 100%;
-            max-width: 800px;
+            max-width: 600px;
             padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
         }
 
-        .grid-30 {
+        .active-page {
+            display: block;
+        }
+
+        h1, h2 { color: var(--primary-green); }
+
+        .main-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .role-button {
+            background: white;
+            border: 2px solid var(--primary-green);
+            padding: 30px;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-green);
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .role-button:hover {
+            background: var(--primary-green);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .parts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             margin-top: 20px;
         }
 
-        .part-box {
-            background: white;
-            border: 2px solid var(--primary-green);
-            padding: 20px;
-            text-align: center;
-            border-radius: 12px;
+        .part-item {
+            background: #fff;
+            border: 1px solid var(--gold-accent);
+            padding: 15px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
             transition: 0.2s;
         }
 
-        .part-box:hover {
-            background: var(--primary-green);
+        .part-item:hover {
+            background: var(--gold-accent);
             color: white;
         }
 
-        /* النافذة المنبثقة (النماذج والمقاطع) */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-            position: relative;
-        }
-
-        .models-grid {
+        .sub-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             margin: 20px 0;
         }
 
-        .model-btn {
-            background: #eee;
+        .box {
+            background: #e9ecef;
             padding: 10px;
-            border-radius: 8px;
+            border-radius: 5px;
             cursor: pointer;
-            border: none;
+            font-size: 0.9rem;
             font-weight: bold;
         }
 
-        .model-btn.active {
-            background: var(--gold);
-            color: white;
-        }
-
-        .clips-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-            display: none; /* تظهر عند اختيار نموذج */
-        }
-
-        .clip-item {
+        .box.active {
             background: var(--primary-green);
             color: white;
-            padding: 15px;
+        }
+
+        .clip-box {
+            background: #fff;
+            border: 2px solid var(--gold-accent);
+            color: var(--primary-green);
+            padding: 12px;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .clip-box:hover {
+            background: var(--gold-accent);
+            color: white;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid #ccc;
+            padding: 5px 15px;
             cursor: pointer;
+            margin-bottom: 20px;
+            border-radius: 5px;
         }
 
-        .quran-view {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px dashed var(--gold);
-            background: #fffdf5;
+        /* منطقة عرض صفحة المصحف الملونة للـمـعـلـمـة */
+        .quran-display-box {
             display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border: 2px dashed var(--gold-accent);
+            background: #white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .close-btn {
-            position: absolute;
-            top: 10px; left: 10px;
-            background: none; border: none; font-size: 1.5rem; cursor: pointer;
+        .quran-text-hint {
+            font-size: 1.2rem;
+            color: #c0392b; /* لون مميز لبداية المقطع */
+            margin: 10px 0 20px 0;
+            font-weight: bold;
+            line-height: 1.6;
+            background: #fce4d6;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .quran-image-container {
+            width: 100%;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: 15px;
+            background: #fff;
+        }
+
+        .quran-image {
+            width: 100%;
+            max-width: 450px; /* حجم ماليء ومناسب للشاشة */
+            height: auto;
+            display: block;
+            margin: 0 auto;
         }
     </style>
 </head>
 <body>
 
-    <!-- الشاشة الأولى: الترحيب -->
-    <div id="welcome-screen">
-        <h1 class="main-title">مرحباً بك في برنامج الاختبارات</h1>
-        <div class="choice-container">
-            <div class="btn-choice" onclick="showTeacherScreen()">
-                <span>👩‍🏫</span>
-                <span>معلمة قرآن</span>
-            </div>
-            <div class="btn-choice" onclick="alert('صفحة الطالبة قيد التطوير حالياً')">
-                <span>👩‍🎓</span>
-                <span>طالبة</span>
-            </div>
+    <!-- صفحة الترحيب -->
+    <div id="homePage" class="page active-page">
+        <h1>مرحباً بك في برنامج الاختبارات</h1>
+        <div class="main-menu">
+            <div class="role-button" onclick="showPage('teacherPage')">معلمة قرآن</div>
+            <div class="role-button" onclick="alert('صفحة الطالبة قيد التطوير حالياً')">طالبة</div>
         </div>
     </div>
 
-    <!-- الشاشة الثانية: واجهة المعلمة -->
-    <div id="teacher-screen">
-        <button onclick="location.reload()">⬅ عودة</button>
-        <h2 style="color: var(--primary-green); text-align: center;">لوحة اختبارات الأجزاء</h2>
-        <div class="grid-30" id="parts-container">
-            <!-- سيتم توليد 30 جزء هنا -->
-        </div>
+    <!-- صفحة المعلمة -->
+    <div id="teacherPage" class="page">
+        <button class="back-btn" onclick="showPage('homePage')">⬅ عودة للرئيسية</button>
+        <h2>لوحة المعلمة - الأجزاء</h2>
+        <div class="parts-grid" id="partsGrid"></div>
     </div>
 
-    <!-- النافذة المنبثقة للنماذج والمقاطع -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal()">✕</button>
-            <h3 id="modal-title" style="color: var(--primary-green);">الجزء 1</h3>
-            <p>اختر نموذج الاختبار (1-10):</p>
-            <div class="models-grid" id="models-container">
-                <!-- 10 نماذج -->
-            </div>
+    <!-- نافذة النماذج والمقاطع -->
+    <div id="detailView" class="page">
+        <button class="back-btn" onclick="showPage('teacherPage')">⬅ عودة للأجزاء</button>
+        <h2 id="selectedPartTitle">الجزء 1</h2>
+        
+        <p>اختر نموذج الاختبار (1 - 10):</p>
+        <div class="sub-grid" id="modelsGrid"></div>
 
-            <div id="clips-area" class="clips-grid">
-                <!-- 6 مقاطع -->
-            </div>
+        <div id="clipsSection" style="display:none; border-top: 2px solid var(--gold-accent); padding-top: 20px;">
+            <p>مقاطع الاختبار المتاحة للنموذج:</p>
+            <div class="sub-grid" style="grid-template-columns: repeat(3, 1fr);" id="clipsGrid"></div>
+        </div>
 
-            <div id="quran-display" class="quran-view">
-                <p style="color: var(--gold); font-weight: bold;">صورة المصحف المجود الملون تظهر هنا...</p>
-                <div style="font-size: 1.2rem; line-height: 2;">(نص تجريبي للآيات بالرسم العثماني)</div>
+        <!-- هنا يظهر المصحف المجود الملون مباشرة بدون الحاجة لفتح مصحف خارجي -->
+        <div id="quranDisplayBox" class="quran-display-box">
+            <h3 id="clipTitle" style="color: var(--primary-green); margin: 0;">مقطع الاختبار</h3>
+            <span id="pageNumber" style="font-weight: bold; background: var(--gold-accent); color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.9rem;"></span>
+            
+            <div style="margin-top: 15px; text-align: right; font-weight: bold; color: #555;">موضع سؤال الطالبة:</div>
+            <div class="quran-text-hint" id="quranTextHint"></div>
+            
+            <div style="text-align: right; font-weight: bold; color: #555; margin-bottom: 5px;">مصحف المعلمة للتوجيه والتصحيح:</div>
+            <div class="quran-image-container">
+                <img id="quranImg" src="" alt="صفحة المصحف الملونة" class="quran-image">
             </div>
         </div>
     </div>
 
     <script>
-        // توليد الأجزاء الثلاثين
-        const partsContainer = document.getElementById('parts-container');
+        let currentPart = 1;
+        let currentModel = 1;
+
+        // قاعدة بيانات الصفحات والمقاطع (مصحف التجويد الملون الحقيقي)
+        const quranData = {
+            "جزء_1": {
+                "نموذج_1": {
+                    1: { 
+                        page: "صفحة 2", 
+                        hint: "اقرئي من قوله تعالى: { الم * ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ... }",
+                        img: "https://raw.githubusercontent.com/Hananalammar53-pixel/Quran-Testing-App/main/pages/002.png" // سيتم جلب صورة الصفحة 2 الملونة
+                    },
+                    2: { 
+                        page: "صفحة 3", 
+                        hint: "اقرئي من قوله تعالى: { وبَشِّرِ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ... }",
+                        img: "https://images.alkawthartv.co/image/800x600/2018/06/12/636644158914620584.jpg" // رابط تجويد ملون مباشر
+                    },
+                    3: { 
+                        page: "صفحة 4", 
+                        hint: "اقرئي من قوله تعالى: { وَإِذْ قَالَ رَبُّكَ لِلْمَلَائِكَةِ إِنِّي جَاعِلٌ فِي الْأَرْضِ خَلِيفَةً... }",
+                        img: "https://www.alshref.org/images/quran/color/4.jpg"
+                    },
+                    4: { 
+                        page: "صفحة 5", 
+                        hint: "اقرئي من قوله تعالى: { أَتَأْمُرُونَ النَّاسَ بِالْبِرِّ وَتَنسَوْنَ أَنفُسَكُمْ... }",
+                        img: "https://www.alshref.org/images/quran/color/5.jpg"
+                    },
+                    5: { 
+                        page: "صفحة 6", 
+                        hint: "اقرئي من قوله تعالى: { وَإِذْ نَجَّيْنَاكُم مِّنْ آلِ فِرْعَوْنَ يَسُومُونَكُمْ سُوءَ الْعَذَابِ... }",
+                        img: "https://www.alshref.org/images/quran/color/6.jpg"
+                    },
+                    6: { 
+                        page: "صفحة 7", 
+                        hint: "اقرئي من قوله تعالى: { وَإِذِ اسْتَسْقَىٰ مُوسَىٰ لِقَوْمِهِ فَقُلْنَا اضْرِب بِّعَصَاكَ الْحَجَرَ... }",
+                        img: "https://www.alshref.org/images/quran/color/7.jpg"
+                    }
+                }
+            }
+        };
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(pageId).classList.add('active-page');
+        }
+
+        // إنشاء الـ 30 جزءاً
+        const partsGrid = document.getElementById('partsGrid');
         for (let i = 1; i <= 30; i++) {
-            const div = document.createElement('div');
-            div.className = 'part-box';
-            div.innerHTML = 'الجزء ' + i;
-            div.onclick = () => openPart(i);
-            partsContainer.appendChild(div);
+            let item = document.createElement('div');
+            item.className = 'part-item';
+            item.innerText = 'الجزء ' + i;
+            item.onclick = () => openPartDetails(i);
+            partsGrid.appendChild(item);
         }
 
-        function showTeacherScreen() {
-            document.getElementById('welcome-screen').style.display = 'none';
-            document.getElementById('teacher-screen').style.display = 'block';
-        }
-
-        function openPart(partNum) {
-            document.getElementById('modal-title').innerText = 'الجزء ' + partNum;
-            const modelsContainer = document.getElementById('models-container');
-            modelsContainer.innerHTML = '';
+        function openPartDetails(num) {
+            currentPart = num;
+            document.getElementById('selectedPartTitle').innerText = 'الجزء ' + num;
+            document.getElementById('quranDisplayBox').style.display = 'none';
             
-            // توليد 10 نماذج
-            for (let m = 1; m <= 10; m++) {
-                const btn = document.createElement('button');
-                btn.className = 'model-btn';
-                btn.innerText = 'نموذج ' + m;
-                btn.onclick = () => showClips(m);
-                modelsContainer.appendChild(btn);
+            const modelsGrid = document.getElementById('modelsGrid');
+            modelsGrid.innerHTML = '';
+            
+            for (let j = 1; j <= 10; j++) {
+                let mBox = document.createElement('div');
+                mBox.className = 'box';
+                mBox.innerText = 'نموذج ' + j;
+                mBox.onclick = (e) => {
+                    document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    showClips(j);
+                };
+                modelsGrid.appendChild(mBox);
             }
             
-            document.getElementById('modal').style.display = 'flex';
+            showPage('detailView');
+            document.getElementById('clipsSection').style.display = 'none';
         }
 
         function showClips(modelNum) {
-            // إبراز النموذج المختار
-            const btns = document.querySelectorAll('.model-btn');
-            btns.forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-
-            const clipsArea = document.getElementById('clips-area');
-            clipsArea.innerHTML = '';
-            clipsArea.style.display = 'grid';
-
-            // توليد 6 مقاطع
-            for (let c = 1; c <= 6; c++) {
-                const clip = document.createElement('div');
-                clip.className = 'clip-item';
-                clip.innerText = 'مقطع اختبار ' + c;
-                clip.onclick = () => showQuranPage();
-                clipsArea.appendChild(clip);
+            currentModel = modelNum;
+            const clipsGrid = document.getElementById('clipsGrid');
+            clipsGrid.innerHTML = '';
+            document.getElementById('clipsSection').style.display = 'block';
+            document.getElementById('quranDisplayBox').style.display = 'none';
+            
+            for (let k = 1; k <= 6; k++) {
+                let cBox = document.createElement('div');
+                cBox.className = 'box clip-box';
+                cBox.innerText = 'مقطع ' + k;
+                cBox.onclick = () => loadClipData(k);
+                clipsGrid.appendChild(cBox);
             }
         }
 
-        function showQuranPage() {
-            document.getElementById('quran-display').style.display = 'block';
-        }
+        function loadClipData(clipNum) {
+            const displayBox = document.getElementById('quranDisplayBox');
+            const clipTitle = document.getElementById('clipTitle');
+            const pageNumber = document.getElementById('pageNumber');
+            const quranTextHint = document.getElementById('quranTextHint');
+            const quranImg = document.getElementById('quranImg');
 
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-            document.getElementById('quran-display').style.display = 'none';
-            document.getElementById('clips-area').style.display = 'none';
+            const partKey = "جزء_" + currentPart;
+            const modelKey = "نموذج_" + currentModel;
+
+            // إذا كانت البيانات مبرمجة في القائمة بالأعلى (مثل جزء 1 نموذج 1) تظهر الصفحة الحقيقية الملونة والمقطع بدقة
+            if (quranData[partKey] && quranData[partKey][modelKey] && quranData[partKey][modelKey][clipNum]) {
+                const data = quranData[partKey][modelKey][clipNum];
+                clipTitle.innerText = 'مقطع الاختبار ' + clipNum;
+                pageNumber.innerText = data.page;
+                quranTextHint.innerText = data.hint;
+                quranImg.src = data.img; // وضع رابط الصورة الملونة الحقيقي للصحفة
+            } else {
+                // نص وصورة افتراضية لبقية الأجزاء حتى يتم ربط صورها كاملة
+                clipTitle.innerText = 'مقطع الاختبار ' + clipNum;
+                pageNumber.innerText = "صفحة تجريبية";
+                quranTextHint.innerText = "اقرئي من بداية السورة المحددة لهذا المقطع في الجزء " + currentPart;
+                quranImg.src = "https://www.alshref.org/images/quran/color/2.jpg"; // صورة افتراضية
+            }
+
+            displayBox.style.display = 'block';
+            displayBox.scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
