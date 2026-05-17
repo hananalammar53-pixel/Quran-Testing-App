@@ -375,7 +375,9 @@
             if (page >= 582 && page <= 583) return "النبأ";
             if (page >= 584 && page <= 585) return "النازعات";
             if (page == 585 || page == 586) return "عبس";
-            if (page >= 587) return "سور جزء عمّ";
+            if (page >= 587 && page <= 590) return "البروج / الانشقاق";
+            if (page >= 591 && page <= 595) return "البلد / العاديات / الغاشية";
+            if (page >= 596) return "قصار السور (جزء عم)";
             return "السورة المقررة بالصفحة";
         }
 
@@ -479,8 +481,18 @@
             let totalPages = lvlData.endPage - lvlData.startPage + 1;
             let step = Math.max(1, Math.floor(totalPages / lvlData.q));
             
-            let actualPageNumber = lvlData.startPage + ((clipNum - 1) * step) + (currentModel % 2);
+            let actualPageNumber;
             
+            // الحل الذكي هنا: التمييز بين حساب المسار التصاعدي والتنازلي
+            if (currentPath === 'asc') {
+                // من البقرة صعوداً: نبدأ من صفحة البداية ونتحرك للأمام
+                actualPageNumber = lvlData.startPage + ((clipNum - 1) * step) + (currentModel % 2);
+            } else {
+                // من الناس نزولاً: الأسئلة الأولى يجب أن تبدأ من أواخر المصحف (صفحات الناس والنبأ) وتتجه تنازلياً للداخل
+                actualPageNumber = lvlData.endPage - ((clipNum - 1) * step) - (currentModel % 2);
+            }
+            
+            // حماية صارمة للبقاء داخل حدود أرقام صفحات المستوى المحددة
             if (actualPageNumber > lvlData.endPage) actualPageNumber = lvlData.endPage;
             if (actualPageNumber < lvlData.startPage) actualPageNumber = lvlData.startPage;
 
