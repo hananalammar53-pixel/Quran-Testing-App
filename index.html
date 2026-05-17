@@ -300,7 +300,7 @@
             19: { parts: 28, title: "المستوى 19 (28 جزءاً)", startPage: 50, endPage: 604, surah: "آل عمران إلى الناس", q: 14 }
         };
 
-        // محرك جغرافي ذكي لتحديد السورة تلقائياً بناءً على الصفحة لمنع التداخل
+        // محرك جغرافي مكامل ومحدث لتغطية المصحف الشريف بالكامل دون ثغرات
         function getSurahByPage(page) {
             if (page >= 2 && page <= 49) return "البقرة";
             if (page >= 50 && page <= 76) return "آل عمران";
@@ -366,9 +366,16 @@
             if (page == 561) return "المنافقون";
             if (page >= 562 && page <= 564) return "الملك";
             if (page >= 565 && page <= 567) return "القلم";
+            if (page >= 568 && page <= 571) return "الحاقة";
+            if (page >= 572 && page <= 573) return "المعارج";
+            if (page >= 574 && page <= 575) return "نوح";
+            if (page >= 576 && page <= 577) return "الجن";
+            if (page >= 578 && page <= 579) return "المزمل";
+            if (page >= 579 && page <= 581) return "المدثر";
             if (page >= 582 && page <= 583) return "النبأ";
             if (page >= 584 && page <= 585) return "النازعات";
             if (page == 585 || page == 586) return "عبس";
+            if (page >= 587) return "سور جزء عمّ";
             return "السورة المقررة بالصفحة";
         }
 
@@ -469,13 +476,11 @@
             const dataSource = (currentPath === 'asc') ? pathAscData : pathDescData;
             const lvlData = dataSource[currentLevel];
             
-            // حساب النطاق الفعلي لتوزيع الأسئلة على كامل صفحات النطاق دون الخروج عنه
             let totalPages = lvlData.endPage - lvlData.startPage + 1;
             let step = Math.max(1, Math.floor(totalPages / lvlData.q));
             
             let actualPageNumber = lvlData.startPage + ((clipNum - 1) * step) + (currentModel % 2);
             
-            // التأكد من البقاء الصارم داخل حدود المستوى
             if (actualPageNumber > lvlData.endPage) actualPageNumber = lvlData.endPage;
             if (actualPageNumber < lvlData.startPage) actualPageNumber = lvlData.startPage;
 
@@ -484,10 +489,8 @@
             clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
             pageNumber.innerText = "صفحة المصحف المعتمدة للتصحيح والتتبع: " + actualPageNumber;
 
-            // توجيه رسمي صارم يطابق نص المادة 8.2.2 من لائحة الشرقية النسائية
             quranTextHint.innerText = `اقرئي من بداية الصفحة رقم (${actualPageNumber}) من سورة (${detectedSurah})، مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى التام طبقاً للائحة.`;
 
-            // الروابط التفاعلية لمصحف مجمع الملك فهد لطباعة المصحف الشريف (مع تشريد غلاف Flipbook)
             let embedUrlPage = actualPageNumber + 3;
             quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${embedUrlPage}/`;
 
