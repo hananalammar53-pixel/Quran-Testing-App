@@ -191,7 +191,7 @@
 
     <div id="homePage" class="page active-page">
         <h1>برنامج اختبارات القرآن الكريم</h1>
-        <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية بالمنطقة الشرقية</p>
+        <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية بجمعية تحفيظ الشرقية النسائية</p>
         <div class="main-menu">
             <div class="role-button" onclick="showPage('pathSelectionPage')">معلمة قرآن</div>
             <div class="role-button" onclick="alert('صفحة الطالبة قيد التطوير حالياً')">طالبة</div>
@@ -201,16 +201,16 @@
     <div id="pathSelectionPage" class="page">
         <button class="back-btn" onclick="showPage('homePage')">⬅ عودة للرئيسية</button>
         <h2>اختر مسار اختبار الحافظة</h2>
-        <p style="color: #666; margin-bottom: 30px;">يرجى تحديد اتجاه بدء المراجعة والاختبار:</p>
+        <p style="color: #666; margin-bottom: 30px;">يرجى تحديد اتجاه بدء المراجعة والاختبار طبقاً للائحة:</p>
         <div class="main-menu" style="margin-top: 0;">
             <div class="path-button" onclick="loadPartsGrid('asc')">البدء من الجزء الأول (سورة البقرة)</div>
-            <div class="path-button" onclick="loadPartsGrid('desc')">البدء من الجزء الثلاثون (جزء عمَّ)</div>
+            <div class="path-button" onclick="loadPartsGrid('desc')">البدء من الجزء الثلاثون (سورة الناس)</div>
         </div>
     </div>
 
     <div id="teacherPage" class="page">
         <button class="back-btn" onclick="showPage('pathSelectionPage')">⬅ عودة للمسارات</button>
-        <h2 id="pathTitle">لوحة المعلمة - الأجزاء</h2>
+        <h2 id="pathTitle">مسار الاختبار</h2>
         <div class="parts-grid" id="partsGrid"></div>
     </div>
 
@@ -230,10 +230,10 @@
             <h3 id="clipTitle" style="color: var(--primary-green); margin: 0;">مقطع الاختبار</h3>
             <span id="pageNumber" style="font-weight: bold; background: var(--gold-accent); color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.9rem;"></span>
             
-            <div style="margin-top: 15px; text-align: right; font-weight: bold; color: #555;">موضع سؤال الطالبة (لا يتجاوز 7 أسطر):</div>
+            <div style="margin-top: 15px; text-align: right; font-weight: bold; color: #555;">موضع سؤال الدارسة (اكتمال المعنى - لا يتجاوز 7 أسطر):</div>
             <div class="quran-text-hint" id="quranTextHint"></div>
             
-            <div style="text-align: right; font-weight: bold; color: #555; margin-bottom: 5px;">مصحف التجويد الملون للتصحيح:</div>
+            <div style="text-align: right; font-weight: bold; color: #555; margin-bottom: 5px;">مصحف التجويد الملون للتصحيح المعتمد:</div>
             <div class="quran-image-container">
                 <img id="quranImg" src="" alt="صفحة المصحف الملونة" class="quran-image">
             </div>
@@ -243,21 +243,28 @@
     <script>
         let currentPart = 1;
         let currentModel = 1;
-        let currentPath = 'asc'; // asc = من 1 إلى 30, desc = من 30 إلى 1
+        let currentPath = 'asc'; // asc = تصاعدي من 1 لـ 30، desc = تنازلي من 30 لـ 1
 
-        // قاعدة بيانات المقاطع والصفحات الملونة الحقيقية
+        // قاعدة بيانات المقاطع الحقيقية المعتمدة بناءً على شروط جمعية الشرقية
         const quranData = {
             "جزء_1": {
                 "نموذج_1": {
-                    1: { page: "صفحة 2", hint: "اقرئي من قوله تعالى: { الم * ذَٰلِكَ الْكِتَابُ لَا رَيْبَ... } إلى قوله تعالى: { ...وَمَا يُخْدَعُونَ إِلَّا أَنفُسَهُمْ وَمَا يَشْعُرُونَ }", img: "https://www.alshref.org/images/quran/color/2.jpg" },
-                    2: { page: "صفحة 3", hint: "اقرئي من قوله تعالى: { وبَشِّرِ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ... } إلى قوله تعالى: { ...الَّذِينَ يَنقُضُونَ عَهْدَ اللَّهِ }", img: "https://images.alkawthartv.co/image/800x600/2018/06/12/636644158914620584.jpg" },
-                    3: { page: "صفحة 4", hint: "اقرئي من قوله تعالى: { وَإِذْ قَالَ رَبُّكَ لِلْمَلَائِكَةِ... } إلى قوله تعالى: { ...فَأَخْرَجَهُمَا مِمَّا كَانَا فِيهِ }", img: "https://www.alshref.org/images/quran/color/4.jpg" }
+                    1: { page: "صفحة 2", hint: "اقرئي من قوله تعالى: { الم * ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ... } إلى قوله تعالى: { ...وَمَا يُخْدَعُونَ إِلَّا أَنفُسَهُمْ وَمَا يَشْعُرُونَ }", img: "https://www.alshref.org/images/quran/color/2.jpg" },
+                    2: { page: "صفحة 4", hint: "اقرئي من قوله تعالى: { وَبَشِّرِ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ... } إلى قوله تعالى: { ...الَّذِينَ يَنقُضُونَ عَهْدَ اللَّهِ مِن بَعْدِ مِيثَاقِهِ }", img: "https://www.alshref.org/images/quran/color/4.jpg" },
+                    3: { page: "صفحة 6", hint: "اقرئي من قوله تعالى: { وَإِذْ قَالَ مُوسَىٰ لِقَوْمِهِ يَا قَوْمِ إِنَّكُمْ ظَلَمْتُمْ أَنفُسَكُم... } إلى قوله تعالى: { ...وَأَنزَلْنَا عَلَيْكُمُ الْمَنَّ وَالسَّلْوَىٰ }", img: "https://www.alshref.org/images/quran/color/6.jpg" },
+                    4: { page: "صفحة 9", hint: "اقرئي من قوله تعالى: { وَإِذْ أَخَذْنَا مِيثَاقَ بَنِي إِسْرَائِيلَ لَا تَعْبُدُونَ إِلَّا اللَّهَ... } إلى قوله تعالى: { ...ثُمَّ تَوَلَّيْتُمْ إِلَّا قَلِيلًا مِّنكُمْ وَأَنتُم مُّعْرِضُونَ }", img: "https://www.alshref.org/images/quran/color/9.jpg" },
+                    5: { page: "صفحة 12", hint: "اقرئي من قوله تعالى: { وَلَمَّا جَاءَهُمْ كِتَابٌ مِّنْ عِندِ اللَّهِ مُصَدِّقٌ... } إلى قوله تعالى: { ...فَبَاءُوا بِغَضَبٍ عَلَىٰ غَضَبٍ ۚ وَلِلْكَافِرِينَ عَذَابٌ مُّهِينٌ }", img: "https://www.alshref.org/images/quran/color/12.jpg" },
+                    6: { page: "صفحة 21", hint: "اقرئي من قوله تعالى: { قُولُوا آمَنَّا بِاللَّهِ وَمَا أُنزِلَ إِلَيْنَا... } إلى قوله تعالى: { ...فَسَيَكْفِيكَهُمُ اللَّهُ ۚ وَهُوَ السَّمِيعُ الْعَلِيمُ }", img: "https://www.alshref.org/images/quran/color/21.jpg" }
                 }
             },
             "جزء_30": {
                 "نموذج_1": {
                     1: { page: "صفحة 582", hint: "اقرئي من أول سورة النبأ قوله تعالى: { عَمَّ يَتَسَاءَلُونَ * عَنِ النَّبَإِ الْعَظِيمِ } إلى قوله تعالى: { ...وَجَعَلْنَا النَّهَارَ مَعَاشًا }", img: "https://www.alshref.org/images/quran/color/582.jpg" },
-                    2: { page: "صفحة 583", hint: "اقرئي من قوله تعالى: { إِنَّ جَهَنَّمَ كَانَتْ مِرْصَادًا... } إلى قوله تعالى: { ...ذَٰلِكَ الْيَوْمُ الْحَقُّ ۖ فَمَن شَاءَ اتَّخَذَ إِلَىٰ رَبِّهِ مَآبًا }", img: "https://www.alshref.org/images/quran/color/583.jpg" }
+                    2: { page: "صفحة 583", hint: "اقرئي من قوله تعالى: { إِنَّ جَهَنَّمَ كَانَتْ مِرْصَادًا... } إلى قوله تعالى: { ...ذَٰلِكَ الْيَوْمُ الْحَقُّ ۖ فَمَن شَاءَ اتَّخَذَ إِلَىٰ رَبِّهِ مَآبًا }", img: "https://www.alshref.org/images/quran/color/583.jpg" },
+                    3: { page: "صفحة 585", hint: "اقرئي من أول سورة النازعات قوله تعالى: { وَالنَّازِعَاتِ غَرْقًا... } إلى قوله تعالى: { ...فَإِذَا هُم بِالسَّاهِرَةِ }", img: "https://www.alshref.org/images/quran/color/585.jpg" },
+                    4: { page: "صفحة 587", hint: "اقرئي من أول سورة عبس قوله تعالى: { عَبَسَ وَتَوَلَّىٰ * أَن جَاءَهُ الْأَعْمَىٰ... } إلى قوله تعالى: { ...فَأَنتَ عَنْهُ تَلَهَّىٰ }", img: "https://www.alshref.org/images/quran/color/587.jpg" },
+                    5: { page: "صفحة 593", hint: "اقرئي من أول سورة الانشقاق قوله تعالى: { إِذَا السَّمَاءُ انشَقَّتْ * وَأَذِنَتْ لِرَبِّهَا وَحُقَّتْ... } إلى قوله تعالى: { ...فَسَوْفَ يُحَاسَبُ حِسَابًا يَسِيرًا }", img: "https://www.alshref.org/images/quran/color/593.jpg" },
+                    6: { page: "صفحة 601", hint: "اقرئي من أول سورة العاديات قوله تعالى: { وَالْعَادِيَاتِ ضَبْحًا * فَالْمُورِيَاتِ قَدْحًا... } إلى نهاية السورة قوله تعالى: { إِنَّ رَبَّهُم بِهِمْ يَوْمَئِذٍ لَّخَبِيرٌ }", img: "https://www.alshref.org/images/quran/color/601.jpg" }
                 }
             }
         };
@@ -267,26 +274,19 @@
             document.getElementById(pageId).classList.add('active-page');
         }
 
-        // توليد وترتيب الأجزاء بناءً على المسار المختار
+        // توليد الأجزاء ديناميكياً وعكسياً حسب المسار
         function loadPartsGrid(path) {
             currentPath = path;
             const partsGrid = document.getElementById('partsGrid');
-            partsGrid.innerHTML = ''; // تفريغ الشبكة لإعادة البناء
-            
+            partsGrid.innerHTML = ''; 
             const pathTitle = document.getElementById('pathTitle');
             
             if (path === 'asc') {
-                pathTitle.innerText = "مسار الاختبار: من الجزء الأول نزولاً";
-                // توليد من 1 إلى 30
-                for (let i = 1; i <= 30; i++) {
-                    createPartBox(i, partsGrid);
-                }
+                pathTitle.innerText = "مسار القياس: من الجزء الأول (سورة البقرة) صعوداً";
+                for (let i = 1; i <= 30; i++) { createPartBox(i, partsGrid); }
             } else {
-                pathTitle.innerText = "مسار الاختبار: من الجزء الثلاثون صعوداً";
-                // توليد من 30 إلى 1 عكسي
-                for (let i = 30; i >= 1; i--) {
-                    createPartBox(i, partsGrid);
-                }
+                pathTitle.innerText = "مسار القياس: من الجزء الثلاثون (سورة الناس) نزولاً";
+                for (let i = 30; i >= 1; i--) { createPartBox(i, partsGrid); }
             }
             showPage('teacherPage');
         }
@@ -323,6 +323,23 @@
             document.getElementById('clipsSection').style.display = 'none';
         }
 
+        // حساب عدد الأسئلة الذكي طبقاً لجداول مستويات القياس الرسمية في اللائحة
+        function getClipsCount(part, path) {
+            if (path === 'asc') { // مسار البقرة
+                if (part <= 5) return 6;
+                if (part <= 10) return 8;
+                if (part <= 14) return 10;
+                if (part <= 17) return 12;
+                return 14;
+            } else { // مسار سورة الناس
+                if (part >= 26) return 6;
+                if (part >= 21) return 8;
+                if (part >= 17) return 10;
+                if (part >= 14) return 12;
+                return 14;
+            }
+        }
+
         function showClips(modelNum) {
             currentModel = modelNum;
             const clipsGrid = document.getElementById('clipsGrid');
@@ -330,9 +347,9 @@
             document.getElementById('clipsSection').style.display = 'block';
             document.getElementById('quranDisplayBox').style.display = 'none';
             
-            // تحديد عدد الأسئلة بحسب الجزء بناءً على لائحة الشرقية (الجزء الأول والأخير 6 مقاطع)
-            let maxClips = 6; 
-            document.getElementById('clipsCountText').innerText = `مقاطع الاختبار المتاحة لهذا النموذج (عدد الأسئلة: ${maxClips}):`;
+            // حساب عدد الأسئلة بدقة بناءً على الجزء المختار حالياً
+            let maxClips = getClipsCount(currentPart, currentPath); 
+            document.getElementById('clipsCountText').innerText = `مقاطع الاختبار المتاحة لهذا النموذج (عدد الأسئلة النظامي: ${maxClips}):`;
             
             for (let k = 1; k <= maxClips; k++) {
                 let cBox = document.createElement('div');
@@ -362,7 +379,7 @@
             } else {
                 clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
                 pageNumber.innerText = "صفحة افتراضية";
-                quranTextHint.innerText = "اقرئي من بداية هذا المقطع المحدد في الجزء " + currentPart + " (لا يتجاوز 7 أسطر لضمان شروط اللائحة)";
+                quranTextHint.innerText = "اقرئي من الموضع المحدد لكِ في الجزء " + currentPart + " (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)";
                 quranImg.src = "https://www.alshref.org/images/quran/color/582.jpg"; 
             }
 
@@ -371,5 +388,4 @@
         }
     </script>
 </body>
-</html>
 </html>
