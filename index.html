@@ -224,8 +224,8 @@
     </div>
 
     <div id="detailView" class="page">
-        <button class="back-btn" onclick="showPage('teacherPage')">⬅ عودة للأجزاء</button>
-        <h2 id="selectedPartTitle">الجزء 1</h2>
+        <button class="back-btn" onclick="showPage('teacherPage')">⬅ عودة للمستويات</button>
+        <h2 id="selectedPartTitle">المستوى</h2>
         
         <p>اختر نموذج الاختبار المعتمد (1 - 10):</p>
         <div class="sub-grid" id="modelsGrid"></div>
@@ -251,91 +251,125 @@
     </div>
 
     <script>
-        let currentPart = 1;
+        let currentLevel = 1;
         let currentModel = 1;
         let currentPath = 'asc';
 
-        // الخارطة الجغرافية الدقيقة للمصحف الشريف (بداية ونهاية صفحات كل جزء بالتفصيل)
-        const quranGeography = {
-            1: { start: 2, end: 21 }, 2: { start: 22, end: 41 }, 3: { start: 42, end: 61 },
-            4: { start: 62, end: 81 }, 5: { start: 82, end: 101 }, 6: { start: 102, end: 121 },
-            7: { start: 122, end: 141 }, 8: { start: 142, end: 161 }, 9: { start: 162, end: 181 },
-            10: { start: 182, end: 201 }, 11: { start: 202, end: 221 }, 12: { start: 222, end: 241 },
-            13: { start: 242, end: 261 }, 14: { start: 262, end: 281 }, 15: { start: 282, end: 301 },
-            16: { start: 302, end: 321 }, 17: { start: 322, end: 341 }, 18: { start: 342, end: 361 },
-            19: { start: 362, end: 381 }, 20: { start: 382, end: 401 }, 21: { start: 402, end: 421 },
-            22: { start: 422, end: 441 }, 23: { start: 442, end: 461 }, 24: { start: 462, end: 481 },
-            25: { start: 482, end: 501 }, 26: { start: 502, end: 521 }, 27: { start: 522, end: 541 },
-            28: { start: 542, end: 561 }, 29: { start: 562, end: 581 }, 30: { start: 582, end: 604 }
+        // مستويات القياس الرسمية وجغرافيتها من مصحف المدينة طبقاً للائحة تحفيظ الشرقية
+        const pathAscData = {
+            1: { parts: 1, title: "المستوى 1 (جزء 1)", startPage: 2, endPage: 21, surah: "البقرة", q: 6 },
+            2: { parts: 2, title: "المستوى 2 (جزآن)", startPage: 2, endPage: 41, surah: "البقرة", q: 6 },
+            3: { parts: 3, title: "المستوى 3 (3 أجزاء)", startPage: 2, endPage: 61, surah: "البقرة وآل عمران", q: 6 },
+            4: { parts: 4, title: "المستوى 4 (4 أجزاء)", startPage: 2, endPage: 81, surah: "البقرة إلى النساء", q: 6 },
+            5: { parts: 5, title: "المستوى 5 (5 أجزاء)", startPage: 2, endPage: 101, surah: "البقرة إلى النساء", q: 6 },
+            6: { parts: 6, title: "المستوى 6 (6 أجزاء)", startPage: 2, endPage: 121, surah: "البقرة إلى المائدة", q: 8 },
+            7: { parts: 7, title: "المستوى 7 (7 أجزاء)", startPage: 2, endPage: 141, surah: "البقرة إلى الأنعام", q: 8 },
+            8: { parts: 8, title: "المستوى 8 (8 أجزاء)", startPage: 2, endPage: 161, surah: "البقرة إلى الأعراف", q: 8 },
+            9: { parts: 9, title: "المستوى 9 (9 أجزاء)", startPage: 2, endPage: 181, surah: "البقرة إلى الأنفال", q: 8 },
+            10: { parts: 10, title: "المستوى 10 (10 أجزاء)", startPage: 2, endPage: 201, surah: "البقرة إلى التوبة", q: 8 },
+            11: { parts: 12, title: "المستوى 11 (12 جزءاً)", startPage: 2, endPage: 241, surah: "البقرة إلى يوسف", q: 10 },
+            12: { parts: 14, title: "المستوى 12 (14 جزءاً)", startPage: 2, endPage: 281, surah: "البقرة إلى النحل", q: 10 },
+            13: { parts: 16, title: "المستوى 13 (16 جزءاً)", startPage: 2, endPage: 321, surah: "البقرة إلى طه", q: 10 },
+            14: { parts: 18, title: "المستوى 14 (18 جزءاً)", startPage: 2, endPage: 361, surah: "البقرة إلى المؤمنون", q: 10 },
+            15: { parts: 20, title: "المستوى 15 (20 جزءاً)", startPage: 2, endPage: 401, surah: "البقرة إلى العنكبوت", q: 12 },
+            16: { parts: 22, title: "المستوى 16 (22 جزءاً)", startPage: 2, endPage: 441, surah: "البقرة إلى يس", q: 12 },
+            17: { parts: 24, title: "المستوى 17 (24 جزءاً)", startPage: 2, endPage: 481, surah: "البقرة إلى فصلت", q: 12 },
+            18: { parts: 26, title: "المستوى 18 (26 جزءاً)", startPage: 2, endPage: 521, surah: "البقرة إلى الجاثية", q: 14 },
+            19: { parts: 28, title: "المستوى 19 (28 جزءاً)", startPage: 2, endPage: 561, surah: "البقرة إلى التحريم", q: 14 }
         };
 
-        // المحرك الجغرافي: يحدد اسم السورة والافتتاحية الدقيقة بناءً على رقم الصفحة الفعلي
-        function getPageMetadata(page) {
-            if (page >= 2 && page <= 49) return { surah: "البقرة", text: "من سورة البقرة" };
-            if (page >= 50 && page <= 76) return { surah: "آل عمران", text: "من سورة آل عمران" };
-            if (page >= 77 && page <= 106) return { surah: "النساء", text: "من سورة النساء" };
-            if (page >= 107 && page <= 127) return { surah: "المائدة", text: "من سورة المائدة" };
-            if (page >= 128 && page <= 150) return { surah: "الأنعام", text: "من سورة الأنعام" };
-            if (page >= 151 && page <= 176) return { surah: "الأعراف", text: "من سورة الأعراف" };
-            if (page >= 177 && page <= 186) return { surah: "الأنفال", text: "من سورة الأنفال" };
-            if (page >= 187 && page <= 207) return { surah: "التوبة", text: "من سورة التوبة" };
-            if (page >= 208 && page <= 221) return { surah: "يونس", text: "من سورة يونس" };
-            if (page >= 222 && page <= 235) return { surah: "هود", text: "من سورة هود" };
-            if (page >= 235 && page <= 248) return { surah: "يوسف", text: "من سورة يوسف" };
-            if (page >= 249 && page <= 255) return { surah: "الرعد", text: "من سورة الرعد" };
-            if (page >= 255 && page <= 261) return { surah: "إبراهيم", text: "من سورة إبراهيم" };
-            if (page >= 262 && page <= 267) return { surah: "الحجر", text: "من سورة الحجر" };
-            if (page >= 267 && page <= 281) return { surah: "النحل", text: "من سورة النحل" };
-            if (page >= 282 && page <= 293) return { surah: "الإسراء", text: "من سورة الإسراء" };
-            if (page >= 293 && page <= 304) return { surah: "الكهف", text: "من سورة الكهف" };
-            if (page >= 305 && page <= 312) return { surah: "مريم", text: "من سورة مريم" };
-            if (page >= 312 && page <= 321) return { surah: "طه", text: "من سورة طه" };
-            if (page >= 322 && page <= 331) return { surah: "الأنبياء", text: "من سورة الأنبياء" };
-            if (page >= 332 && page <= 341) return { surah: "الحج", text: "من سورة الحج" };
-            if (page >= 342 && page <= 351) return { surah: "المؤمنون", text: "من سورة المؤمنون" };
-            if (page >= 351 && page <= 359) return { surah: "النور", text: "من سورة النور" };
-            if (page >= 359 && page <= 366) return { surah: "الفرقان", text: "من سورة الفرقان" };
-            if (page >= 367 && page <= 376) return { surah: "الشعراء", text: "من سورة الشعراء" };
-            if (page >= 377 && page <= 385) return { surah: "النمل", text: "من سورة النمل" };
-            if (page >= 385 && page <= 396) return { surah: "القصص", text: "من سورة القصص" };
-            if (page >= 396 && page <= 404) return { surah: "العنكبوت", text: "من سورة العنكبوت" };
-            if (page >= 404 && page <= 410) return { surah: "الروم", text: "من سورة الروم" };
-            if (page >= 411 && page <= 414) return { surah: "لقمان", text: "من سورة لقمان" };
-            if (page >= 415 && page <= 417) return { surah: "السجدة", text: "من سورة السجدة" };
-            if (page >= 418 && page <= 427) return { surah: "الأحزاب", text: "من سورة الأحزاب" };
-            if (page >= 428 && page <= 434) return { surah: "سبأ", text: "من سورة سبأ" };
-            if (page >= 434 && page <= 440) return { surah: "فاطر", text: "من سورة فاطر" };
-            if (page >= 440 && page <= 445) return { surah: "يس", text: "من سورة يس" };
-            if (page >= 446 && page <= 452) return { surah: "الصافات", text: "من سورة الصافات" };
-            if (page >= 453 && page <= 458) return { surah: "ص", text: "من سورة ص" };
-            if (page >= 458 && page <= 467) return { surah: "الزمر", text: "من سورة Zمر" };
-            if (page >= 467 && page <= 476) return { surah: "غافر", text: "من سورة غافر" };
-            if (page >= 477 && page <= 482) return { surah: "فصلت", text: "من سورة فصلت" };
-            if (page >= 483 && page <= 489) return { surah: "الشورى", text: "من سورة الشورى" };
-            if (page >= 489 && page <= 495) return { surah: "الزخرف", text: "من سورة الزخرف" };
-            if (page >= 496 && page <= 498) return { surah: "الدخان", text: "من سورة الدخان" };
-            if (page >= 499 && page <= 502) return { surah: "الجاثية", text: "من سورة الجاثية" };
-            if (page >= 502 && page <= 506) return { surah: "الأحقاف", text: "من سورة الأحقاف" };
-            if (page >= 507 && page <= 510) return { surah: "محمد", text: "من سورة محمد" };
-            if (page >= 511 && page <= 515) return { surah: "الفتح", text: "من سورة الفتح" };
-            if (page >= 515 && page <= 517) return { surah: "الحجرات", text: "من سورة الحجرات" };
-            if (page >= 518 && page <= 520) return { surah: "ق", text: "من سورة ق" };
-            if (page >= 520 && page <= 525) return { surah: "الذاريات", text: "من سورة الذاريات" };
-            if (page >= 526 && page <= 528) return { surah: "الطور", text: "من سورة الطور" };
-            if (page >= 528 && page <= 531) return { surah: "النجم", text: "من سورة النجم" };
-            if (page >= 531 && page <= 534) return { surah: "القمر", text: "من سورة القمر" };
-            if (page >= 534 && page <= 537) return { surah: "الرحمن", text: "من سورة الرحمن" };
-            if (page >= 537 && page <= 541) return { surah: "الواقعة", text: "من سورة الواقعة" };
-            if (page >= 541 && page <= 548) return { surah: "الحديد", text: "من سورة الحديد" };
-            
-            // صفحات جزء عم والنازعات
-            if (page == 582) return { surah: "النبأ", text: "من أول سورة النبأ قوله تعالى: { عَمَّ يَتَسَاءَلُونَ }" };
-            if (page == 583) return { surah: "النبأ / النازعات", text: "من قوله تعالى في أواخر النبأ أو أول سورة النازعات قوله تعالى: { وَالنَّازِعَاتِ غَرْقًا }" };
-            if (page == 585) return { surah: "عبس", text: "من أول سورة عبس قوله تعالى: { عَبَسَ وَتَوَلَّىٰ }" };
-            if (page == 586) return { surah: "التكوير", text: "من أول سورة التكوير قوله تعالى: { إِذَا الشَّمْسُ كُوِّرَتْ }" };
-            if (page == 587) return { surah: "الانفطار / الانشقاق", text: "من أوائل السور المقررة في هذه الصفحة قوله تعالى: { إِذَا السَّمَاءُ انفَطَرَتْ }" };
-            
-            return { surah: "السورة المقررة في هذه الصفحة", text: "من الآيات الكريمة المفتوحة أمامكِ في أعلى الصفحة" };
+        const pathDescData = {
+            1: { parts: 1, title: "المستوى 1 (جزء النبأ)", startPage: 582, endPage: 604, surah: "جزء عم", q: 6 },
+            2: { parts: 2, title: "المستوى 2 (جزءا الملك والنبأ)", startPage: 562, endPage: 604, surah: "الملك والنبأ", q: 6 },
+            3: { parts: 3, title: "المستوى 3 (3 أجزاء)", startPage: 542, endPage: 604, surah: "المجادلة إلى الناس", q: 6 },
+            4: { parts: 4, title: "المستوى 4 (4 أجزاء)", startPage: 522, endPage: 604, surah: "الذاريات إلى الناس", q: 6 },
+            5: { parts: 5, title: "المستوى 5 (5 أجزاء)", startPage: 502, endPage: 604, surah: "الأحقاف إلى الناس", q: 6 },
+            6: { parts: 6, title: "المستوى 6 (6 أجزاء)", startPage: 482, endPage: 604, surah: "الشورى إلى الناس", q: 8 },
+            7: { parts: 7, title: "المستوى 7 (7 أجزاء)", startPage: 462, endPage: 604, surah: "الزمر إلى الناس", q: 8 },
+            8: { parts: 8, title: "المستوى 8 (8 أجزاء)", startPage: 442, endPage: 604, surah: "يس إلى الناس", q: 8 },
+            9: { parts: 9, title: "المستوى 9 (9 أجزاء)", startPage: 418, endPage: 604, surah: "الأحزاب إلى الناس", q: 8 },
+            10: { parts: 10, title: "المستوى 10 (10 أجزاء)", startPage: 396, endPage: 604, surah: "الروم إلى الناس", q: 8 },
+            11: { parts: 12, title: "المستوى 11 (12 جزءاً)", startPage: 359, endPage: 604, surah: "الفرقان إلى الناس", q: 10 },
+            12: { parts: 14, title: "المستوى 12 (14 جزءاً)", startPage: 322, endPage: 604, surah: "الأنبياء إلى الناس", q: 10 },
+            13: { parts: 16, title: "المستوى 13 (16 جزءاً)", startPage: 282, endPage: 604, surah: "الإسراء إلى الناس", q: 10 },
+            14: { parts: 18, title: "المستوى 14 (18 جزءاً)", startPage: 249, endPage: 604, surah: "الرعد إلى الناس", q: 10 },
+            15: { parts: 20, title: "المستوى 15 (20 جزءاً)", startPage: 208, endPage: 604, surah: "يونس إلى الناس", q: 12 },
+            16: { parts: 22, title: "المستوى 16 (22 جزءاً)", startPage: 177, endPage: 604, surah: "الأنفال إلى الناس", q: 12 },
+            17: { parts: 24, title: "المستوى 17 (24 جزءاً)", startPage: 128, endPage: 604, surah: "الأنعام إلى الناس", q: 12 },
+            18: { parts: 26, title: "المستوى 18 (26 جزءاً)", startPage: 77, endPage: 604, surah: "النساء إلى الناس", q: 14 },
+            19: { parts: 28, title: "المستوى 19 (28 جزءاً)", startPage: 50, endPage: 604, surah: "آل عمران إلى الناس", q: 14 }
+        };
+
+        // محرك جغرافي ذكي لتحديد السورة تلقائياً بناءً على الصفحة لمنع التداخل
+        function getSurahByPage(page) {
+            if (page >= 2 && page <= 49) return "البقرة";
+            if (page >= 50 && page <= 76) return "آل عمران";
+            if (page >= 77 && page <= 106) return "النساء";
+            if (page >= 107 && page <= 127) return "المائدة";
+            if (page >= 128 && page <= 150) return "الأنعام";
+            if (page >= 151 && page <= 176) return "الأعراف";
+            if (page >= 177 && page <= 186) return "الأنفال";
+            if (page >= 187 && page <= 207) return "التوبة";
+            if (page >= 208 && page <= 221) return "يونس";
+            if (page >= 222 && page <= 235) return "هود";
+            if (page >= 235 && page <= 248) return "يوسف";
+            if (page >= 249 && page <= 255) return "الرعد";
+            if (page >= 255 && page <= 261) return "إبراهيم";
+            if (page >= 262 && page <= 267) return "الحجر";
+            if (page >= 267 && page <= 281) return "النحل";
+            if (page >= 282 && page <= 293) return "الإسراء";
+            if (page >= 293 && page <= 304) return "الكهف";
+            if (page >= 305 && page <= 312) return "مريم";
+            if (page >= 312 && page <= 321) return "طه";
+            if (page >= 322 && page <= 331) return "الأنبياء";
+            if (page >= 332 && page <= 341) return "الحج";
+            if (page >= 342 && page <= 351) return "المؤمنون";
+            if (page >= 351 && page <= 359) return "النور";
+            if (page >= 359 && page <= 366) return "الفرقان";
+            if (page >= 367 && page <= 376) return "الشعراء";
+            if (page >= 377 && page <= 385) return "النمل";
+            if (page >= 385 && page <= 396) return "القصص";
+            if (page >= 396 && page <= 404) return "العنكبوت";
+            if (page >= 404 && page <= 410) return "الروم";
+            if (page >= 411 && page <= 414) return "لقمان";
+            if (page >= 415 && page <= 417) return "السجدة";
+            if (page >= 418 && page <= 427) return "الأحزاب";
+            if (page >= 428 && page <= 434) return "سبأ";
+            if (page >= 434 && page <= 440) return "فاطر";
+            if (page >= 440 && page <= 445) return "يس";
+            if (page >= 446 && page <= 452) return "الصافات";
+            if (page >= 453 && page <= 458) return "ص";
+            if (page >= 458 && page <= 467) return "الزمر";
+            if (page >= 467 && page <= 476) return "غافر";
+            if (page >= 477 && page <= 482) return "فصلت";
+            if (page >= 483 && page <= 489) return "الشورى";
+            if (page >= 489 && page <= 495) return "الزخرف";
+            if (page >= 496 && page <= 498) return "الدخان";
+            if (page >= 499 && page <= 502) return "الجاثية";
+            if (page >= 502 && page <= 506) return "الأحقاف";
+            if (page >= 507 && page <= 510) return "محمد";
+            if (page >= 511 && page <= 515) return "الفتح";
+            if (page >= 515 && page <= 517) return "الحجرات";
+            if (page >= 518 && page <= 520) return "ق";
+            if (page >= 520 && page <= 525) return "الذاريات";
+            if (page >= 526 && page <= 528) return "الطور";
+            if (page >= 528 && page <= 531) return "النجم";
+            if (page >= 531 && page <= 534) return "القمر";
+            if (page >= 534 && page <= 537) return "الرحمن";
+            if (page >= 537 && page <= 541) return "الواقعة";
+            if (page >= 541 && page <= 548) return "الحديد";
+            if (page >= 549 && page <= 552) return "المجادلة";
+            if (page >= 553 && page <= 555) return "الحشر";
+            if (page >= 556 && page <= 557) return "الممتحنة";
+            if (page >= 558 && page <= 559) return "الصف";
+            if (page == 560) return "الجمعة";
+            if (page == 561) return "المنافقون";
+            if (page >= 562 && page <= 564) return "الملك";
+            if (page >= 565 && page <= 567) return "القلم";
+            if (page >= 582 && page <= 583) return "النبأ";
+            if (page >= 584 && page <= 585) return "النازعات";
+            if (page == 585 || page == 586) return "عبس";
+            return "السورة المقررة بالصفحة";
         }
 
         function showPage(pageId) {
@@ -349,27 +383,27 @@
             partsGrid.innerHTML = ''; 
             const pathTitle = document.getElementById('pathTitle');
             
-            if (path === 'asc') {
-                pathTitle.innerText = "مسار القياس: من الجزء الأول (سورة البقرة) صعوداً";
-                for (let i = 1; i <= 30; i++) { createPartBox(i, partsGrid); }
-            } else {
-                pathTitle.innerText = "مسار القياس: من الجزء الثلاثون (سورة الناس) نزولاً";
-                for (let i = 30; i >= 1; i--) { createPartBox(i, partsGrid); }
+            const dataSource = (path === 'asc') ? pathAscData : pathDescData;
+            pathTitle.innerText = (path === 'asc') 
+                ? "مسار القياس: البدء من سورة البقرة صعوداً" 
+                : "مسار القياس: البدء من سورة الناس نزولاً";
+
+            for (let i in dataSource) {
+                let item = document.createElement('div');
+                item.className = 'part-item';
+                item.innerText = dataSource[i].title;
+                item.onclick = () => openLevelDetails(parseInt(i));
+                partsGrid.appendChild(item);
             }
             showPage('teacherPage');
         }
 
-        function createPartBox(partNum, container) {
-            let item = document.createElement('div');
-            item.className = 'part-item';
-            item.innerText = 'الجزء ' + partNum;
-            item.onclick = () => openPartDetails(partNum);
-            container.appendChild(item);
-        }
-
-        function openPartDetails(num) {
-            currentPart = num;
-            document.getElementById('selectedPartTitle').innerText = 'الجزء ' + num;
+        function openLevelDetails(levelNum) {
+            currentLevel = levelNum;
+            const dataSource = (currentPath === 'asc') ? pathAscData : pathDescData;
+            const currentData = dataSource[levelNum];
+            
+            document.getElementById('selectedPartTitle').innerText = currentData.title;
             document.getElementById('quranDisplayBox').style.display = 'none';
             
             const modelsGrid = document.getElementById('modelsGrid');
@@ -379,7 +413,7 @@
                 let mBox = document.createElement('div');
                 mBox.className = 'box';
                 mBox.innerText = 'نموذج ' + j;
-                mBox.id = `model_${currentPath}_${currentPart}_${j}`; 
+                mBox.id = `model_${currentPath}_lvl_${levelNum}_mod_${j}`; 
                 
                 if (localStorage.getItem(mBox.id) === 'tested') {
                     mBox.classList.add('tested');
@@ -404,22 +438,6 @@
             document.getElementById('clipsSection').style.display = 'none';
         }
 
-        function getClipsCount(part, path) {
-            if (path === 'asc') {
-                if (part <= 5) return 6;
-                if (part <= 10) return 8;
-                if (part <= 14) return 10;
-                if (part <= 17) return 12;
-                return 14;
-            } else {
-                if (part >= 26) return 6;
-                if (part >= 21) return 8;
-                if (part >= 17) return 10;
-                if (part >= 14) return 12;
-                return 14;
-            }
-        }
-
         function showClips(modelNum) {
             currentModel = modelNum;
             const clipsGrid = document.getElementById('clipsGrid');
@@ -427,8 +445,10 @@
             document.getElementById('clipsSection').style.display = 'block';
             document.getElementById('quranDisplayBox').style.display = 'none';
             
-            let maxClips = getClipsCount(currentPart, currentPath); 
-            document.getElementById('clipsCountText').innerText = `مقاطع الاختبار المتاحة لهذا النموذج (عدد الأسئلة النظامي: ${maxClips}):`;
+            const dataSource = (currentPath === 'asc') ? pathAscData : pathDescData;
+            let maxClips = dataSource[currentLevel].q; 
+            
+            document.getElementById('clipsCountText').innerText = `مقاطع الاختبار للنموذج (عدد الأسئلة النظامي طبقاً للائحة الشرقية: ${maxClips}):`;
             
             for (let k = 1; k <= maxClips; k++) {
                 let cBox = document.createElement('div');
@@ -446,27 +466,28 @@
             const quranTextHint = document.getElementById('quranTextHint');
             const quranIframe = document.getElementById('quranIframe');
 
-            // جلب النطاق الحقيقي لصفحات الجزء الحالي لمنع العشوائية تماماً
-            let bounds = quranGeography[currentPart];
-            let totalPagesInPart = bounds.end - bounds.start + 1;
+            const dataSource = (currentPath === 'asc') ? pathAscData : pathDescData;
+            const lvlData = dataSource[currentLevel];
             
-            // توزيع ذكي يضمن بقاء الصفحة داخل النطاق الدقيق للجزء
-            let pageStep = Math.floor(totalPagesInPart / getClipsCount(currentPart, currentPath));
-            if (pageStep < 1) pageStep = 1;
+            // حساب النطاق الفعلي لتوزيع الأسئلة على كامل صفحات النطاق دون الخروج عنه
+            let totalPages = lvlData.endPage - lvlData.startPage + 1;
+            let step = Math.max(1, Math.floor(totalPages / lvlData.q));
             
-            let actualPageNumber = bounds.start + ((clipNum - 1) * pageStep) + (currentModel % 2);
-            if (actualPageNumber > bounds.end) actualPageNumber = bounds.end;
+            let actualPageNumber = lvlData.startPage + ((clipNum - 1) * step) + (currentModel % 2);
+            
+            // التأكد من البقاء الصارم داخل حدود المستوى
+            if (actualPageNumber > lvlData.endPage) actualPageNumber = lvlData.endPage;
+            if (actualPageNumber < lvlData.startPage) actualPageNumber = lvlData.startPage;
 
-            // استدعاء البيانات الدقيقة للصفحة الحالية لمنع خلط السور
-            let meta = getPageMetadata(actualPageNumber);
+            let detectedSurah = getSurahByPage(actualPageNumber);
 
             clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
-            pageNumber.innerText = "صفحة المصحف الفاصلة للتصحيح: " + actualPageNumber;
+            pageNumber.innerText = "صفحة المصحف المعتمدة للتصحيح والتتبع: " + actualPageNumber;
 
-            // كتابة التوجيه الرسمي بدقة مائة بالمائة ومتوافق مع الصفحة المفتوحة
-            quranTextHint.innerText = `اقرئي من قوله تعالى ${meta.text} في الجزء ${currentPart} سورة ${meta.surah} (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية النسائية)`;
+            // توجيه رسمي صارم يطابق نص المادة 8.2.2 من لائحة الشرقية النسائية
+            quranTextHint.innerText = `اقرئي من بداية الصفحة رقم (${actualPageNumber}) من سورة (${detectedSurah})، مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى التام طبقاً للائحة.`;
 
-            // تعويض صفحات الغلاف الثلاث الأولى في رابط الـ Flipbook الخاص بالمجمع
+            // الروابط التفاعلية لمصحف مجمع الملك فهد لطباعة المصحف الشريف (مع تشريد غلاف Flipbook)
             let embedUrlPage = actualPageNumber + 3;
             quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${embedUrlPage}/`;
 
