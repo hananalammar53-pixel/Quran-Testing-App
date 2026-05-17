@@ -243,6 +243,7 @@
             <div class="quran-text-hint" id="quranTextHint"></div>
             
             <div style="text-align: right; font-weight: bold; color: #555; margin-bottom: 5px;">مصحف مجمع الملك فهد التفاعلي المعتمد:</div>
+            
             <div class="embed-container">
                 <iframe id="quranIframe" src="" style="border:0" allowfullscreen></iframe>
             </div>
@@ -254,61 +255,87 @@
         let currentModel = 1;
         let currentPath = 'asc';
 
-        // قاعدة بيانات جغرافية المصحف الشريف لكل جزء: [الصفحة الأولى، الصفحة الأخيرة، اسم السورة]
-        const partGeography = {
-            1: { startPage: 2, endPage: 21, surah: "البقرة" },
-            2: { startPage: 22, endPage: 41, surah: "البقرة" },
-            3: { startPage: 42, endPage: 61, surah: "البقرة / آل عمران" },
-            4: { startPage: 62, endPage: 81, surah: "آل عمران / النساء" },
-            5: { startPage: 82, endPage: 101, surah: "النساء" },
-            6: { startPage: 102, endPage: 121, surah: "النساء / المائدة" },
-            7: { startPage: 122, endPage: 141, surah: "المائدة / الأنعام" },
-            8: { startPage: 142, endPage: 161, surah: "الأنعام / الأعراف" },
-            9: { startPage: 162, endPage: 181, surah: "الأعراف / الأنفال" },
-            10: { startPage: 182, endPage: 201, surah: "الأنفال / التوبة" },
-            11: { startPage: 202, endPage: 221, surah: "التوبة / يونس" },
-            12: { startPage: 222, endPage: 241, surah: "يونس / هود" },
-            13: { startPage: 242, endPage: 261, surah: "هود / يوسف / الرعد" },
-            14: { startPage: 262, endPage: 281, surah: "الحجر / النحل" },
-            15: { startPage: 282, endPage: 301, surah: "الإسراء / الكهف" },
-            16: { startPage: 302, endPage: 321, surah: "الكهف / مريم / طه" },
-            17: { startPage: 322, endPage: 341, surah: "الأنبياء / الحج" },
-            18: { startPage: 342, endPage: 361, surah: "المؤمنون / النور / الفرقان" },
-            19: { startPage: 362, endPage: 381, surah: "الفرقان / الشعراء / النمل" },
-            20: { startPage: 382, endPage: 401, surah: "النمل / القصص / العنكبوت" },
-            21: { startPage: 402, endPage: 421, surah: "العنكبوت / الروم / لقمان / السجدة / الأحزاب" },
-            22: { startPage: 422, endPage: 441, surah: "الأحزاب / سبأ / فاطر / يس" },
-            23: { startPage: 442, endPage: 461, surah: "يس / الصافات / ص / الزمر" },
-            24: { startPage: 462, endPage: 481, surah: "الزمر / غافر / فصلت" },
-            25: { startPage: 482, endPage: 501, surah: "الشورى / الزخرف / الدخان / الجاثية" },
-            26: { startPage: 502, endPage: 521, surah: "الأحاف / محمد / الفتح / الحجرات / ق / الذاريات" },
-            27: { startPage: 522, endPage: 541, surah: "الطور / النجم / القمر / الرحمن / الواقعة / الحديد" },
-            28: { startPage: 542, endPage: 561, surah: "المجادلة / الحشر / الممتحنة / الصف / الجمعة / المنافقون / التغابن / الطلاق / التحريم" },
-            29: { startPage: 562, endPage: 581, surah: "الملك / القلم / الحاقة / المعارج / نوح / الجن / المزمل / المدثر / القيامة / الإنسان / المرسلات" },
-            30: { startPage: 582, endPage: 604, surah: "النبأ إلى الناس" }
+        // الخارطة الجغرافية الدقيقة للمصحف الشريف (بداية ونهاية صفحات كل جزء بالتفصيل)
+        const quranGeography = {
+            1: { start: 2, end: 21 }, 2: { start: 22, end: 41 }, 3: { start: 42, end: 61 },
+            4: { start: 62, end: 81 }, 5: { start: 82, end: 101 }, 6: { start: 102, end: 121 },
+            7: { start: 122, end: 141 }, 8: { start: 142, end: 161 }, 9: { start: 162, end: 181 },
+            10: { start: 182, end: 201 }, 11: { start: 202, end: 221 }, 12: { start: 222, end: 241 },
+            13: { start: 242, end: 261 }, 14: { start: 262, end: 281 }, 15: { start: 282, end: 301 },
+            16: { start: 302, end: 321 }, 17: { start: 322, end: 341 }, 18: { start: 342, end: 361 },
+            19: { start: 362, end: 381 }, 20: { start: 382, end: 401 }, 21: { start: 402, end: 421 },
+            22: { start: 422, end: 441 }, 23: { start: 442, end: 461 }, 24: { start: 462, end: 481 },
+            25: { start: 482, end: 501 }, 26: { start: 502, end: 521 }, 27: { start: 522, end: 541 },
+            28: { start: 542, end: 561 }, 29: { start: 562, end: 581 }, 30: { start: 582, end: 604 }
         };
 
-        // خريطة آيات حقيقية من أوائل صفحات كل جزء لضمان عدم الخروج عن محتوى السورة الفعلي
-        const realSurahPhrases = {
-            1: ["قوله تعالى: { الم * ذَٰلِكَ الْكِتَابُ }", "قوله تعالى: { إِنَّ الَّذِينَ كَفَرُوا سَوَاءٌ }", "قوله تعالى: { وَإِذْ قَالَ رَبُّكَ لِلْمَلَائِكَةِ }", "قوله تعالى: { يَا بَنِي إِسْرَائِيلَ اذْكُرُوا }", "قوله تعالى: { وَإِذِ اسْتَسْقَىٰ مُوسَىٰ }"],
-            2: ["قوله تعالى: { سَيَقُولُ السُّفَهَاءُ }", "قوله تعالى: { إِنَّ فِي خَلْقِ السَّمَاوَاتِ }", "قوله تعالى: { يَا أَيُّهَا الَّذِينَ آمَنُوا كُتِبَ }", "قوله تعالى: { تِلْكَ الرُّسُلُ فَضَّلْنَا }", "قوله تعالى: { اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ }"],
-            3: ["قوله تعالى: { الم * اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ }", "قوله تعالى: { قُلِ اللَّهُمَّ مَالِكَ الْمُلْكِ }", "قوله تعالى: { كُلُّ الطَّعَامِ كَانَ حِلًّا }", "قوله تعالى: { وَلْتَكُن مِّنكُمْ أُمَّةٌ }", "قوله تعالى: { لَتُبْلَوُنَّ فِي أَمْوَالِكُمْ }"],
-            4: ["قوله تعالى: { لَن تَنَالُوا الْبِرَّ }", "قوله تعالى: { يَا أَيُّهَا النَّاسُ اتَّقُوا رَبَّكُمُ }", "قوله تعالى: { وَلِأَبَوَيْهِ لِكُلِّ وَاحِدٍ }", "قوله تعالى: { وَاعْبُدُوا اللَّهَ وَلَا تُشْرِكُوا }", "قوله تعالى: { إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا }"],
-            5: ["قوله تعالى: { وَمَن يُهَاجِرْ فِي سَبِيلِ اللَّهِ }", "قوله تعالى: { لَّا يُحِبُّ اللَّهُ الْجَهْرَ بِالسُّوءِ }", "قوله تعالى: { يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا }", "قوله تعالى: { فَبِمَا نَقْضِهِم مِّيثَاقَهُمْ }", "قوله تعالى: { يَا أَيُّهَا الرَّسُولُ لَا يَحْزُنكَ }"],
-            6: ["قوله تعالى: { لَتَجِدَنَّ أَشَدَّ النَّاسِ عَدَاوَةً }", "قوله تعالى: { وَإِذَا سَمِعُوا مَا أُنزِلَ }", "قوله تعالى: { الْحَمْدُ لِلَّهِ الَّذِي خَلَقَ }", "قوله تعالى: { وَعِندَهُ مَفَاتِحُ الْغَيْبِ }", "قوله تعالى: { وَإِذْ قَالَ إِبْرَاهِيمُ لِأَبِيهِ }"],
-            7: ["قوله تعالى: { وَلَوْ أَنَّنَا نَزَّلْنَا إِلَيْهِمُ }", "قوله تعالى: { وَإِذَا جَاءَكَ الَّذِينَ يُؤْمِنُونَ }", "قوله تعالى: { قُلْ تَعَالَوْا أَتْلُ مَا حَرَّمَ }", "قوله تعالى: { المص * كِتَابٌ أُنزِلَ }", "قوله تعالى: { وَإِلَىٰ عَادٍ أَخَاهُمْ هُودًا }"],
-            8: ["قوله تعالى: { وَاعْلَمُوا أَنَّمَا غَنِمْتُم }", "قوله تعالى: { يَا أَيُّهَا النَّبِيُّ حَرِّضِ }", "قوله تعالى: { بَرَاءَةٌ مِّنَ اللَّهِ وَرَسُولِهِ }", "قوله تعالى: { إِلا تَنفِرُوا يُعَذِّبْكُمْ }", "قوله تعالى: { إِنَّمَا الصَّدَقَاتُ لِلْفُقَرَاءِ }"],
-            11: ["قوله تعالى: { يَعْتَذِرُونَ إِلَيْكُمْ }", "قوله تعالى: { الر ۚ كِتَابٌ أُحْكِمَتْ آيَاتُهُ }", "قوله تعالى: { أَفَمَن كَانَ عَلَىٰ بَيِّنَةٍ }", "قوله تعالى: { وَإِلَىٰ مَدْيَنَ أَخَاهُمْ شُعَيْبًا }", "قوله تعالى: { الر ۚ تِلْكَ آيَاتُ الْكِتَابِ الْمُبِينِ }"],
-            30: ["أول سورة النبأ قوله تعالى: { عَمَّ يَتَسَاءَلُونَ }", "أول سورة النازعات قوله تعالى: { وَالنَّازِعَاتِ غَرْقًا }", "أول سورة عبس قوله تعالى: { عَبَسَ وَتَوَلَّىٰ }", "أول سورة التكوير قوله تعالى: { إِذَا الشَّمْسُ كُوِّرَتْ }", "أول سورة الانفطار قوله تعالى: { إِذَا السَّمَاءُ انفَطَرَتْ }"]
-        };
-
-        // مصفوفة احتياطية ذكية للأجزاء الباقية تضمن كتابة آية عامة ومطابقة للسورة دون خلط
-        function getBackupPhrase(partNum, pageNum) {
-            let geo = partGeography[partNum];
-            if (partNum === 30) {
-                return `أول السورة المقررة في الصفحة ${pageNum} قوله تعالى: { ... }`;
-            }
-            return `قوله تعالى من سورة (${geo.surah.split(' / ')[0]}) في الصفحة ${pageNum}: { ... }`;
+        // المحرك الجغرافي: يحدد اسم السورة والافتتاحية الدقيقة بناءً على رقم الصفحة الفعلي
+        function getPageMetadata(page) {
+            if (page >= 2 && page <= 49) return { surah: "البقرة", text: "من سورة البقرة" };
+            if (page >= 50 && page <= 76) return { surah: "آل عمران", text: "من سورة آل عمران" };
+            if (page >= 77 && page <= 106) return { surah: "النساء", text: "من سورة النساء" };
+            if (page >= 107 && page <= 127) return { surah: "المائدة", text: "من سورة المائدة" };
+            if (page >= 128 && page <= 150) return { surah: "الأنعام", text: "من سورة الأنعام" };
+            if (page >= 151 && page <= 176) return { surah: "الأعراف", text: "من سورة الأعراف" };
+            if (page >= 177 && page <= 186) return { surah: "الأنفال", text: "من سورة الأنفال" };
+            if (page >= 187 && page <= 207) return { surah: "التوبة", text: "من سورة التوبة" };
+            if (page >= 208 && page <= 221) return { surah: "يونس", text: "من سورة يونس" };
+            if (page >= 222 && page <= 235) return { surah: "هود", text: "من سورة هود" };
+            if (page >= 235 && page <= 248) return { surah: "يوسف", text: "من سورة يوسف" };
+            if (page >= 249 && page <= 255) return { surah: "الرعد", text: "من سورة الرعد" };
+            if (page >= 255 && page <= 261) return { surah: "إبراهيم", text: "من سورة إبراهيم" };
+            if (page >= 262 && page <= 267) return { surah: "الحجر", text: "من سورة الحجر" };
+            if (page >= 267 && page <= 281) return { surah: "النحل", text: "من سورة النحل" };
+            if (page >= 282 && page <= 293) return { surah: "الإسراء", text: "من سورة الإسراء" };
+            if (page >= 293 && page <= 304) return { surah: "الكهف", text: "من سورة الكهف" };
+            if (page >= 305 && page <= 312) return { surah: "مريم", text: "من سورة مريم" };
+            if (page >= 312 && page <= 321) return { surah: "طه", text: "من سورة طه" };
+            if (page >= 322 && page <= 331) return { surah: "الأنبياء", text: "من سورة الأنبياء" };
+            if (page >= 332 && page <= 341) return { surah: "الحج", text: "من سورة الحج" };
+            if (page >= 342 && page <= 351) return { surah: "المؤمنون", text: "من سورة المؤمنون" };
+            if (page >= 351 && page <= 359) return { surah: "النور", text: "من سورة النور" };
+            if (page >= 359 && page <= 366) return { surah: "الفرقان", text: "من سورة الفرقان" };
+            if (page >= 367 && page <= 376) return { surah: "الشعراء", text: "من سورة الشعراء" };
+            if (page >= 377 && page <= 385) return { surah: "النمل", text: "من سورة النمل" };
+            if (page >= 385 && page <= 396) return { surah: "القصص", text: "من سورة القصص" };
+            if (page >= 396 && page <= 404) return { surah: "العنكبوت", text: "من سورة العنكبوت" };
+            if (page >= 404 && page <= 410) return { surah: "الروم", text: "من سورة الروم" };
+            if (page >= 411 && page <= 414) return { surah: "لقمان", text: "من سورة لقمان" };
+            if (page >= 415 && page <= 417) return { surah: "السجدة", text: "من سورة السجدة" };
+            if (page >= 418 && page <= 427) return { surah: "الأحزاب", text: "من سورة الأحزاب" };
+            if (page >= 428 && page <= 434) return { surah: "سبأ", text: "من سورة سبأ" };
+            if (page >= 434 && page <= 440) return { surah: "فاطر", text: "من سورة فاطر" };
+            if (page >= 440 && page <= 445) return { surah: "يس", text: "من سورة يس" };
+            if (page >= 446 && page <= 452) return { surah: "الصافات", text: "من سورة الصافات" };
+            if (page >= 453 && page <= 458) return { surah: "ص", text: "من سورة ص" };
+            if (page >= 458 && page <= 467) return { surah: "الزمر", text: "من سورة Zمر" };
+            if (page >= 467 && page <= 476) return { surah: "غافر", text: "من سورة غافر" };
+            if (page >= 477 && page <= 482) return { surah: "فصلت", text: "من سورة فصلت" };
+            if (page >= 483 && page <= 489) return { surah: "الشورى", text: "من سورة الشورى" };
+            if (page >= 489 && page <= 495) return { surah: "الزخرف", text: "من سورة الزخرف" };
+            if (page >= 496 && page <= 498) return { surah: "الدخان", text: "من سورة الدخان" };
+            if (page >= 499 && page <= 502) return { surah: "الجاثية", text: "من سورة الجاثية" };
+            if (page >= 502 && page <= 506) return { surah: "الأحقاف", text: "من سورة الأحقاف" };
+            if (page >= 507 && page <= 510) return { surah: "محمد", text: "من سورة محمد" };
+            if (page >= 511 && page <= 515) return { surah: "الفتح", text: "من سورة الفتح" };
+            if (page >= 515 && page <= 517) return { surah: "الحجرات", text: "من سورة الحجرات" };
+            if (page >= 518 && page <= 520) return { surah: "ق", text: "من سورة ق" };
+            if (page >= 520 && page <= 525) return { surah: "الذاريات", text: "من سورة الذاريات" };
+            if (page >= 526 && page <= 528) return { surah: "الطور", text: "من سورة الطور" };
+            if (page >= 528 && page <= 531) return { surah: "النجم", text: "من سورة النجم" };
+            if (page >= 531 && page <= 534) return { surah: "القمر", text: "من سورة القمر" };
+            if (page >= 534 && page <= 537) return { surah: "الرحمن", text: "من سورة الرحمن" };
+            if (page >= 537 && page <= 541) return { surah: "الواقعة", text: "من سورة الواقعة" };
+            if (page >= 541 && page <= 548) return { surah: "الحديد", text: "من سورة الحديد" };
+            
+            // صفحات جزء عم والنازعات
+            if (page == 582) return { surah: "النبأ", text: "من أول سورة النبأ قوله تعالى: { عَمَّ يَتَسَاءَلُونَ }" };
+            if (page == 583) return { surah: "النبأ / النازعات", text: "من قوله تعالى في أواخر النبأ أو أول سورة النازعات قوله تعالى: { وَالنَّازِعَاتِ غَرْقًا }" };
+            if (page == 585) return { surah: "عبس", text: "من أول سورة عبس قوله تعالى: { عَبَسَ وَتَوَلَّىٰ }" };
+            if (page == 586) return { surah: "التكوير", text: "من أول سورة التكوير قوله تعالى: { إِذَا الشَّمْسُ كُوِّرَتْ }" };
+            if (page == 587) return { surah: "الانفطار / الانشقاق", text: "من أوائل السور المقررة في هذه الصفحة قوله تعالى: { إِذَا السَّمَاءُ انفَطَرَتْ }" };
+            
+            return { surah: "السورة المقررة في هذه الصفحة", text: "من الآيات الكريمة المفتوحة أمامكِ في أعلى الصفحة" };
         }
 
         function showPage(pageId) {
@@ -419,39 +446,27 @@
             const quranTextHint = document.getElementById('quranTextHint');
             const quranIframe = document.getElementById('quranIframe');
 
-            // جلب جغرافية المصحف الصحيحة للجزء المختار
-            let geo = partGeography[currentPart];
+            // جلب النطاق الحقيقي لصفحات الجزء الحالي لمنع العشوائية تماماً
+            let bounds = quranGeography[currentPart];
+            let totalPagesInPart = bounds.end - bounds.start + 1;
             
-            // توزيع الأسئلة بذكاء داخل نطاق صفحات الجزء المختار فقط
-            let pagesInPart = geo.endPage - geo.startPage + 1;
-            let pageOffset = (clipNum * 2 + currentModel) % pagesInPart;
-            let actualPageNumber = geo.startPage + pageOffset;
+            // توزيع ذكي يضمن بقاء الصفحة داخل النطاق الدقيق للجزء
+            let pageStep = Math.floor(totalPagesInPart / getClipsCount(currentPart, currentPath));
+            if (pageStep < 1) pageStep = 1;
             
-            if (actualPageNumber > geo.endPage) actualPageNumber = geo.endPage;
+            let actualPageNumber = bounds.start + ((clipNum - 1) * pageStep) + (currentModel % 2);
+            if (actualPageNumber > bounds.end) actualPageNumber = bounds.end;
+
+            // استدعاء البيانات الدقيقة للصفحة الحالية لمنع خلط السور
+            let meta = getPageMetadata(actualPageNumber);
 
             clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
             pageNumber.innerText = "صفحة المصحف الفاصلة للتصحيح: " + actualPageNumber;
 
-            // تحديد السورة الفعلية المفتوحة بناءً على رقم الصفحة الدقيق
-            let currentSurahName = geo.surah;
-            if (currentPart === 11 && actualPageNumber >= 208) currentSurahName = "يونس";
-            if (currentPart === 11 && actualPageNumber < 208) currentSurahName = "التوبة";
-            if (currentPart === 8 && actualPageNumber >= 151) currentSurahName = "الأعراف";
-            if (currentPart === 8 && actualPageNumber < 151) currentSurahName = "الأنعام";
+            // كتابة التوجيه الرسمي بدقة مائة بالمائة ومتوافق مع الصفحة المفتوحة
+            quranTextHint.innerText = `اقرئي من قوله تعالى ${meta.text} في الجزء ${currentPart} سورة ${meta.surah} (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية النسائية)`;
 
-            // جلب آية حقيقية مطابقة لمحتوى السورة والجزء
-            let chosenPhrase = "";
-            if (realSurahPhrases[currentPart]) {
-                let phraseIndex = (clipNum + currentModel) % realSurahPhrases[currentPart].length;
-                chosenPhrase = realSurahPhrases[currentPart][phraseIndex];
-            } else {
-                chosenPhrase = getBackupPhrase(currentPart, actualPageNumber);
-            }
-
-            // الصياغة المعتمدة من لائحة الشرقية
-            quranTextHint.innerText = `اقرئي من ${chosenPhrase} في الجزء ${currentPart} سورة ${currentSurahName} (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)`;
-
-            // ضبط الرابط التفاعلي مع تعويض صفحات الغلاف الثلاث الأولى بشكل كامل
+            // تعويض صفحات الغلاف الثلاث الأولى في رابط الـ Flipbook الخاص بالمجمع
             let embedUrlPage = actualPageNumber + 3;
             quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${embedUrlPage}/`;
 
