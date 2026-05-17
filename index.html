@@ -176,21 +176,24 @@
             border-radius: 5px;
         }
 
-        .quran-image-container {
-            width: 100%;
-            overflow: hidden;
+        /* تنسيق حاوية التضمين الذكية للمصحف لتناسب الجوال والكمبيوتر */
+        .embed-container { 
+            position: relative; 
+            padding-bottom: 130%; /* تناسب طول صفحة المصحف الطولية */
+            height: 0; 
+            overflow: hidden; 
+            max-width: 100%; 
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             margin-top: 15px;
             background: #fff;
-        }
-
-        .quran-image {
-            width: 100%;
-            max-width: 450px;
-            height: auto;
-            display: block;
-            margin: 0 auto;
+        } 
+        .embed-container iframe { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
         }
     </style>
 </head>
@@ -240,9 +243,10 @@
             <div style="margin-top: 15px; text-align: right; font-weight: bold; color: #555;">موضع سؤال الدارسة:</div>
             <div class="quran-text-hint" id="quranTextHint"></div>
             
-            <div style="text-align: right; font-weight: bold; color: #555; margin-bottom: 5px;">مصحف التجويد الملون للتصحيح المعتمد:</div>
-            <div class="quran-image-container">
-                <img id="quranImg" src="" alt="سيتم عرض صفحة المصحف هنا فور رفعها للمستودع" class="quran-image">
+            <div style="text-align: right; font-weight: bold; color: #555; margin-bottom: 5px;">مصحف مجمع الملك فهد التفاعلي المعتمد:</div>
+            
+            <div class="embed-container">
+                <iframe id="quranIframe" src="" style="border:0" allowfullscreen></iframe>
             </div>
         </div>
     </div>
@@ -252,9 +256,6 @@
         let currentModel = 1;
         let currentPath = 'asc';
 
-        const repoImageBase = "pages/"; 
-
-        // خريطة السور الذكية المقررة لكل جزء من الأجزاء الثلاثين لملء البيانات تلقائياً
         const surahMap = {
             1: "البقرة", 2: "البقرة", 3: "البقرة / آل عمران", 4: "آل عمران / النساء", 5: "النساء",
             6: "النساء / المائدة", 7: "المائدة / الأنعام", 8: "الأنعام / الأعراف", 9: "الأعراف / الأنفال", 10: "الأنفال / التوبة",
@@ -264,7 +265,6 @@
             26: "الأحقاف إلى الذاريات", 27: "الطور إلى الحديد", 28: "المجادلة إلى التحريم", 29: "الملك إلى المرسلات", 30: "النبأ إلى الناس"
         };
 
-        // مصفوفة كلمات افتتاحية حقيقية ومتنوعة من أوائل المقاطع والآيات لتوزيعها ديناميكياً على الأسئلة الـ 10 والنماذج
         const startPhrases = [
             "أول السورة قوله تعالى: { ... }",
             "قوله تعالى: { وَإِذْ قَالَ ... }",
@@ -282,18 +282,18 @@
             "قوله تعالى: { قَالُوا يَا شُعَيْبُ ... }"
         ];
 
-        // قاعدة بيانات ثابتة ومخصصة للمقاطع الحقيقية المفصلة بالكامل (مثل جزء 1 و 8 و 30)
+        // الأسئلة والمقاطع الخاصة التي حددناها سابقاً
         const staticQuranData = {
             "جزء_1": {
                 "نموذج_1": {
-                    1: { page: "صفحة 2", hint: "اقرئي من قوله تعالى: { الم * ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ... } إلى قوله تعالى: { ...وَمَا يُخْدَعُونَ إِلَّا أَنفُسَهُمْ وَمَا يَشْعُرُونَ } في الجزء 1 سورة البقرة (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)", img: repoImageBase + "2.png" },
-                    2: { page: "صفحة 4", hint: "اقرئي من قوله تعالى: { وَبَشِّرِ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ... } إلى قوله تعالى: { ...الَّذِينَ يَنقُضُونَ عَهْدَ اللَّهِ } في الجزء 1 سورة البقرة (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)", img: repoImageBase + "4.png" }
+                    1: { page: 2, hint: "اقرئي من قوله تعالى: { الم * ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ... } إلى قوله تعالى: { ...وَمَا يُخْدَعُونَ إِلَّا أَنفُسَهُمْ وَمَا يَشْعُرُونَ } في الجزء 1 سورة البقرة (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)" },
+                    2: { page: 4, hint: "اقرئي من قوله تعالى: { وَبَشِّرِ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ... } إلى قوله تعالى: { ...الَّذِينَ يَنقُضُونَ عَهْدَ اللَّهِ } في الجزء 1 سورة البقرة (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)" }
                 }
             },
             "جزء_8": {
                 "نموذج_1": {
-                    1: { page: "صفحة 142", hint: "اقرئي من قوله تعالى: { وَلَوْ أَنَّنَا نَزَّلْنَا إِلَيْهِمُ الْمَلَائِكَةَ... } إلى قوله تعالى: { ...وَلَٰكِنَّ أَكْثَرَهُمْ يَجْهَلُونَ } في الجزء 8 سورة الأنعام (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)", img: repoImageBase + "142.png" },
-                    4: { page: "صفحة 151", hint: "اقرئي من أول سورة الأعراف قوله تعالى: { المص * كِتَابٌ أُنزِلَ إِلَيْكَ... } إلى قوله تعالى: { ...فَلَنَقُصَّنَّ عَلَيْهِم بِعِلْمٍ } في الجزء 8 سورة الأعراف (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)", img: repoImageBase + "151.png" }
+                    1: { page: 142, hint: "اقرئي من قوله تعالى: { وَلَوْ أَنَّنَا نَزَّلْنَا إِلَيْهِمُ الْمَلَائِكَةَ... } إلى قوله تعالى: { ...وَلَٰكِنَّ أَكْثَرَهُمْ يَجْهَلُونَ } في الجزء 8 سورة الأنعام (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)" },
+                    4: { page: 151, hint: "اقرئي من أول سورة الأعراف قوله تعالى: { المص * كِتَابٌ أُنزِلَ إِلَيْكَ... } إلى قوله تعالى: { ...فَلَنَقُصَّنَّ عَلَيْهِم بِعِلْمٍ } في الجزء 8 سورة الأعراف (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)" }
                 }
             }
         };
@@ -339,7 +339,7 @@
                 let mBox = document.createElement('div');
                 mBox.className = 'box';
                 mBox.innerText = 'نموذج ' + j;
-                mBox.id = `model_${currentPath}_${currentPart}_${j}`; // تم ربط معرف الحفظ بالمسار والجزء والنموذج
+                mBox.id = `model_${currentPath}_${currentPart}_${j}`; 
                 
                 if (localStorage.getItem(mBox.id) === 'tested') {
                     mBox.classList.add('tested');
@@ -404,41 +404,38 @@
             const clipTitle = document.getElementById('clipTitle');
             const pageNumber = document.getElementById('pageNumber');
             const quranTextHint = document.getElementById('quranTextHint');
-            const quranImg = document.getElementById('quranImg');
+            const quranIframe = document.getElementById('quranIframe');
 
             const partKey = "جزء_" + currentPart;
             const modelKey = "نموذج_" + currentModel;
 
-            // 1. التحقق أولاً إذا كان هناك مقطع ثابت مدخل يدوياً
+            let targetPage = 1;
+
             if (staticQuranData[partKey] && staticQuranData[partKey][modelKey] && staticQuranData[partKey][modelKey][clipNum]) {
                 const data = staticQuranData[partKey][modelKey][clipNum];
                 clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
-                pageNumber.innerText = data.page;
+                pageNumber.innerText = "صفحة المصحف: " + data.page;
                 quranTextHint.innerText = data.hint;
-                quranImg.src = data.img;
+                targetPage = data.page;
             } else {
-                // 2. إذا لم يكن ثابتاً، يقوم المحرك الذكي بتوليد السؤال فوراً وبشكل دقيق وصحيح لجميع الأجزاء الـ 30!
                 clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
                 
-                // حساب رقم الصفحة التقريبي بناءً على الجزء المختار لتسهيل تصفح المصحف الملون
-                let estimatedPage = (currentPart - 1) * 20 + 2 + (clipNum * 1);
-                if (currentPart == 30) estimatedPage = 582 + (clipNum * 1);
+                // حساب رقم الصفحة التقريبي بناءً على الجزء والسؤال ليتوجه إليه المصحف فوراً
+                targetPage = (currentPart - 1) * 20 + 2 + (clipNum * 1);
+                if (currentPart == 30) targetPage = 582 + (clipNum * 1);
+                if (targetPage > 604) targetPage = 604;
+
+                pageNumber.innerText = "صفحة المصحف المتوقعة: " + targetPage;
                 
-                pageNumber.innerText = "صفحة تقريبية: " + estimatedPage;
-                
-                // جلب اسم السورة الفعلي والمطابق للجزء من الخريطة الذكية
                 let surahName = surahMap[currentPart] || "السورة المقررة";
-                
-                // اختيار كلمة افتتاحية متغيرة بناءً على رقم السؤال والنموذج لعدم التكرار
                 let phraseIndex = (clipNum + currentModel) % startPhrases.length;
                 let chosenPhrase = startPhrases[phraseIndex];
 
-                // الصياغة الاحترافية النهائية المطلوبة
                 quranTextHint.innerText = `اقرئي من ${chosenPhrase} في الجزء ${currentPart} سورة ${surahName} (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)`;
-                
-                // قراءة الصورة ديناميكياً من مجلد صفحاتك بمجرد رفعها برقم الصفحة
-                quranImg.src = repoImageBase + estimatedPage + ".png"; 
             }
+
+            // هنا السحر البرمجي: توجيه المصحف التفاعلي للمجمع مباشرة إلى رقم الصفحة المطلوبة!
+            quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${targetPage}/`;
 
             displayBox.style.display = 'block';
             displayBox.scrollIntoView({ behavior: 'smooth' });
