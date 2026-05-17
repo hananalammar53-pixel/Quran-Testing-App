@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق اختبارات القرآن</title>
+    <title>تطبيق اختبارات القرآن - تحفيظ الشرقية</title>
     <style>
         :root {
             --primary-green: #1e4d2b;
@@ -34,7 +34,7 @@
             display: block;
         }
 
-        h1, h2 { color: var(--primary-green); }
+        h1, h2, h3 { color: var(--primary-green); }
 
         .main-menu {
             display: flex;
@@ -46,9 +46,9 @@
         .role-button {
             background: white;
             border: 2px solid var(--primary-green);
-            padding: 30px;
+            padding: 25px;
             border-radius: 15px;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: bold;
             color: var(--primary-green);
             cursor: pointer;
@@ -58,6 +58,26 @@
 
         .role-button:hover {
             background: var(--primary-green);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .path-button {
+            background: white;
+            border: 2px solid var(--gold-accent);
+            padding: 25px;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-green);
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .path-button:hover {
+            background: var(--gold-accent);
             color: white;
             transform: translateY(-5px);
         }
@@ -128,20 +148,19 @@
             border-radius: 5px;
         }
 
-        /* منطقة عرض صفحة المصحف الملونة للـمـعـلـمـة */
         .quran-display-box {
             display: none;
             margin-top: 25px;
             padding: 20px;
             border: 2px dashed var(--gold-accent);
-            background: #white;
+            background: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .quran-text-hint {
             font-size: 1.2rem;
-            color: #c0392b; /* لون مميز لبداية المقطع */
+            color: #c0392b;
             margin: 10px 0 20px 0;
             font-weight: bold;
             line-height: 1.6;
@@ -161,7 +180,7 @@
 
         .quran-image {
             width: 100%;
-            max-width: 450px; /* حجم ماليء ومناسب للشاشة */
+            max-width: 450px;
             height: auto;
             display: block;
             margin: 0 auto;
@@ -170,44 +189,51 @@
 </head>
 <body>
 
-    <!-- صفحة الترحيب -->
     <div id="homePage" class="page active-page">
-        <h1>مرحباً بك في برنامج الاختبارات</h1>
+        <h1>برنامج اختبارات القرآن الكريم</h1>
+        <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية بالمنطقة الشرقية</p>
         <div class="main-menu">
-            <div class="role-button" onclick="showPage('teacherPage')">معلمة قرآن</div>
+            <div class="role-button" onclick="showPage('pathSelectionPage')">معلمة قرآن</div>
             <div class="role-button" onclick="alert('صفحة الطالبة قيد التطوير حالياً')">طالبة</div>
         </div>
     </div>
 
-    <!-- صفحة المعلمة -->
-    <div id="teacherPage" class="page">
+    <div id="pathSelectionPage" class="page">
         <button class="back-btn" onclick="showPage('homePage')">⬅ عودة للرئيسية</button>
-        <h2>لوحة المعلمة - الأجزاء</h2>
+        <h2>اختر مسار اختبار الحافظة</h2>
+        <p style="color: #666; margin-bottom: 30px;">يرجى تحديد اتجاه بدء المراجعة والاختبار:</p>
+        <div class="main-menu" style="margin-top: 0;">
+            <div class="path-button" onclick="loadPartsGrid('asc')">البدء من الجزء الأول (سورة البقرة)</div>
+            <div class="path-button" onclick="loadPartsGrid('desc')">البدء من الجزء الثلاثون (جزء عمَّ)</div>
+        </div>
+    </div>
+
+    <div id="teacherPage" class="page">
+        <button class="back-btn" onclick="showPage('pathSelectionPage')">⬅ عودة للمسارات</button>
+        <h2 id="pathTitle">لوحة المعلمة - الأجزاء</h2>
         <div class="parts-grid" id="partsGrid"></div>
     </div>
 
-    <!-- نافذة النماذج والمقاطع -->
     <div id="detailView" class="page">
         <button class="back-btn" onclick="showPage('teacherPage')">⬅ عودة للأجزاء</button>
         <h2 id="selectedPartTitle">الجزء 1</h2>
         
-        <p>اختر نموذج الاختبار (1 - 10):</p>
+        <p>اختر نموذج الاختبار المعتمد (1 - 10):</p>
         <div class="sub-grid" id="modelsGrid"></div>
 
         <div id="clipsSection" style="display:none; border-top: 2px solid var(--gold-accent); padding-top: 20px;">
-            <p>مقاطع الاختبار المتاحة للنموذج:</p>
+            <p id="clipsCountText">مقاطع الاختبار المتاحة للنموذج:</p>
             <div class="sub-grid" style="grid-template-columns: repeat(3, 1fr);" id="clipsGrid"></div>
         </div>
 
-        <!-- هنا يظهر المصحف المجود الملون مباشرة بدون الحاجة لفتح مصحف خارجي -->
         <div id="quranDisplayBox" class="quran-display-box">
             <h3 id="clipTitle" style="color: var(--primary-green); margin: 0;">مقطع الاختبار</h3>
             <span id="pageNumber" style="font-weight: bold; background: var(--gold-accent); color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.9rem;"></span>
             
-            <div style="margin-top: 15px; text-align: right; font-weight: bold; color: #555;">موضع سؤال الطالبة:</div>
+            <div style="margin-top: 15px; text-align: right; font-weight: bold; color: #555;">موضع سؤال الطالبة (لا يتجاوز 7 أسطر):</div>
             <div class="quran-text-hint" id="quranTextHint"></div>
             
-            <div style="text-align: right; font-weight: bold; color: #555; margin-bottom: 5px;">مصحف المعلمة للتوجيه والتصحيح:</div>
+            <div style="text-align: right; font-weight: bold; color: #555; margin-bottom: 5px;">مصحف التجويد الملون للتصحيح:</div>
             <div class="quran-image-container">
                 <img id="quranImg" src="" alt="صفحة المصحف الملونة" class="quran-image">
             </div>
@@ -217,41 +243,21 @@
     <script>
         let currentPart = 1;
         let currentModel = 1;
+        let currentPath = 'asc'; // asc = من 1 إلى 30, desc = من 30 إلى 1
 
-        // قاعدة بيانات الصفحات والمقاطع (مصحف التجويد الملون الحقيقي)
+        // قاعدة بيانات المقاطع والصفحات الملونة الحقيقية
         const quranData = {
             "جزء_1": {
                 "نموذج_1": {
-                    1: { 
-                        page: "صفحة 2", 
-                        hint: "اقرئي من قوله تعالى: { الم * ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ... }",
-                        img: "https://raw.githubusercontent.com/Hananalammar53-pixel/Quran-Testing-App/main/pages/002.png" // سيتم جلب صورة الصفحة 2 الملونة
-                    },
-                    2: { 
-                        page: "صفحة 3", 
-                        hint: "اقرئي من قوله تعالى: { وبَشِّرِ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ... }",
-                        img: "https://images.alkawthartv.co/image/800x600/2018/06/12/636644158914620584.jpg" // رابط تجويد ملون مباشر
-                    },
-                    3: { 
-                        page: "صفحة 4", 
-                        hint: "اقرئي من قوله تعالى: { وَإِذْ قَالَ رَبُّكَ لِلْمَلَائِكَةِ إِنِّي جَاعِلٌ فِي الْأَرْضِ خَلِيفَةً... }",
-                        img: "https://www.alshref.org/images/quran/color/4.jpg"
-                    },
-                    4: { 
-                        page: "صفحة 5", 
-                        hint: "اقرئي من قوله تعالى: { أَتَأْمُرُونَ النَّاسَ بِالْبِرِّ وَتَنسَوْنَ أَنفُسَكُمْ... }",
-                        img: "https://www.alshref.org/images/quran/color/5.jpg"
-                    },
-                    5: { 
-                        page: "صفحة 6", 
-                        hint: "اقرئي من قوله تعالى: { وَإِذْ نَجَّيْنَاكُم مِّنْ آلِ فِرْعَوْنَ يَسُومُونَكُمْ سُوءَ الْعَذَابِ... }",
-                        img: "https://www.alshref.org/images/quran/color/6.jpg"
-                    },
-                    6: { 
-                        page: "صفحة 7", 
-                        hint: "اقرئي من قوله تعالى: { وَإِذِ اسْتَسْقَىٰ مُوسَىٰ لِقَوْمِهِ فَقُلْنَا اضْرِب بِّعَصَاكَ الْحَجَرَ... }",
-                        img: "https://www.alshref.org/images/quran/color/7.jpg"
-                    }
+                    1: { page: "صفحة 2", hint: "اقرئي من قوله تعالى: { الم * ذَٰلِكَ الْكِتَابُ لَا رَيْبَ... } إلى قوله تعالى: { ...وَمَا يُخْدَعُونَ إِلَّا أَنفُسَهُمْ وَمَا يَشْعُرُونَ }", img: "https://www.alshref.org/images/quran/color/2.jpg" },
+                    2: { page: "صفحة 3", hint: "اقرئي من قوله تعالى: { وبَشِّرِ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ... } إلى قوله تعالى: { ...الَّذِينَ يَنقُضُونَ عَهْدَ اللَّهِ }", img: "https://images.alkawthartv.co/image/800x600/2018/06/12/636644158914620584.jpg" },
+                    3: { page: "صفحة 4", hint: "اقرئي من قوله تعالى: { وَإِذْ قَالَ رَبُّكَ لِلْمَلَائِكَةِ... } إلى قوله تعالى: { ...فَأَخْرَجَهُمَا مِمَّا كَانَا فِيهِ }", img: "https://www.alshref.org/images/quran/color/4.jpg" }
+                }
+            },
+            "جزء_30": {
+                "نموذج_1": {
+                    1: { page: "صفحة 582", hint: "اقرئي من أول سورة النبأ قوله تعالى: { عَمَّ يَتَسَاءَلُونَ * عَنِ النَّبَإِ الْعَظِيمِ } إلى قوله تعالى: { ...وَجَعَلْنَا النَّهَارَ مَعَاشًا }", img: "https://www.alshref.org/images/quran/color/582.jpg" },
+                    2: { page: "صفحة 583", hint: "اقرئي من قوله تعالى: { إِنَّ جَهَنَّمَ كَانَتْ مِرْصَادًا... } إلى قوله تعالى: { ...ذَٰلِكَ الْيَوْمُ الْحَقُّ ۖ فَمَن شَاءَ اتَّخَذَ إِلَىٰ رَبِّهِ مَآبًا }", img: "https://www.alshref.org/images/quran/color/583.jpg" }
                 }
             }
         };
@@ -261,14 +267,36 @@
             document.getElementById(pageId).classList.add('active-page');
         }
 
-        // إنشاء الـ 30 جزءاً
-        const partsGrid = document.getElementById('partsGrid');
-        for (let i = 1; i <= 30; i++) {
+        // توليد وترتيب الأجزاء بناءً على المسار المختار
+        function loadPartsGrid(path) {
+            currentPath = path;
+            const partsGrid = document.getElementById('partsGrid');
+            partsGrid.innerHTML = ''; // تفريغ الشبكة لإعادة البناء
+            
+            const pathTitle = document.getElementById('pathTitle');
+            
+            if (path === 'asc') {
+                pathTitle.innerText = "مسار الاختبار: من الجزء الأول نزولاً";
+                // توليد من 1 إلى 30
+                for (let i = 1; i <= 30; i++) {
+                    createPartBox(i, partsGrid);
+                }
+            } else {
+                pathTitle.innerText = "مسار الاختبار: من الجزء الثلاثون صعوداً";
+                // توليد من 30 إلى 1 عكسي
+                for (let i = 30; i >= 1; i--) {
+                    createPartBox(i, partsGrid);
+                }
+            }
+            showPage('teacherPage');
+        }
+
+        function createPartBox(partNum, container) {
             let item = document.createElement('div');
             item.className = 'part-item';
-            item.innerText = 'الجزء ' + i;
-            item.onclick = () => openPartDetails(i);
-            partsGrid.appendChild(item);
+            item.innerText = 'الجزء ' + partNum;
+            item.onclick = () => openPartDetails(partNum);
+            container.appendChild(item);
         }
 
         function openPartDetails(num) {
@@ -302,10 +330,14 @@
             document.getElementById('clipsSection').style.display = 'block';
             document.getElementById('quranDisplayBox').style.display = 'none';
             
-            for (let k = 1; k <= 6; k++) {
+            // تحديد عدد الأسئلة بحسب الجزء بناءً على لائحة الشرقية (الجزء الأول والأخير 6 مقاطع)
+            let maxClips = 6; 
+            document.getElementById('clipsCountText').innerText = `مقاطع الاختبار المتاحة لهذا النموذج (عدد الأسئلة: ${maxClips}):`;
+            
+            for (let k = 1; k <= maxClips; k++) {
                 let cBox = document.createElement('div');
                 cBox.className = 'box clip-box';
-                cBox.innerText = 'مقطع ' + k;
+                cBox.innerText = 'سؤال ' + k;
                 cBox.onclick = () => loadClipData(k);
                 clipsGrid.appendChild(cBox);
             }
@@ -321,19 +353,17 @@
             const partKey = "جزء_" + currentPart;
             const modelKey = "نموذج_" + currentModel;
 
-            // إذا كانت البيانات مبرمجة في القائمة بالأعلى (مثل جزء 1 نموذج 1) تظهر الصفحة الحقيقية الملونة والمقطع بدقة
             if (quranData[partKey] && quranData[partKey][modelKey] && quranData[partKey][modelKey][clipNum]) {
                 const data = quranData[partKey][modelKey][clipNum];
-                clipTitle.innerText = 'مقطع الاختبار ' + clipNum;
+                clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
                 pageNumber.innerText = data.page;
                 quranTextHint.innerText = data.hint;
-                quranImg.src = data.img; // وضع رابط الصورة الملونة الحقيقي للصحفة
+                quranImg.src = data.img;
             } else {
-                // نص وصورة افتراضية لبقية الأجزاء حتى يتم ربط صورها كاملة
-                clipTitle.innerText = 'مقطع الاختبار ' + clipNum;
-                pageNumber.innerText = "صفحة تجريبية";
-                quranTextHint.innerText = "اقرئي من بداية السورة المحددة لهذا المقطع في الجزء " + currentPart;
-                quranImg.src = "https://www.alshref.org/images/quran/color/2.jpg"; // صورة افتراضية
+                clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
+                pageNumber.innerText = "صفحة افتراضية";
+                quranTextHint.innerText = "اقرئي من بداية هذا المقطع المحدد في الجزء " + currentPart + " (لا يتجاوز 7 أسطر لضمان شروط اللائحة)";
+                quranImg.src = "https://www.alshref.org/images/quran/color/582.jpg"; 
             }
 
             displayBox.style.display = 'block';
@@ -341,4 +371,5 @@
         }
     </script>
 </body>
+</html>
 </html>
