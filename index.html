@@ -176,10 +176,9 @@
             border-radius: 5px;
         }
 
-        /* تنسيق حاوية التضمين الذكية للمصحف لتناسب الجوال والكمبيوتر */
         .embed-container { 
             position: relative; 
-            padding-bottom: 130%; /* تناسب طول صفحة المصحف الطولية */
+            padding-bottom: 130%; 
             height: 0; 
             overflow: hidden; 
             max-width: 100%; 
@@ -282,7 +281,6 @@
             "قوله تعالى: { قَالُوا يَا شُعَيْبُ ... }"
         ];
 
-        // الأسئلة والمقاطع الخاصة التي حددناها سابقاً
         const staticQuranData = {
             "جزء_1": {
                 "نموذج_1": {
@@ -409,23 +407,22 @@
             const partKey = "جزء_" + currentPart;
             const modelKey = "نموذج_" + currentModel;
 
-            let targetPage = 1;
+            let actualPageNumber = 1;
 
             if (staticQuranData[partKey] && staticQuranData[partKey][modelKey] && staticQuranData[partKey][modelKey][clipNum]) {
                 const data = staticQuranData[partKey][modelKey][clipNum];
                 clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
-                pageNumber.innerText = "صفحة المصحف: " + data.page;
+                pageNumber.innerText = "صفحة المصحف الحالية: " + data.page;
                 quranTextHint.innerText = data.hint;
-                targetPage = data.page;
+                actualPageNumber = data.page;
             } else {
                 clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
                 
-                // حساب رقم الصفحة التقريبي بناءً على الجزء والسؤال ليتوجه إليه المصحف فوراً
-                targetPage = (currentPart - 1) * 20 + 2 + (clipNum * 1);
-                if (currentPart == 30) targetPage = 582 + (clipNum * 1);
-                if (targetPage > 604) targetPage = 604;
+                actualPageNumber = (currentPart - 1) * 20 + 2 + (clipNum * 1);
+                if (currentPart == 30) actualPageNumber = 582 + (clipNum * 1);
+                if (actualPageNumber > 604) actualPageNumber = 604;
 
-                pageNumber.innerText = "صفحة المصحف المتوقعة: " + targetPage;
+                pageNumber.innerText = "صفحة المصحف المتوقعة: " + actualPageNumber;
                 
                 let surahName = surahMap[currentPart] || "السورة المقررة";
                 let phraseIndex = (clipNum + currentModel) % startPhrases.length;
@@ -434,8 +431,11 @@
                 quranTextHint.innerText = `اقرئي من ${chosenPhrase} في الجزء ${currentPart} سورة ${surahName} (مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى طبقاً للائحة الشرقية)`;
             }
 
-            // هنا السحر البرمجي: توجيه المصحف التفاعلي للمجمع مباشرة إلى رقم الصفحة المطلوبة!
-            quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${targetPage}/`;
+            // تعويض الصفحات الثلاث الأولى للغلاف والمقدمة لحساب مسار التضمين بشكل صحيح
+            let embedUrlPage = actualPageNumber + 3;
+
+            // إرسال الرابط الدقيق والمعدل مضافاً إليه الإزاحة للـ iframe
+            quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${embedUrlPage}/`;
 
             displayBox.style.display = 'block';
             displayBox.scrollIntoView({ behavior: 'smooth' });
