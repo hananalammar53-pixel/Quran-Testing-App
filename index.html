@@ -255,52 +255,52 @@
         let currentModel = 1;
         let currentPath = 'asc';
 
-        // مستويات القياس الرسمية وجغرافيتها من مصحف المدينة طبقاً للائحة تحفيظ الشرقية
+        // مسار البقرة (تصاعدي)
         const pathAscData = {
-            1: { parts: 1, title: "المستوى 1 (جزء 1)", startPage: 2, endPage: 21, surah: "البقرة", q: 6 },
-            2: { parts: 2, title: "المستوى 2 (جزآن)", startPage: 2, endPage: 41, surah: "البقرة", q: 6 },
-            3: { parts: 3, title: "المستوى 3 (3 أجزاء)", startPage: 2, endPage: 61, surah: "البقرة وآل عمران", q: 6 },
-            4: { parts: 4, title: "المستوى 4 (4 أجزاء)", startPage: 2, endPage: 81, surah: "البقرة إلى النساء", q: 6 },
-            5: { parts: 5, title: "المستوى 5 (5 أجزاء)", startPage: 2, endPage: 101, surah: "البقرة إلى النساء", q: 6 },
-            6: { parts: 6, title: "المستوى 6 (6 أجزاء)", startPage: 2, endPage: 121, surah: "البقرة إلى المائدة", q: 8 },
-            7: { parts: 7, title: "المستوى 7 (7 أجزاء)", startPage: 2, endPage: 141, surah: "البقرة إلى الأنعام", q: 8 },
-            8: { parts: 8, title: "المستوى 8 (8 أجزاء)", startPage: 2, endPage: 161, surah: "البقرة إلى الأعراف", q: 8 },
-            9: { parts: 9, title: "المستوى 9 (9 أجزاء)", startPage: 2, endPage: 181, surah: "البقرة إلى الأنفال", q: 8 },
-            10: { parts: 10, title: "المستوى 10 (10 أجزاء)", startPage: 2, endPage: 201, surah: "البقرة إلى التوبة", q: 8 },
-            11: { parts: 12, title: "المستوى 11 (12 جزءاً)", startPage: 2, endPage: 241, surah: "البقرة إلى يوسف", q: 10 },
-            12: { parts: 14, title: "المستوى 12 (14 جزءاً)", startPage: 2, endPage: 281, surah: "البقرة إلى النحل", q: 10 },
-            13: { parts: 16, title: "المستوى 13 (16 جزءاً)", startPage: 2, endPage: 321, surah: "البقرة إلى طه", q: 10 },
-            14: { parts: 18, title: "المستوى 14 (18 جزءاً)", startPage: 2, endPage: 361, surah: "البقرة إلى المؤمنون", q: 10 },
-            15: { parts: 20, title: "المستوى 15 (20 جزءاً)", startPage: 2, endPage: 401, surah: "البقرة إلى العنكبوت", q: 12 },
-            16: { parts: 22, title: "المستوى 16 (22 جزءاً)", startPage: 2, endPage: 441, surah: "البقرة إلى يس", q: 12 },
-            17: { parts: 24, title: "المستوى 17 (24 جزءاً)", startPage: 2, endPage: 481, surah: "البقرة إلى فصلت", q: 12 },
-            18: { parts: 26, title: "المستوى 18 (26 جزءاً)", startPage: 2, endPage: 521, surah: "البقرة إلى الجاثية", q: 14 },
-            19: { parts: 28, title: "المستوى 19 (28 جزءاً)", startPage: 2, endPage: 561, surah: "البقرة إلى التحريم", q: 14 }
+            1: { title: "المستوى 1 (جزء 1)", startPage: 2, endPage: 21, q: 6 },
+            2: { title: "المستوى 2 (جزآن)", startPage: 2, endPage: 41, q: 6 },
+            3: { title: "المستوى 3 (3 أجزاء)", startPage: 2, endPage: 61, q: 6 },
+            4: { title: "المستوى 4 (4 أجزاء)", startPage: 2, endPage: 81, q: 6 },
+            5: { title: "المستوى 5 (5 أجزاء)", startPage: 2, endPage: 101, q: 6 },
+            6: { title: "المستوى 6 (6 أجزاء)", startPage: 2, endPage: 121, q: 8 },
+            7: { title: "المستوى 7 (7 أجزاء)", startPage: 2, endPage: 141, q: 8 },
+            8: { title: "المستوى 8 (8 أجزاء)", startPage: 2, endPage: 161, q: 8 },
+            9: { title: "المستوى 9 (9 أجزاء)", startPage: 2, endPage: 181, q: 8 },
+            10: { title: "المستوى 10 (10 أجزاء)", startPage: 2, endPage: 201, q: 8 },
+            11: { title: "المستوى 11 (12 جزءاً)", startPage: 2, endPage: 241, q: 10 },
+            12: { title: "المستوى 12 (14 جزءاً)", startPage: 2, endPage: 281, q: 10 },
+            13: { title: "المستوى 13 (16 جزءاً)", startPage: 2, endPage: 321, q: 10 },
+            14: { title: "المستوى 14 (18 جزءاً)", startPage: 2, endPage: 361, q: 10 },
+            15: { title: "المستوى 15 (20 جزءاً)", startPage: 2, endPage: 401, q: 12 },
+            16: { title: "المستوى 16 (22 جزءاً)", startPage: 2, endPage: 441, q: 12 },
+            17: { title: "المستوى 17 (24 جزءاً)", startPage: 2, endPage: 481, q: 12 },
+            18: { title: "المستوى 18 (26 جزءاً)", startPage: 2, endPage: 521, q: 14 },
+            19: { title: "المستوى 19 (28 جزءاً)", startPage: 2, endPage: 561, q: 14 }
         };
 
+        // مسار الناس (تنازلي) - يعتمد بدقة على أرقام صفحات السور الفعلية بالمصحف الشريف
         const pathDescData = {
-            1: { parts: 1, title: "المستوى 1 (جزء النبأ)", startPage: 582, endPage: 604, surah: "جزء عم", q: 6 },
-            2: { parts: 2, title: "المستوى 2 (جزءا الملك والنبأ)", startPage: 562, endPage: 604, surah: "الملك والنبأ", q: 6 },
-            3: { parts: 3, title: "المستوى 3 (3 أجزاء)", startPage: 542, endPage: 604, surah: "المجادلة إلى الناس", q: 6 },
-            4: { parts: 4, title: "المستوى 4 (4 أجزاء)", startPage: 522, endPage: 604, surah: "الذاريات إلى الناس", q: 6 },
-            5: { parts: 5, title: "المستوى 5 (5 أجزاء)", startPage: 502, endPage: 604, surah: "الأحقاف إلى الناس", q: 6 },
-            6: { parts: 6, title: "المستوى 6 (6 أجزاء)", startPage: 482, endPage: 604, surah: "الشورى إلى الناس", q: 8 },
-            7: { parts: 7, title: "المستوى 7 (7 أجزاء)", startPage: 462, endPage: 604, surah: "الزمر إلى الناس", q: 8 },
-            8: { parts: 8, title: "المستوى 8 (8 أجزاء)", startPage: 442, endPage: 604, surah: "يس إلى الناس", q: 8 },
-            9: { parts: 9, title: "المستوى 9 (9 أجزاء)", startPage: 418, endPage: 604, surah: "الأحزاب إلى الناس", q: 8 },
-            10: { parts: 10, title: "المستوى 10 (10 أجزاء)", startPage: 396, endPage: 604, surah: "الروم إلى الناس", q: 8 },
-            11: { parts: 12, title: "المستوى 11 (12 جزءاً)", startPage: 359, endPage: 604, surah: "الفرقان إلى الناس", q: 10 },
-            12: { parts: 14, title: "المستوى 12 (14 جزءاً)", startPage: 322, endPage: 604, surah: "الأنبياء إلى الناس", q: 10 },
-            13: { parts: 16, title: "المستوى 13 (16 جزءاً)", startPage: 282, endPage: 604, surah: "الإسراء إلى الناس", q: 10 },
-            14: { parts: 18, title: "المستوى 14 (18 جزءاً)", startPage: 249, endPage: 604, surah: "الرعد إلى الناس", q: 10 },
-            15: { parts: 20, title: "المستوى 15 (20 جزءاً)", startPage: 208, endPage: 604, surah: "يونس إلى الناس", q: 12 },
-            16: { parts: 22, title: "المستوى 16 (22 جزءاً)", startPage: 177, endPage: 604, surah: "الأنفال إلى الناس", q: 12 },
-            17: { parts: 24, title: "المستوى 17 (24 جزءاً)", startPage: 128, endPage: 604, surah: "الأنعام إلى الناس", q: 12 },
-            18: { parts: 26, title: "المستوى 18 (26 جزءاً)", startPage: 77, endPage: 604, surah: "النساء إلى الناس", q: 14 },
-            19: { parts: 28, title: "المستوى 19 (28 جزءاً)", startPage: 50, endPage: 604, surah: "آل عمران إلى الناس", q: 14 }
+            1: { title: "المستوى 1 (جزء عم)", startPage: 582, endPage: 604, q: 6 },
+            2: { title: "المستوى 2 (جزءا الملك والنبأ)", startPage: 562, endPage: 604, q: 6 },
+            3: { title: "المستوى 3 (3 أجزاء)", startPage: 542, endPage: 604, q: 6 },
+            4: { title: "المستوى 4 (4 أجزاء)", startPage: 522, endPage: 604, q: 6 },
+            5: { title: "المستوى 5 (5 أجزاء)", startPage: 502, endPage: 604, q: 6 },
+            6: { title: "المستوى 6 (6 أجزاء)", startPage: 482, endPage: 604, q: 8 },
+            7: { title: "المستوى 7 (7 أجزاء)", startPage: 462, endPage: 604, q: 8 },
+            8: { title: "المستوى 8 (8 أجزاء)", startPage: 442, endPage: 604, q: 8 },
+            9: { title: "المستوى 9 (9 أجزاء)", startPage: 418, endPage: 604, q: 8 },
+            10: { title: "المستوى 10 (10 أجزاء)", startPage: 396, endPage: 604, q: 8 },
+            11: { title: "المستوى 11 (12 جزءاً)", startPage: 359, endPage: 604, q: 10 },
+            12: { title: "المستوى 12 (14 جزءاً)", startPage: 322, endPage: 604, q: 10 },
+            13: { title: "المستوى 13 (16 جزءاً)", startPage: 282, endPage: 604, q: 10 },
+            14: { title: "المستوى 14 (18 جزءاً)", startPage: 249, endPage: 604, q: 10 },
+            15: { title: "المستوى 15 (20 جزءاً)", startPage: 208, endPage: 604, q: 12 },
+            16: { title: "المستوى 16 (22 جزءاً)", startPage: 177, endPage: 604, q: 12 },
+            17: { title: "المستوى 17 (24 جزءاً)", startPage: 128, endPage: 604, q: 12 },
+            18: { title: "المستوى 18 (26 جزءاً)", startPage: 77, endPage: 604, q: 14 },
+            19: { title: "المستوى 19 (28 جزءاً)", startPage: 50, endPage: 604, q: 14 }
         };
 
-        // محرك جغرافي مكامل ومحدث لتغطية المصحف الشريف بالكامل دون ثغرات
         function getSurahByPage(page) {
             if (page >= 2 && page <= 49) return "البقرة";
             if (page >= 50 && page <= 76) return "آل عمران";
@@ -376,8 +376,8 @@
             if (page >= 584 && page <= 585) return "النازعات";
             if (page == 585 || page == 586) return "عبس";
             if (page >= 587 && page <= 590) return "البروج / الانشقاق";
-            if (page >= 591 && page <= 595) return "البلد / العاديات / الغاشية";
-            if (page >= 596) return "قصار السور (جزء عم)";
+            if (page >= 591 && page <= 595) return "البلد / العاديات";
+            if (page >= 596) return "قصار السور وجزء عم";
             return "السورة المقررة بالصفحة";
         }
 
@@ -483,16 +483,12 @@
             
             let actualPageNumber;
             
-            // الحل الذكي هنا: التمييز بين حساب المسار التصاعدي والتنازلي
             if (currentPath === 'asc') {
-                // من البقرة صعوداً: نبدأ من صفحة البداية ونتحرك للأمام
                 actualPageNumber = lvlData.startPage + ((clipNum - 1) * step) + (currentModel % 2);
             } else {
-                // من الناس نزولاً: الأسئلة الأولى يجب أن تبدأ من أواخر المصحف (صفحات الناس والنبأ) وتتجه تنازلياً للداخل
                 actualPageNumber = lvlData.endPage - ((clipNum - 1) * step) - (currentModel % 2);
             }
             
-            // حماية صارمة للبقاء داخل حدود أرقام صفحات المستوى المحددة
             if (actualPageNumber > lvlData.endPage) actualPageNumber = lvlData.endPage;
             if (actualPageNumber < lvlData.startPage) actualPageNumber = lvlData.startPage;
 
@@ -503,6 +499,7 @@
 
             quranTextHint.innerText = `اقرئي من بداية الصفحة رقم (${actualPageNumber}) من سورة (${detectedSurah})، مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى التام طبقاً للائحة.`;
 
+            // الحل القاطع: نجمع دائماً 3 صفحات تمهيدية في الرابط لتفادي الفهرس والغلاف، دون الالتفات لملحقات النهاية
             let embedUrlPage = actualPageNumber + 3;
             quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${embedUrlPage}/`;
 
