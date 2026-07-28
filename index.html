@@ -475,6 +475,18 @@
             background: var(--primary-green);
             color: white;
         }
+        
+        .steps-box {
+            text-align: right;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-top: 15px;
+        }
+        .steps-box h4 { margin-top: 0; color: var(--primary-green); }
     </style>
 </head>
 <body>
@@ -547,14 +559,37 @@
         </div>
     </div>
 
+    <!-- صفحة إدارة الاشتراك والإعدادات -->
     <div id="subscriptionPage" class="page">
-        <h2>إعدادات الحساب والدعم الفني</h2>
+        <h2>إعدادات الحساب وإدارة الاشتراك</h2>
+        
         <div class="settings-card">
             <h3>معلومات الحساب</h3>
             <p><strong>الاسم:</strong> <span id="settingUserName"></span></p>
             <p><strong>البريد الإلكتروني:</strong> <span id="settingUserEmail"></span></p>
-            <p><strong>حالة الاشتراك:</strong> <span style="color: #27ae60; font-weight: bold;">فعال (متجر سلة)</span></p>
+            <p><strong>حالة الاشتراك:</strong> <span style="color: #27ae60; font-weight: bold;">فعال (عبر متجر سلة)</span></p>
+            <button class="action-btn-success" style="background-color: #2980b9; margin-top: 10px;" onclick="alert('جاري التحقق من حالة الاشتراك وتحديث البيانات من متجر سلة...')">🔄 تحديث حالة الاشتراك من سلة</button>
         </div>
+
+        <!-- زر التنزيل والتثبيت PWA المباشر -->
+        <div class="settings-card" style="border-color: var(--primary-green); background: #f2f9f4;">
+            <h3>تثبيت التطبيق على الهاتف</h3>
+            <p style="font-size: 0.9rem; color: #555;">قم بتثبيت التطبيق على شاشة هاتفك الرئيسية للوصول إليه بسرعة وبدون شريط المتصفح.</p>
+            <button class="action-btn-success" id="installAppBtn" onclick="installPWAApp()">📥 تنزيل وتثبيت التطبيق على الشاشة الرئيسية</button>
+        </div>
+
+        <div class="steps-box">
+            <h4>متطلبات تطوير وتحويل التطبيق (مثل متاجر التطبيقات):</h4>
+            <ol style="padding-right: 20px; margin: 5px 0;">
+                <li><strong>تحويل التطبيق إلى PWA حقيقي:</strong> إضافة ملف البيان (Manifest.json) لتعيين أيقونات التطبيق ووضعيته، وخدمة العمال (Service Worker) لدعم وضع العمل دون إنترنت (Offline Mode).</li>
+                <li><strong>رفع التطبيق إلى متجر جوجل بلاي (Google Play Console):</strong> عبر تغليف التطبيق بصيغة (Trusted Web Activity / TWA) أو باستخدام إطارات العمل مثل Capacitor و Cordova لربطه بخصائص الأندرويد الأصلية.</li>
+                <li><strong>نظام إشعارات حقيقي (Push Notifications):</strong> ربط النظام بـ (Firebase Cloud Messaging - FCM) لإرسال تنبيهات فورية للمستخدمة عن المواعيد والاشتراكات.</li>
+                <li><strong>قاعدة بيانات سحابية متكاملة (Cloud Database):</strong> ربط البيانات بـ (Cloud Firestore) لحفظ السجلات والمستويات سحابياً وعدم فقدانها بتغيير الهاتف.</li>
+                <li><strong>بوابات دفع إلكترونية أصلية (Salla API / In-App Purchases):</strong> دمج Google Play Billing أو ربط آلي مع متجر سلة للتحقق من حالة اشتراك العميل.</li>
+                <li><strong>تحسين تجربة الاستخدام (UX/UI):</strong> إضافة شاشات تحميل تفاعلية، دعم كامل للأجهزة اللوحية (Tablets)، والوضع الليلي التلقائي (Dark/Light Mode).</li>
+            </ol>
+        </div>
+
         <button class="back-btn" style="color: #d9534f; border-color: #d9534f; width: 100%; margin-top: 20px;" onclick="logout()">تسجيل الخروج</button>
     </div>
 
@@ -677,8 +712,30 @@
         </button>
     </div>
 
-    <!-- تسجيل Service Worker لتمكين العمل دون إنترنت والتثبيت كتطبيق -->
+    <!-- برمجة التثبيت والـ Service Worker -->
     <script>
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('installAppBtn');
+            if(installBtn) installBtn.style.display = 'block';
+        });
+
+        function installPWAApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                alert("لإضافة التطبيق، افتح إعدادات المتصفح (النقاط الثلاث في الأعلى) واضغط على خيار 'إضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.");
+            }
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swCode = `
