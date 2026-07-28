@@ -211,7 +211,7 @@
             background-color: #357ae8;
         }
 
-        /* تصميم كروت الاشتراكات */
+        /* تصميم كروت الاشتراكات عبر سلة */
         .subscription-container {
             display: flex;
             flex-direction: column;
@@ -239,13 +239,16 @@
             background-color: var(--primary-green);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-size: 1rem;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
             width: 100%;
             transition: 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
         }
         .subscribe-btn:hover {
             background-color: #14351d;
@@ -264,21 +267,21 @@
         </div>
     </div>
 
-    <!-- صفحة باقات الاشتراك (تظهر إن لم يكن المشترك مشتركاً) -->
+    <!-- صفحة باقات الاشتراك (توجه لمتجر سلة للدفع الحقيقي) -->
     <div id="subscriptionPage" class="page">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <span id="sub-user-name" style="font-weight: bold; color: var(--primary-green);"></span>
             <button class="back-btn" style="margin: 0; color: #d9534f; border-color: #d9534f;" onclick="logout()">تسجيل الخروج</button>
         </div>
         <h2>اختر باقة الاشتراك المناسبة</h2>
-        <p style="color: #666;">للاستمتاع بكافة مميزات ومسارات تطبيق الاختبارات وتحفيظ الشرقية:</p>
+        <p style="color: #666;">سيتم تحويلك لمتجرنا الآمن في سلة لإتمام الدفع (أبل بي، مدى، فيزا):</p>
         
         <div class="subscription-container">
             <div class="sub-card">
                 <h3>الباقة الشهرية</h3>
                 <p style="color: #666; font-size: 0.9rem;">وصول كامل لجميع المسارات والمستويات</p>
                 <div class="price">29 ر.س / شهرياً</div>
-                <button class="subscribe-btn" onclick="processSubscription('شهري (29 ريال)')">اشتراك شهري</button>
+                <a href="https://salla.sa/hs-design" target="_blank" class="subscribe-btn">اشتراك عبر متجر سلة 🛒</a>
             </div>
 
             <div class="sub-card" style="border-color: var(--primary-green); background: #faf9f5;">
@@ -286,16 +289,21 @@
                 <h3 style="margin-top: 8px;">باقة مدى الحياة</h3>
                 <p style="color: #666; font-size: 0.9rem;">دفع لمرة واحدة وتمتع بالتطبيق للأبد وتحديثاته</p>
                 <div class="price">199 ر.س / مدى الحياة</div>
-                <button class="subscribe-btn" style="background: var(--gold-accent);" onclick="processSubscription('مدى الحياة (199 ريال)')">اشتراك مدى الحياة</button>
+                <a href="https://salla.sa/hs-design" target="_blank" class="subscribe-btn" style="background: var(--gold-accent);">اشتراك مدى الحياة عبر سلة 🛒</a>
             </div>
+            
+            <button class="back-btn" style="margin-top: 15px; width: 100%; padding: 10px;" onclick="bypassSubscriptionForTest()">تخطي مؤقت للاختبار (تجربة التطبيق)</button>
         </div>
     </div>
 
-    <!-- الصفحة الرئيسية للبرنامج بعد الاشتراك الدائم أو الفعال -->
+    <!-- الصفحة الرئيسية للبرنامج -->
     <div id="homePage" class="page">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <span id="user-name" style="font-weight: bold; color: var(--primary-green);"></span>
-            <button class="back-btn" style="margin: 0; color: #d9534f; border-color: #d9534f;" onclick="logout()">تسجيل الخروج</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="back-btn" style="margin: 0; background: var(--gold-accent); color: white; border: none;" onclick="openAccountSettings()">إدارة الاشتراك</button>
+                <button class="back-btn" style="margin: 0; color: #d9534f; border-color: #d9534f;" onclick="logout()">تسجيل الخروج</button>
+            </div>
         </div>
         <h1>برنامج اختبارات القرآن الكريم</h1>
         <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية بجمعية تحفيظ الشرقية النسائية</p>
@@ -379,43 +387,43 @@
             signOut(auth);
         };
 
+        window.bypassSubscriptionForTest = function() {
+            let user = auth.currentUser;
+            if(user) {
+                localStorage.setItem("sub_" + user.uid, "مشترك فعال (عبر سلة)");
+                document.getElementById("user-name").textContent = "مرحباً، " + user.displayName;
+                document.getElementById("subscription-status-badge").textContent = "حالة الاشتراك: فعال (متجر سلة)";
+                showPage('homePage');
+            }
+        };
+
+        window.openAccountSettings = function() {
+            let user = auth.currentUser;
+            if(user) {
+                document.getElementById("sub-user-name").textContent = "إدارة حساب واشتراك: " + user.displayName;
+                showPage('subscriptionPage');
+            }
+        };
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // التحقق من حالة الاشتراك المحفوظة محلياً أو في قاعدة البيانات للمستخدم
                 let userSubStatus = localStorage.getItem("sub_" + user.uid);
                 
                 if (!userSubStatus) {
-                    // إذا لم يكن مشتركاً، يوجه إلى صفحة اختيار باقات الاشتراك
                     document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
                     document.getElementById("subscriptionPage").classList.add('active-page');
                     document.getElementById("sub-user-name").textContent = "مرحباً، " + user.displayName;
                 } else {
-                    // إذا كان مشتركاً بالفعل، يوجه للرئيسية مع إظهار نوع الباقة
                     document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
                     document.getElementById("homePage").classList.add('active-page');
                     document.getElementById("user-name").textContent = "مرحباً، " + user.displayName;
-                    document.getElementById("subscription-status-badge").textContent = "حالة الاشتراك: فعال (" + userSubStatus + ")";
+                    document.getElementById("subscription-status-badge").textContent = "حالة الاشتراك: فعال (متجر سلة)";
                 }
             } else {
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
                 document.getElementById("authPage").classList.add('active-page');
             }
         });
-
-        window.processSubscription = function(planName) {
-            let user = auth.currentUser;
-            if(user) {
-                // حفظ حالة الاشتراك للمستخدم الحالي
-                localStorage.setItem("sub_" + user.uid, planName);
-                alert("تم الاشتراك بنجاح في باقة: " + planName + " شكراً لكِ!");
-                
-                // الانتقال للوحة الرئيسية
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-                document.getElementById("homePage").classList.add('active-page');
-                document.getElementById("user-name").textContent = "مرحباً، " + user.displayName;
-                document.getElementById("subscription-status-badge").textContent = "حالة الاشتراك: فعال (" + planName + ")";
-            }
-        }
     </script>
 
     <script>
