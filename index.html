@@ -5,12 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيق اختبارات القرآن الكريم الذكي</title>
     
-    <!-- إعدادات الـ PWA ليعمل كتطبيق هاتف حقيقي -->
+    <!-- ربط ملف الـ Manifest -->
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#1e4d2b">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then((reg) => console.log('Service Worker registered! Scope:', reg.scope))
+            .catch((err) => console.log('Service Worker failed:', err));
+        });
+      }
+    </script>
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="اختبارات القرآن">
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%D8%A7%D9%84%D9%83%D8%B1%D9%8A%D9%85%22%2C%22short_name%22%3A%22%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fdfbf7%22%2C%22theme_color%22%3A%22%231e4d2b%22%7D">
 
     <style>
         :root {
@@ -734,33 +744,6 @@
             } else {
                 alert("لإضافة التطبيق، افتح إعدادات المتصفح (النقاط الثلاث في الأعلى) واضغط على خيار 'إضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.");
             }
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const swCode = `
-                    self.addEventListener('install', (e) => {
-                        self.skipWaiting();
-                    });
-                    self.addEventListener('activate', (e) => {
-                        e.waitUntil(clients.claim());
-                    });
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(
-                            caches.match(e.request).then((response) => {
-                                return response || fetch(e.request).catch(() => {
-                                    return caches.match('./');
-                                });
-                            })
-                        );
-                    });
-                `;
-                const blob = new Blob([swCode], { type: 'text/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl)
-                    .then(() => console.log("Service Worker Active!"))
-                    .catch((err) => console.log("SW Registration Failed", err));
-            });
         }
     </script>
 
