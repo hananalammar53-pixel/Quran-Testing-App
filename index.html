@@ -115,6 +115,12 @@
             font-weight: bold;
         }
 
+        .search-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
         .search-bar, .input-field {
             width: 100%;
             padding: 12px;
@@ -122,9 +128,36 @@
             border: 1px solid var(--border-color);
             background: var(--card-bg);
             color: var(--text-color);
-            margin-bottom: 15px;
             box-sizing: border-box;
             font-size: 1rem;
+        }
+
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            text-align: right;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-result-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+        .search-result-item:hover {
+            background: var(--gold-accent);
+            color: white;
         }
 
         .main-menu {
@@ -430,7 +463,11 @@
         <h1>برنامج اختبارات القرآن الكريم</h1>
         <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية</p>
         
-        <input type="text" class="search-bar" id="smartSearch" placeholder="بحث سريع عن جزء، سورة، أو مستوى..." onkeyup="handleSmartSearch(event)">
+        <!-- حقل البحث الذكي المطور (يبحث بالسورة والأجزاء والمستويات) -->
+        <div class="search-container">
+            <input type="text" class="search-bar" id="smartSearch" placeholder="ابحث عن سورة (البقرة، آل عمران، الناس...) أو جزء..." oninput="handleSmartSearch(event)" autocomplete="off">
+            <div id="searchResultsDropdown" class="search-results-dropdown"></div>
+        </div>
 
         <div id="subscription-status-badge" style="background: #e2f0d9; color: #385723; padding: 8px; border-radius: 5px; font-weight: bold; margin: 15px 0; font-size: 0.9rem;"></div>
         
@@ -473,7 +510,7 @@
         <h2>سجل وتحميل نتائج الطالبات</h2>
         <p style="color: #7f8c8d; font-size: 0.9rem;">يمكنك متابعة النتائج المرصودة وتحميل ملفات الطالبات أو تنزيل جميع الملفات دفعة واحدة.</p>
         
-        <button class="action-btn-success" style="background-color: #2980b9; margin-bottom: 15px;" onclick="downloadAllStudentsFiles()">📥 تحميل نتائج جميع الطالبات (ملفات منفصلة ZIP/TXT)</button>
+        <button class="action-btn-success" style="background-color: #2980b9; margin-bottom: 15px;" onclick="downloadAllStudentsFiles()">📥 تحميل نتائج جميع الطالبات (ملفات منفصلة TXT)</button>
 
         <div style="overflow-x: auto;">
             <table class="results-table">
@@ -531,14 +568,14 @@
             <div class="exam-control-panel">
                 <div class="timer-box" id="examTimer">المؤقت: 02:00</div>
                 <div class="grade-display">
-                    <span>درجة السؤال الحالي: <span id="currentGradeVal">100</span> / 100</span>
+                    <span>رصيد الدرجة الكلي: <span id="currentGradeVal">100</span> / 100</span>
                     <span style="font-size: 0.85rem; color: #7f8c8d;">سؤال <span id="currentClipIdx">1</span> من <span id="totalClipIdx">6</span></span>
                 </div>
                 
-                <button class="action-btn-danger" style="background-color: #d35400;" onclick="openOnStudentScreenWithPenalty()">🖥️ الفتح على الطالبة (خصم 1 درجة)</button>
-                <button class="action-btn-danger" onclick="addWarningToStudent()">⚠️ تنبيه للطالبة (تنبيه <span id="warningCount">0</span>/4)</button>
+                <button class="action-btn-danger" style="background-color: #d35400;" onclick="openOnStudentScreenWithPenalty()">🖥️ الفتح على الطالبة (خصم 1 درجة من الـ 100)</button>
+                <button class="action-btn-danger" onclick="addWarningToStudent()">⚠️ تنبيه للطالبة (تنبيه <span id="warningCount">0</span>/4 - خصم درجة)</button>
 
-                <button class="action-btn-success" id="nextQuestionBtn" onclick="saveAndProceedNextQuestion()">💾 حفظ درجة السؤال والانتقال التالي</button>
+                <button class="action-btn-success" id="nextQuestionBtn" onclick="saveAndProceedNextQuestion()">💾 حفظ والانتقال للسؤال التالي</button>
             </div>
 
             <h3 id="clipTitle" style="color: var(--primary-green); margin: 0;">مقطع الاختبار</h3>
@@ -565,9 +602,9 @@
             <p><strong>اسم الطالبة:</strong> <span id="resStudentName">-</span></p>
             <p><strong>المستوى المختبر:</strong> <span id="resLevelTitle">-</span></p>
             <p><strong>النموذج المستخدم:</strong> <span id="resModelNum">-</span></p>
-            <p><strong>إجمالي التنبيهات:</strong> <span id="resWarningsCount">0</span></p>
+            <p><strong>إجمالي التنبيهات والأخطاء:</strong> <span id="resWarningsCount">0</span></p>
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
-            <p style="font-size: 1.3rem;"><strong>الدرجة النهائية المركبة:</strong> <span id="resFinalGrade" style="color: var(--primary-green);">100</span> / 100</p>
+            <p style="font-size: 1.3rem;"><strong>الدرجة النهائية المتبقية من 100:</strong> <span id="resFinalGrade" style="color: var(--primary-green);">100</span> / 100</p>
             <p><strong>حالة الاجتياز:</strong> <span id="resStatus" style="font-weight: bold; color: #27ae60;">اجتازت بنجاح</span></p>
         </div>
 
@@ -668,53 +705,52 @@
         
         let currentClipIndex = 1;
         let maxClipsTotal = 6;
-        let currentQuestionGrade = 100;
-        let accumulatedQuestionGrades = [];
+        let totalRemainingGrade = 100; // رصيد الدرجة الموحد يبدأ من 100
         let totalWarnings = 0;
         let timerInterval = null;
 
         const pathAscData = {
-            1: { title: "المستوى 1 (جزء 1)", startPage: 2, endPage: 21, q: 6 },
-            2: { title: "المستوى 2 (جزآن)", startPage: 2, endPage: 41, q: 6 },
-            3: { title: "المستوى 3 (3 أجزاء)", startPage: 2, endPage: 61, q: 6 },
-            4: { title: "المستوى 4 (4 أجزاء)", startPage: 2, endPage: 81, q: 6 },
-            5: { title: "المستوى 5 (5 أجزاء)", startPage: 2, endPage: 101, q: 6 },
-            6: { title: "المستوى 6 (6 أجزاء)", startPage: 2, endPage: 121, q: 8 },
-            7: { title: "المستوى 7 (7 أجزاء)", startPage: 2, endPage: 141, q: 8 },
-            8: { title: "المستوى 8 (8 أجزاء)", startPage: 2, endPage: 161, q: 8 },
-            9: { title: "المستوى 9 (9 أجزاء)", startPage: 2, endPage: 181, q: 8 },
-            10: { title: "المستوى 10 (10 أجزاء)", startPage: 2, endPage: 201, q: 8 },
-            11: { title: "المستوى 11 (12 جزءاً)", startPage: 2, endPage: 241, q: 10 },
-            12: { title: "المستوى 12 (14 جزءاً)", startPage: 2, endPage: 281, q: 10 },
-            13: { title: "المستوى 13 (16 جزءاً)", startPage: 2, endPage: 321, q: 10 },
-            14: { title: "المستوى 14 (18 جزءاً)", startPage: 2, endPage: 361, q: 10 },
-            15: { title: "المستوى 15 (20 جزءاً)", startPage: 2, endPage: 401, q: 12 },
-            16: { title: "المستوى 16 (22 جزءاً)", startPage: 2, endPage: 441, q: 12 },
-            17: { title: "المستوى 17 (24 جزءاً)", startPage: 2, endPage: 481, q: 12 },
-            18: { title: "المستوى 18 (26 جزءاً)", startPage: 2, endPage: 521, q: 14 },
-            19: { title: "المستوى 19 (28 جزءاً)", startPage: 2, endPage: 561, q: 14 }
+            1: { title: "المستوى 1 (جزء 1 - البقرة)", startPage: 2, endPage: 21, q: 6, path: 'asc' },
+            2: { title: "المستوى 2 (جزآن)", startPage: 2, endPage: 41, q: 6, path: 'asc' },
+            3: { title: "المستوى 3 (3 أجزاء)", startPage: 2, endPage: 61, q: 6, path: 'asc' },
+            4: { title: "المستوى 4 (4 أجزاء)", startPage: 2, endPage: 81, q: 6, path: 'asc' },
+            5: { title: "المستوى 5 (5 أجزاء)", startPage: 2, endPage: 101, q: 6, path: 'asc' },
+            6: { title: "المستوى 6 (6 أجزاء)", startPage: 2, endPage: 121, q: 8, path: 'asc' },
+            7: { title: "المستوى 7 (7 أجزاء)", startPage: 2, endPage: 141, q: 8, path: 'asc' },
+            8: { title: "المستوى 8 (8 أجزاء)", startPage: 2, endPage: 161, q: 8, path: 'asc' },
+            9: { title: "المستوى 9 (9 أجزاء)", startPage: 2, endPage: 181, q: 8, path: 'asc' },
+            10: { title: "المستوى 10 (10 أجزاء)", startPage: 2, endPage: 201, q: 8, path: 'asc' },
+            11: { title: "المستوى 11 (12 جزءاً)", startPage: 2, endPage: 241, q: 10, path: 'asc' },
+            12: { title: "المستوى 12 (14 جزءاً)", startPage: 2, endPage: 281, q: 10, path: 'asc' },
+            13: { title: "المستوى 13 (16 جزءاً)", startPage: 2, endPage: 321, q: 10, path: 'asc' },
+            14: { title: "المستوى 14 (18 جزءاً)", startPage: 2, endPage: 361, q: 10, path: 'asc' },
+            15: { title: "المستوى 15 (20 جزءاً)", startPage: 2, endPage: 401, q: 12, path: 'asc' },
+            16: { title: "المستوى 16 (22 جزءاً)", startPage: 2, endPage: 441, q: 12, path: 'asc' },
+            17: { title: "المستوى 17 (24 جزءاً)", startPage: 2, endPage: 481, q: 12, path: 'asc' },
+            18: { title: "المستوى 18 (26 جزءاً)", startPage: 2, endPage: 521, q: 14, path: 'asc' },
+            19: { title: "المستوى 19 (28 جزءاً)", startPage: 2, endPage: 561, q: 14, path: 'asc' }
         };
 
         const pathDescData = {
-            1: { title: "المستوى 1 (جزء عم)", startPage: 582, endPage: 604, q: 6 },
-            2: { title: "المستوى 2 (جزءا الملك والنبأ)", startPage: 562, endPage: 604, q: 6 },
-            3: { title: "المستوى 3 (3 أجزاء)", startPage: 542, endPage: 604, q: 6 },
-            4: { title: "المستوى 4 (4 أجزاء)", startPage: 522, endPage: 604, q: 6 },
-            5: { title: "المستوى 5 (5 أجزاء)", startPage: 502, endPage: 604, q: 6 },
-            6: { title: "المستوى 6 (6 أجزاء)", startPage: 482, endPage: 604, q: 8 },
-            7: { title: "المستوى 7 (7 أجزاء)", startPage: 462, endPage: 604, q: 8 },
-            8: { title: "المستوى 8 (8 أجزاء)", startPage: 442, endPage: 604, q: 8 },
-            9: { title: "المستوى 9 (9 أجزاء)", startPage: 418, endPage: 604, q: 8 },
-            10: { title: "المستوى 10 (10 أجزاء)", startPage: 396, endPage: 604, q: 8 },
-            11: { title: "المستوى 11 (12 جزءاً)", startPage: 359, endPage: 604, q: 10 },
-            12: { title: "المستوى 12 (14 جزءاً)", startPage: 322, endPage: 604, q: 10 },
-            13: { title: "المستوى 13 (16 جزءاً)", startPage: 282, endPage: 604, q: 10 },
-            14: { title: "المستوى 14 (18 جزءاً)", startPage: 249, endPage: 604, q: 10 },
-            15: { title: "المستوى 15 (20 جزءاً)", startPage: 208, endPage: 604, q: 12 },
-            16: { title: "المستوى 16 (22 جزءاً)", startPage: 177, endPage: 604, q: 12 },
-            17: { title: "المستوى 17 (24 جزءاً)", startPage: 128, endPage: 604, q: 12 },
-            18: { title: "المستوى 18 (26 جزءاً)", startPage: 77, endPage: 604, q: 14 },
-            19: { title: "المستوى 19 (28 جزءاً)", startPage: 50, endPage: 604, q: 14 }
+            1: { title: "المستوى 1 (جزء عم)", startPage: 582, endPage: 604, q: 6, path: 'desc' },
+            2: { title: "المستوى 2 (جزءا الملك والنبأ)", startPage: 562, endPage: 604, q: 6, path: 'desc' },
+            3: { title: "المستوى 3 (3 أجزاء)", startPage: 542, endPage: 604, q: 6, path: 'desc' },
+            4: { title: "المستوى 4 (4 أجزاء)", startPage: 522, endPage: 604, q: 6, path: 'desc' },
+            5: { title: "المستوى 5 (5 أجزاء)", startPage: 502, endPage: 604, q: 6, path: 'desc' },
+            6: { title: "المستوى 6 (6 أجزاء)", startPage: 482, endPage: 604, q: 8, path: 'desc' },
+            7: { title: "المستوى 7 (7 أجزاء)", startPage: 462, endPage: 604, q: 8, path: 'desc' },
+            8: { title: "المستوى 8 (8 أجزاء)", startPage: 442, endPage: 604, q: 8, path: 'desc' },
+            9: { title: "المستوى 9 (9 أجزاء)", startPage: 418, endPage: 604, q: 8, path: 'desc' },
+            10: { title: "المستوى 10 (10 أجزاء)", startPage: 396, endPage: 604, q: 8, path: 'desc' },
+            11: { title: "المستوى 11 (12 جزءاً)", startPage: 359, endPage: 604, q: 10, path: 'desc' },
+            12: { title: "المستوى 12 (14 جزءاً)", startPage: 322, endPage: 604, q: 10, path: 'desc' },
+            13: { title: "المستوى 13 (16 جزءاً)", startPage: 282, endPage: 604, q: 10, path: 'desc' },
+            14: { title: "المستوى 14 (18 جزءاً)", startPage: 249, endPage: 604, q: 10, path: 'desc' },
+            15: { title: "المستوى 15 (20 جزءاً)", startPage: 208, endPage: 604, q: 12, path: 'desc' },
+            16: { title: "المستوى 16 (22 جزءاً)", startPage: 177, endPage: 604, q: 12, path: 'desc' },
+            17: { title: "المستوى 17 (24 جزءاً)", startPage: 128, endPage: 604, q: 12, path: 'desc' },
+            18: { title: "المستوى 18 (26 جزءاً)", startPage: 77, endPage: 604, q: 14, path: 'desc' },
+            19: { title: "المستوى 19 (28 جزءاً)", startPage: 50, endPage: 604, q: 14, path: 'desc' }
         };
 
         function getSurahByPage(page) {
@@ -738,6 +774,65 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             btn.classList.add('active');
         }
+
+        // تحسين محرك البحث السريع للسور والأجزاء والمستويات
+        function handleSmartSearch(e) {
+            let query = e.target.value.trim().toLowerCase();
+            let dropdown = document.getElementById('searchResultsDropdown');
+            
+            if(query.length === 0) {
+                dropdown.style.display = 'none';
+                dropdown.innerHTML = '';
+                return;
+            }
+
+            let matches = [];
+            
+            // البحث في مسار الصعود (البقرة)
+            for (let i in pathAscData) {
+                let item = pathAscData[i];
+                if(item.title.toLowerCase().includes(query) || (`جزء ${i}`).includes(query)) {
+                    matches.push({ title: `${item.title} (مسار البقرة صعوداً)`, level: parseInt(i), path: 'asc' });
+                }
+            }
+
+            // البحث في مسار النزول (الناس/عم)
+            for (let i in pathDescData) {
+                let item = pathDescData[i];
+                if(item.title.toLowerCase().includes(query) || (`جزء ${i}`).includes(query)) {
+                    matches.push({ title: `${item.title} (مسار الناس نزولاً)`, level: parseInt(i), path: 'desc' });
+                }
+            }
+
+            if(matches.length > 0) {
+                dropdown.style.display = 'block';
+                dropdown.innerHTML = '';
+                // أخذ أول 6 نتائج مطابقة لتسريع الوصول
+                matches.slice(0, 6).forEach(m => {
+                    let div = document.createElement('div');
+                    div.className = 'search-result-item';
+                    div.innerHTML = `📌 <b>${m.title}</b>`;
+                    div.onclick = () => {
+                        dropdown.style.display = 'none';
+                        document.getElementById('smartSearch').value = '';
+                        loadPartsGrid(m.path);
+                        openLevelDetails(m.level);
+                    };
+                    dropdown.appendChild(div);
+                });
+            } else {
+                dropdown.style.display = 'block';
+                dropdown.innerHTML = `<div class="search-result-item" style="color:#888;">عذراً، لمطابقات البحث ابحث بـ: (البقرة، آل عمران، جزء 1، جزء عم...)</div>`;
+            }
+        }
+
+        // إغلاق قائمة البحث عند النقر خارجها
+        window.addEventListener('click', (e) => {
+            if(!e.target.closest('.search-container')) {
+                let dropdown = document.getElementById('searchResultsDropdown');
+                if(dropdown) dropdown.style.display = 'none';
+            }
+        });
 
         function loadPartsGrid(path) {
             currentPath = path;
@@ -824,7 +919,7 @@
 
             currentClipIndex = clipNum;
             if (clipNum === 1) {
-                accumulatedQuestionGrades = [];
+                totalRemainingGrade = 100; // بدء الاختبار برصيد كامل 100
                 totalWarnings = 0;
             }
 
@@ -850,7 +945,6 @@
             quranTextHint.innerText = `اقرئي من بداية الصفحة رقم (${actualPageNumber}) من سورة (${detectedSurah}).`;
             quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${actualPageNumber + 3}/`;
 
-            currentQuestionGrade = 100;
             updateGradeUI();
             startExamTimer();
 
@@ -860,47 +954,43 @@
 
         function addWarningToStudent() {
             totalWarnings++;
-            currentQuestionGrade = Math.max(0, currentQuestionGrade - 1);
-            alert(`تنبيه للطالبة (${totalWarnings}). تم خصم درجة واحدة من السؤال الحالي تلقائياً.`);
+            totalRemainingGrade = Math.max(0, totalRemainingGrade - 1); // خصم درجة واحدة من الدرجة الكلية 100
+            alert(`⚠️ تم تسجيل تنبيه/خطأ للطالبة. تم خصم درجة واحدة من رصيد الدرجة الكلي (المتبقي: ${totalRemainingGrade}/100).`);
             updateGradeUI();
         }
 
         function openOnStudentScreenWithPenalty() {
-            currentQuestionGrade = Math.max(0, currentQuestionGrade - 1);
+            totalRemainingGrade = Math.max(0, totalRemainingGrade - 1); // خصم درجة من الدرجة الكلية 100
             updateGradeUI();
-            alert(`تم الفتح على شاشة الطالبة بنجاح وتم خصم درجة من السؤال الحالي!`);
+            alert(`🖥️ تم الفتح على شاشة الطالبة بنجاح، وتم خصم درجة واحدة من رصيد الـ 100 الكلي!`);
         }
 
         function updateGradeUI() {
-            document.getElementById('currentGradeVal').innerText = currentQuestionGrade;
+            document.getElementById('currentGradeVal').innerText = totalRemainingGrade;
             document.getElementById('currentClipIdx').innerText = currentClipIndex;
             document.getElementById('totalClipIdx').innerText = maxClipsTotal;
             document.getElementById('warningCount').innerText = totalWarnings;
             
             let btn = document.getElementById('nextQuestionBtn');
             if(currentClipIndex === maxClipsTotal) {
-                btn.innerText = "📋 إنهاء الاختبار وعرض النتيجة النهائية الشاملة";
+                btn.innerText = "📋 إنهاء الاختبار وعرض النتيجة النهائية للـ 100";
             } else {
-                btn.innerText = `💾 حفظ درجة السؤال ${currentClipIndex} والانتقال للتالي`;
+                btn.innerText = `💾 حفظ الانتقال للسؤال التالي (${currentClipIndex + 1}/${maxClipsTotal})`;
             }
         }
 
         function saveAndProceedNextQuestion() {
-            // حفظ درجة السؤال الحالي في المصفوفة
-            accumulatedQuestionGrades.push(currentQuestionGrade);
-
             if(currentClipIndex < maxClipsTotal) {
-                // الانتقال للسؤال التالي تلقائياً
+                // الانتقال للسؤال التالي مع الحفاظ على رصيد الـ 100 المتناقص
                 startClipExam(currentClipIndex + 1);
             } else {
-                // هذا هو السؤال الأخير -> تجميع النتيجة النهائية المتوسطة لجميع الأسئلة
+                // هذا هو السؤال الأخير -> إظهار النتيجة النهائية من 100
                 calculateAndShowFinalResult();
             }
         }
 
         function calculateAndShowFinalResult() {
-            let sum = accumulatedQuestionGrades.reduce((a, b) => a + b, 0);
-            let finalAvgGrade = Math.round(sum / maxClipsTotal);
+            let finalGrade = Math.max(0, totalRemainingGrade);
 
             let dataSource = (currentPath === 'asc') ? pathAscData : pathDescData;
             let lvlTitle = dataSource[currentLevel].title;
@@ -910,11 +1000,11 @@
             document.getElementById('resLevelTitle').innerText = lvlTitle;
             document.getElementById('resModelNum').innerText = "نموذج " + currentModel;
             document.getElementById('resWarningsCount').innerText = totalWarnings;
-            document.getElementById('resFinalGrade').innerText = finalAvgGrade;
+            document.getElementById('resFinalGrade').innerText = finalGrade;
 
             let statusEl = document.getElementById('resStatus');
             let statusText = "اجتازت بنجاح 🎉";
-            if (finalAvgGrade >= 60) {
+            if (finalGrade >= 60) {
                 statusEl.innerText = statusText;
                 statusEl.style.color = "#27ae60";
             } else {
@@ -923,8 +1013,8 @@
                 statusEl.style.color = "#e74c3c";
             }
 
-            // حفظ النتيجة في الأرشيف المحلي للمعلمة لكي تتمكن من تصديرها لاحقاً
-            saveResultToArchive(studentName, lvlTitle + ' (نموذج ' + currentModel + ')', finalAvgGrade, statusText);
+            // حفظ النتيجة في أرشيف المعلمة
+            saveResultToArchive(studentName, lvlTitle + ' (نموذج ' + currentModel + ')', finalGrade, statusText);
 
             showPage('resultPage');
         }
@@ -952,7 +1042,7 @@
             let content = `--- تقرير اختبار القرآن الكريم الرسمى ---\n` +
                           `اسم الطالبة: ${studentName}\n` +
                           `المستوى: ${levelTitle}\n` +
-                          `الدرجة النهائية: ${finalGrade} / 100\n` +
+                          `الدرجة النهائية (من 100): ${finalGrade} / 100\n` +
                           `حالة الاجتياز: ${status}\n` +
                           `تاريخ الإصدار: ${new Date().toLocaleDateString('ar-SA')}`;
 
@@ -977,7 +1067,7 @@
                 tr.innerHTML = `
                     <td>${rec.name}</td>
                     <td>${rec.level}</td>
-                    <td><b>${rec.grade}</b></td>
+                    <td><b>${rec.grade}</b> / 100</td>
                     <td style="color:${rec.grade >= 60 ? '#27ae60':'#e74c3c'}">${rec.status}</td>
                     <td><button style="background:var(--primary-green); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="downloadSingleRecord(${index})">تحميل ملف TXT</button></td>
                 `;
@@ -990,7 +1080,7 @@
             let rec = records[index];
             if(!rec) return;
 
-            let content = `تقرير الطالبة: ${rec.name}\nالمستوى: ${rec.level}\nالدرجة: ${rec.grade}\nالحالة: ${rec.status}\nالتاريخ: ${rec.date}`;
+            let content = `تقرير الطالبة: ${rec.name}\nالمستوى: ${rec.level}\nالدرجة النهائية من 100: ${rec.grade}\nالحالة: ${rec.status}\nالتاريخ: ${rec.date}`;
             let blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             let link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -1005,16 +1095,15 @@
                 return;
             }
 
-            // تحميل كل ملف طالبة على حدة تلقائياً بزر واحد
             records.forEach((rec, index) => {
                 setTimeout(() => {
-                    let content = `=== سجل تقرير رسمي ===\nاسم الطالبة: ${rec.name}\nالمستوى: ${rec.level}\nالدرجة النهائية: ${rec.grade}\nالحالة: ${rec.status}\nتاريخ الاختبار: ${rec.date}`;
+                    let content = `=== سجل تقرير رسمي ===\nاسم الطالبة: ${rec.name}\nالمستوى: ${rec.level}\nالدرجة النهائية من 100: ${rec.grade}\nالحالة: ${rec.status}\nتاريخ الاختبار: ${rec.date}`;
                     let blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
                     let link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     link.download = `طالبة_${rec.name.replace(/\s+/g, '_')}_${index+1}.txt`;
                     link.click();
-                }, index * 400); // بفارق زمني بسيط بين كل ملف حتى يتيح المتجر تنزيلها جميعاً بدون حظر
+                }, index * 400);
             });
 
             alert(`جاري تنزيل ملفات جميع الطالبات (${records.length} طالبات) متفرقة على جهازك الآن.`);
@@ -1070,13 +1159,6 @@
             favs.splice(index, 1);
             localStorage.setItem('user_favorites', JSON.stringify(favs));
             loadFavoritesUI();
-        }
-
-        function handleSmartSearch(e) {
-            let query = e.target.value.trim();
-            if(query.length > 1 && (query.includes('جزء') || query.includes('مستوى') || query.includes('البقرة'))) {
-                showPage('pathSelectionPage');
-            }
         }
 
         function updateStatsData() {
