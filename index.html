@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="اختبارات القرآن">
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%D8%A7%D9%84%D9%83%D8%B1%D9%8A%D9%85%22%2C%22short_name%22%3A%22%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fdfbf7%22%2C%22theme_color%22%3A%22%231e4d2b%22%7D">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%D8%AA%D8%B7%D8%A8%D9%8A%D9%8قب%20%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%D8%A7%D9%84%D9%83%D8%B1%D9%8A%D9%85%22%2C%22short_name%22%3A%22%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fdfbf7%22%2C%22theme_color%22%3A%22%231e4d2b%22%7D">
 
     <!-- استدعاء مكتبات فايربيس للإصدار المتوافق مع المتصفح مباشرة -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -479,18 +479,6 @@
             background: var(--primary-green);
             color: white;
         }
-        
-        .steps-box {
-            text-align: right;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            line-height: 1.6;
-            margin-top: 15px;
-        }
-        .steps-box h4 { margin-top: 0; color: var(--primary-green); }
     </style>
 </head>
 <body>
@@ -582,16 +570,11 @@
             <button class="action-btn-success" id="installAppBtn" onclick="installPWAApp()">📥 تنزيل وتثبيت التطبيق على الشاشة الرئيسية</button>
         </div>
 
-        <div class="steps-box">
-            <h4>متطلبات تطوير وتحويل التطبيق (مثل متاجر التطبيقات):</h4>
-            <ol style="padding-right: 20px; margin: 5px 0;">
-                <li><strong>تحويل التطبيق إلى PWA حقيقي:</strong> إضافة ملف البيان (Manifest.json) لتعيين أيقونات التطبيق ووضعيته، وخدمة العمال (Service Worker) لدعم وضع العمل دون إنترنت (Offline Mode).</li>
-                <li><strong>رفع التطبيق إلى متجر جوجل بلاي (Google Play Console):</strong> عبر تغليف التطبيق بصيغة (Trusted Web Activity / TWA) أو باستخدام إطارات العمل مثل Capacitor و Cordova لربطه بخصائص الأندرويد الأصلية.</li>
-                <li><strong>نظام إشعارات حقيقي (Push Notifications):</strong> ربط النظام بـ (Firebase Cloud Messaging - FCM) لإرسال تنبيهات فورية للمستخدمة عن المواعيد والاشتراكات.</li>
-                <li><strong>قاعدة بيانات سحابية متكاملة (Cloud Database):</strong> ربط البيانات بـ (Cloud Firestore) لحفظ السجلات والمستويات سحابياً وعدم فقدانها بتغيير الهاتف.</li>
-                <li><strong>بوابات دفع إلكترونية أصلية (Salla API / In-App Purchases):</strong> دمج Google Play Billing أو ربط آلي مع متجر سلة للتحقق من حالة اشتراك العميل.</li>
-                <li><strong>تحسين تجربة الاستخدام (UX/UI):</strong> إضافة شاشات تحميل تفاعلية، دعم كامل للأجهزة اللوحية (Tablets)، والوضع الليلي التلقائي (Dark/Light Mode).</li>
-            </ol>
+        <!-- القسم الجديد لزر إعدادات الاشتراك وترقية الاشتراك -->
+        <div class="settings-card" style="border-color: var(--gold-accent); background: #fffdf3;">
+            <h3>ترقية الاشتراك وباقات التطبيق</h3>
+            <p style="font-size: 0.9rem; color: #555;">يمكنك إدارة اشتراكك الحالي، تغيير خطة الدفع، أو الترقية للوصول لكافة الميزات المتقدمة والنماذج الحصرية.</p>
+            <button class="action-btn-success" style="background-color: var(--gold-accent); color: #1e4d2b; font-weight: bold;" onclick="openSubscriptionSettings()">⚙️ إعدادات الاشتراك وترقية الاشتراك</button>
         </div>
 
         <button class="back-btn" style="color: #d9534f; border-color: #d9534f; width: 100%; margin-top: 20px;" onclick="logout()">تسجيل الخروج</button>
@@ -770,7 +753,6 @@
 
     <!-- تهيئة فايربيس (إصدار Compat المباشر) -->
     <script>
-        // إعدادات مشروعك الخاصة
         const firebaseConfig = {
             apiKey: "AIzaSyDqgcR7fJIdsVK9HyVLSX0nsY94mW3-ZEs",
             authDomain: "qurantestingapp.firebaseapp.com",
@@ -781,7 +763,6 @@
             measurementId: "G-35HC2HDT4N"
         };
 
-        // تهيئة فايربيس وقاعدة البيانات
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
@@ -816,6 +797,11 @@
 
         window.showNotificationDetails = function() {
             alert("تنبيه الاشتراك الشهري: موعد الدفع القادم خلال 28 يوماً.");
+        };
+
+        // دالة فتح إعدادات وترقية الاشتراك الجديدة
+        window.openSubscriptionSettings = function() {
+            alert("جاري الاتصال ببوابة الدفع لإدارة الباقات وترقية اشتراكك الحالي...");
         };
 
         auth.onAuthStateChanged((user) => {
