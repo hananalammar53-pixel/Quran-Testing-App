@@ -33,10 +33,9 @@
             flex-direction: column;
             align-items: center;
             transition: background 0.3s, color 0.3s;
-            padding-bottom: 70px; /* مساحة للقائمة السفلية */
+            padding-bottom: 70px;
         }
 
-        /* شاشة البداية (Splash Screen) */
         #splashScreen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -72,7 +71,6 @@
 
         h1, h2, h3 { color: var(--primary-green); }
 
-        /* الشريط العلوي */
         .top-bar {
             width: 100%;
             max-width: 600px;
@@ -117,7 +115,6 @@
             font-weight: bold;
         }
 
-        /* شريط البحث الذكي */
         .search-bar {
             width: 100%;
             padding: 12px;
@@ -234,7 +231,6 @@
             font-weight: bold;
         }
 
-        /* لوحة التحكم والدرجات التفاعلية */
         .exam-control-panel {
             background: var(--card-bg);
             border: 2px solid var(--gold-accent);
@@ -264,6 +260,8 @@
             font-weight: bold;
             font-size: 0.85rem;
             transition: 0.2s;
+            width: 100%;
+            margin-bottom: 8px;
         }
         .action-btn-danger:hover { background-color: #c0392b; }
 
@@ -279,7 +277,6 @@
             margin-top: 10px;
         }
 
-        /* مؤقت الاختبار */
         .timer-box {
             background: #e67e22;
             color: white;
@@ -345,7 +342,6 @@
         }
         .google-btn:hover { background-color: #357ae8; }
 
-        /* القائمة السفلية العائمة (Bottom Navigation Bar) */
         .bottom-nav {
             position: fixed;
             bottom: 0; left: 0; width: 100%;
@@ -375,7 +371,6 @@
             color: var(--primary-green);
         }
 
-        /* البطاقات والإحصائيات */
         .settings-card, .stats-card {
             background: var(--card-bg);
             border: 2px solid var(--gold-accent);
@@ -399,13 +394,11 @@
 </head>
 <body>
 
-    <!-- شاشة البداية (Splash Screen) -->
     <div id="splashScreen">
         <h1>اختبارات القرآن</h1>
         <p>جاري تحميل التطبيق...</p>
     </div>
 
-    <!-- الشريط العلوي العام -->
     <div class="top-bar">
         <div class="top-controls">
             <button class="icon-btn" onclick="toggleTheme()" title="تغيير المظهر">🌓</button>
@@ -417,7 +410,6 @@
         <div id="topUserGreeting" style="font-weight: bold; font-size: 0.9rem;"></div>
     </div>
 
-    <!-- صفحة تسجيل الدخول -->
     <div id="authPage" class="page active-page">
         <h1>برنامج اختبارات القرآن الكريم</h1>
         <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية للجمعيات النسائية</p>
@@ -427,12 +419,10 @@
         </div>
     </div>
 
-    <!-- الصفحة الرئيسية -->
     <div id="homePage" class="page">
         <h1>برنامج اختبارات القرآن الكريم</h1>
         <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية</p>
         
-        <!-- محرك البحث الذكي -->
         <input type="text" class="search-bar" id="smartSearch" placeholder="بحث سريع عن جزء، سورة، أو مستوى..." onkeyup="handleSmartSearch(event)">
 
         <div id="subscription-status-badge" style="background: #e2f0d9; color: #385723; padding: 8px; border-radius: 5px; font-weight: bold; margin: 15px 0; font-size: 0.9rem;"></div>
@@ -443,7 +433,6 @@
         </div>
     </div>
 
-    <!-- صفحة الإحصائيات (Dashboard) -->
     <div id="statsPage" class="page">
         <h2>إحصائيات الملف الشخصي</h2>
         <div class="stats-card">
@@ -452,23 +441,16 @@
             <p><strong>نسبة الإنجاز الكلية:</strong> <span id="statProgressPercent">0%</span></p>
             <p><strong>متوسط درجات الطالبات:</strong> 96.5%</p>
         </div>
-        <div class="stats-card">
-            <h3>رفع وتحديث الصورة الشخصية</h3>
-            <input type="file" id="profileImageInput" accept="image/*" onchange="updateProfileImage(event)" style="margin-top: 10px;">
-            <div id="profileImagePreview" style="margin-top: 10px;"></div>
-        </div>
     </div>
 
-    <!-- صفحة المفضلة / المراجعة الخاصة -->
     <div id="favoritesPage" class="page">
         <h2>المقاطع والملاحظات المفضلة</h2>
         <p style="color: #7f8c8d;">المقاطع الصعبة التي تم حفظها للمراجعة:</p>
         <div id="favoritesList" style="margin-top: 15px; text-align: right;">
-            <p style="color: #888;">لا توجد مقاطع مفضلة مضافة حالياً. يمكنك إضافتها أثناء اختبار أي مقطع.</p>
+            <p style="color: #888;">لا توجد مقاطع مفضلة مضافة حالياً.</p>
         </div>
     </div>
 
-    <!-- صفحة إعدادات الحساب والدعم الفني -->
     <div id="subscriptionPage" class="page">
         <h2>إعدادات الحساب والدعم الفني</h2>
         
@@ -480,20 +462,9 @@
             <p><strong>تجديد الاشتراك القادم:</strong> خلال 28 يوماً</p>
         </div>
 
-        <h3 style="text-align: right; margin-top: 20px;">الأسئلة الشائعة والدعم الفني (FAQ)</h3>
-        <div class="faq-item">
-            <div class="faq-question">كيف يتم خصم درجات التنبيهات؟</div>
-            <div style="font-size: 0.9rem; color: #666;">كل 4 تنبيهات على الطالبة تخصم درجة واحدة كاملة من أصل 100 تلقائياً عبر زر "الفتح على الطالبة".</div>
-        </div>
-        <div class="faq-item">
-            <div class="faq-question">كيف أقوم بتجديد الاشتراك الشهري؟</div>
-            <div style="font-size: 0.9rem; color: #666;">يمكنك التجديد مباشرة عبر متجر سلة الخاص بالخدمة لتستمر الصلاحية تلقائياً.</div>
-        </div>
-
         <button class="back-btn" style="color: #d9534f; border-color: #d9534f; width: 100%; margin-top: 20px;" onclick="logout()">تسجيل الخروج</button>
     </div>
 
-    <!-- شاشة اختيار المسار -->
     <div id="pathSelectionPage" class="page">
         <button class="back-btn" onclick="showPage('homePage')">⬅ عودة للرئيسية</button>
         <h2>اختر مسار اختبار الحافظة</h2>
@@ -503,14 +474,12 @@
         </div>
     </div>
 
-    <!-- شاشة المعلمة (المستويات) -->
     <div id="teacherPage" class="page">
         <button class="back-btn" onclick="showPage('pathSelectionPage')">⬅ عودة للمسارات</button>
         <h2 id="pathTitle">مسار الاختبار</h2>
         <div class="parts-grid" id="partsGrid"></div>
     </div>
 
-    <!-- تفاصيل المستويات والأسئلة -->
     <div id="detailView" class="page">
         <button class="back-btn" onclick="showPage('teacherPage')">⬅ عودة للمستويات</button>
         <h2 id="selectedPartTitle">المستوى</h2>
@@ -525,14 +494,20 @@
 
         <div id="quranDisplayBox" class="quran-display-box">
             
-            <!-- لوحة التحكم في الدرجات ونظام التنبيهات -->
             <div class="exam-control-panel">
                 <div class="timer-box" id="examTimer">المؤقت: 02:00</div>
                 <div class="grade-display">
                     <span>درجة الطالبة الحالية: <span id="currentGradeVal">100</span> / 100</span>
-                    <button class="action-btn-danger" onclick="addWarningToStudent()">⚠️ تنبيه للطالبة (تنبيه <span id="warningCount">0</span>/4)</button>
                 </div>
-                <button class="action-btn-danger" style="background-color: #d35400; width:100%; margin-top:5px;" onclick="openOnStudentScreen()">مشاركة / فتح على شاشة الطالبة</button>
+                
+                <!-- زر الفتح على الطالبة -->
+                <button class="action-btn-danger" style="background-color: #d35400;" onclick="openOnStudentScreenWithPenalty()">🖥️ الفتح على الطالبة (خصم 1 درجة)</button>
+                
+                <!-- زر التنبيهات -->
+                <button class="action-btn-danger" onclick="addWarningToStudent()">⚠️ تنبيه للطالبة (تنبيه <span id="warningCount">0</span>/4)</button>
+
+                <!-- زر إنهاء الاختبار ورصد النتيجة الجديد -->
+                <button class="action-btn-success" onclick="finishExamAndShowResult()">📋 إنهاء الاختبار ورصد النتيجة النهائية</button>
             </div>
 
             <h3 id="clipTitle" style="color: var(--primary-green); margin: 0;">مقطع الاختبار</h3>
@@ -540,7 +515,6 @@
             
             <div class="quran-text-hint" id="quranTextHint"></div>
             
-            <!-- زر حفظ للمفضلة -->
             <button class="action-btn-success" style="background-color: var(--gold-accent);" onclick="toggleFavoriteCurrentClip()">⭐ إضافة للمفضلة / المراجعة الخاصة</button>
 
             <div style="text-align: right; font-weight: bold; color: #555; margin-bottom: 5px; margin-top:15px;">مصحف مجمع الملك فهد التفاعلي المعتمد:</div>
@@ -550,7 +524,24 @@
         </div>
     </div>
 
-    <!-- القائمة السفلية العائمة (Bottom Navigation Bar) -->
+    <!-- صفحة تقرير النتيجة النهائية -->
+    <div id="resultPage" class="page">
+        <button class="back-btn" onclick="showPage('detailView')">⬅ عودة للوحة الاختبار</button>
+        <h2>تقرير نتيجة الاختبار النهائي</h2>
+        
+        <div class="stats-card" style="text-align: right;">
+            <h3>بيانات التقرير المعتمد</h3>
+            <p><strong>المستوى المختبر:</strong> <span id="resLevelTitle">-</span></p>
+            <p><strong>النموذج المستخدم:</strong> <span id="resModelNum">-</span></p>
+            <p><strong>إجمالي التنبيهات المسجلة:</strong> <span id="resWarningsCount">0</span></p>
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
+            <p style="font-size: 1.3rem;"><strong>الدرجة النهائية المستحقة:</strong> <span id="resFinalGrade" style="color: var(--primary-green);">100</span> / 100</p>
+            <p><strong>حالة الاجتياز:</strong> <span id="resStatus" style="font-weight: bold; color: #27ae60;">اجتازت بنجاح</span></p>
+        </div>
+
+        <button class="action-btn-success" onclick="alert('تم حفظ وتصدير التقرير بنجاح!')">💾 طباعة أو تصدير النتيجة كملف PDF</button>
+    </div>
+
     <div class="bottom-nav">
         <button class="nav-item active" onclick="showPage('homePage'); setActiveNav(this)">
             <span>🏠</span>الرئيسية
@@ -566,7 +557,6 @@
         </button>
     </div>
 
-    <!-- Firebase SDKs & Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -632,7 +622,6 @@
     </script>
 
     <script>
-        // إخفاء شاشة البداية بعد التحميل
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const splash = document.getElementById('splashScreen');
@@ -650,7 +639,6 @@
         let warningCount = 0;
         let timerInterval = null;
 
-        // متغيرات البيانات للمستويات
         const pathAscData = {
             1: { title: "المستوى 1 (جزء 1)", startPage: 2, endPage: 21, q: 6 },
             2: { title: "المستوى 2 (جزآن)", startPage: 2, endPage: 41, q: 6 },
@@ -819,7 +807,6 @@
 
             quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${actualPageNumber + 3}/`;
 
-            // إعادة ضبط الدرجة والتنبيهات لهذا السؤال
             studentGrade = 100;
             warningCount = 0;
             updateGradeUI();
@@ -829,7 +816,6 @@
             displayBox.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // نظام الدرجات والتنبيهات
         function addWarningToStudent() {
             warningCount++;
             if (warningCount % 4 === 0) {
@@ -841,19 +827,41 @@
             updateGradeUI();
         }
 
+        function openOnStudentScreenWithPenalty() {
+            studentGrade = Math.max(0, studentGrade - 1);
+            updateGradeUI();
+            alert(`تم فتح السؤال على شاشة الطالبة بنجاح وتم خصم درجة واحدة! الدرجة الحالية: ${studentGrade}/100.`);
+        }
+
+        function finishExamAndShowResult() {
+            const dataSource = (currentPath === 'asc') ? pathAscData : pathDescData;
+            const lvlTitle = dataSource[currentLevel].title;
+
+            document.getElementById('resLevelTitle').innerText = lvlTitle;
+            document.getElementById('resModelNum').innerText = "نموذج " + currentModel;
+            document.getElementById('resWarningsCount').innerText = warningCount;
+            document.getElementById('resFinalGrade').innerText = studentGrade;
+
+            let statusEl = document.getElementById('resStatus');
+            if (studentGrade >= 60) {
+                statusEl.innerText = "اجتازت الاختبار بنجاح 🎉";
+                statusEl.style.color = "#27ae60";
+            } else {
+                statusEl.innerText = "لم تجتز الاختبار (تحتاج إعادة)";
+                statusEl.style.color = "#e74c3c";
+            }
+
+            showPage('resultPage');
+        }
+
         function updateGradeUI() {
             document.getElementById('currentGradeVal').innerText = studentGrade;
             document.getElementById('warningCount').innerText = warningCount;
         }
 
-        function openOnStudentScreen() {
-            alert(`تم إرسال محتوى السؤال والفتح على شاشة الطالبة بنجاح. الدرجة الحالية مسجلة: ${studentGrade}/100.`);
-        }
-
-        // المؤقت التنازلي للاختبار
         function startExamTimer() {
             if(timerInterval) clearInterval(timerInterval);
-            let timeLeft = 120; // دقيقتان
+            let timeLeft = 120;
             const timerDisplay = document.getElementById('examTimer');
             
             timerInterval = setInterval(() => {
@@ -869,7 +877,6 @@
             }, 1000);
         }
 
-        // حفظ في المفضلة
         function toggleFavoriteCurrentClip() {
             let favs = JSON.parse(localStorage.getItem('user_favorites') || '[]');
             let currentItem = document.getElementById('selectedPartTitle').innerText + ' - ' + document.getElementById('clipTitle').innerText;
@@ -906,26 +913,12 @@
             loadFavoritesUI();
         }
 
-        // محرك البحث الذكي
         function handleSmartSearch(e) {
             let query = e.target.value.trim();
             if(query.length > 1) {
                 if(query.includes('جزء') || query.includes('مستوى') || query.includes('البقرة')) {
                     showPage('pathSelectionPage');
                 }
-            }
-        }
-
-        // رفع الصورة الشخصية
-        function updateProfileImage(e) {
-            let file = e.target.files[0];
-            if(file) {
-                let reader = new FileReader();
-                reader.onload = function(event) {
-                    document.getElementById('profileImagePreview').innerHTML = `<img src="${event.target.result}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--gold-accent);">`;
-                    localStorage.setItem('profile_img', event.target.result);
-                }
-                reader.readAsDataURL(file);
             }
         }
 
