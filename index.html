@@ -115,7 +115,7 @@
             font-weight: bold;
         }
 
-        .search-bar {
+        .search-bar, .input-field {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
@@ -241,7 +241,7 @@
         }
 
         .grade-display {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: var(--primary-green);
             margin-bottom: 10px;
@@ -381,15 +381,22 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        .faq-item {
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            text-align: right;
+            font-size: 0.9rem;
         }
-        .faq-question { font-weight: bold; color: var(--primary-green); margin-bottom: 5px; }
+        .results-table th, .results-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: center;
+        }
+        .results-table th {
+            background: var(--primary-green);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -429,7 +436,7 @@
         
         <div class="main-menu">
             <div class="role-button" onclick="showPage('pathSelectionPage')">معلمة قرآن</div>
-            <div class="role-button" onclick="alert('صفحة الطالبة قيد التطوير حالياً')">طالبة</div>
+            <div class="role-button" onclick="showPage('resultsArchivePage'); loadResultsArchiveUI();">سجل نتائج الطالبات</div>
         </div>
     </div>
 
@@ -439,13 +446,11 @@
             <h3>ملخص الإنجاز</h3>
             <p><strong>المستويات المختبرة:</strong> <span id="statCompletedLevels">0</span> من 19</p>
             <p><strong>نسبة الإنجاز الكلية:</strong> <span id="statProgressPercent">0%</span></p>
-            <p><strong>متوسط درجات الطالبات:</strong> 96.5%</p>
         </div>
     </div>
 
     <div id="favoritesPage" class="page">
         <h2>المقاطع والملاحظات المفضلة</h2>
-        <p style="color: #7f8c8d;">المقاطع الصعبة التي تم حفظها للمراجعة:</p>
         <div id="favoritesList" style="margin-top: 15px; text-align: right;">
             <p style="color: #888;">لا توجد مقاطع مفضلة مضافة حالياً.</p>
         </div>
@@ -453,16 +458,39 @@
 
     <div id="subscriptionPage" class="page">
         <h2>إعدادات الحساب والدعم الفني</h2>
-        
         <div class="settings-card">
             <h3>معلومات الحساب</h3>
             <p><strong>الاسم:</strong> <span id="settingUserName"></span></p>
             <p><strong>البريد الإلكتروني:</strong> <span id="settingUserEmail"></span></p>
             <p><strong>حالة الاشتراك:</strong> <span style="color: #27ae60; font-weight: bold;">فعال (متجر سلة)</span></p>
-            <p><strong>تجديد الاشتراك القادم:</strong> خلال 28 يوماً</p>
         </div>
-
         <button class="back-btn" style="color: #d9534f; border-color: #d9534f; width: 100%; margin-top: 20px;" onclick="logout()">تسجيل الخروج</button>
+    </div>
+
+    <!-- صفحة إدارة نتائج الطالبات (سجل المعلمة) -->
+    <div id="resultsArchivePage" class="page">
+        <button class="back-btn" onclick="showPage('homePage')">⬅ عودة للرئيسية</button>
+        <h2>سجل وتحميل نتائج الطالبات</h2>
+        <p style="color: #7f8c8d; font-size: 0.9rem;">يمكنك متابعة النتائج المرصودة وتحميل ملفات الطالبات أو تنزيل جميع الملفات دفعة واحدة.</p>
+        
+        <button class="action-btn-success" style="background-color: #2980b9; margin-bottom: 15px;" onclick="downloadAllStudentsFiles()">📥 تحميل نتائج جميع الطالبات (ملفات منفصلة ZIP/TXT)</button>
+
+        <div style="overflow-x: auto;">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>اسم الطالبة</th>
+                        <th>المستوى / النموذج</th>
+                        <th>الدرجة</th>
+                        <th>الحالة</th>
+                        <th>تحميل فردي</th>
+                    </tr>
+                </thead>
+                <tbody id="archiveTableBody">
+                    <tr><td colspan="5" style="color: #777;">لا توجد نتائج مسجلة حتى الآن.</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div id="pathSelectionPage" class="page">
@@ -488,6 +516,12 @@
         <div class="sub-grid" id="modelsGrid"></div>
 
         <div id="clipsSection" style="display:none; border-top: 2px solid var(--gold-accent); padding-top: 20px;">
+            <!-- حقل اسم الطالبة المختبرة -->
+            <div style="text-align: right; margin-bottom: 15px;">
+                <label style="font-weight: bold; color: var(--primary-green); display: block; margin-bottom: 5px;">اسم الطالبة المختبرة:</label>
+                <input type="text" id="studentNameInput" class="input-field" placeholder="أدخل اسم الطالبة الثلاثي...">
+            </div>
+
             <p id="clipsCountText">مقاطع الاختبار المتاحة للنموذج:</p>
             <div class="sub-grid" style="grid-template-columns: repeat(3, 1fr);" id="clipsGrid"></div>
         </div>
@@ -497,17 +531,14 @@
             <div class="exam-control-panel">
                 <div class="timer-box" id="examTimer">المؤقت: 02:00</div>
                 <div class="grade-display">
-                    <span>درجة الطالبة الحالية: <span id="currentGradeVal">100</span> / 100</span>
+                    <span>درجة السؤال الحالي: <span id="currentGradeVal">100</span> / 100</span>
+                    <span style="font-size: 0.85rem; color: #7f8c8d;">سؤال <span id="currentClipIdx">1</span> من <span id="totalClipIdx">6</span></span>
                 </div>
                 
-                <!-- زر الفتح على الطالبة -->
                 <button class="action-btn-danger" style="background-color: #d35400;" onclick="openOnStudentScreenWithPenalty()">🖥️ الفتح على الطالبة (خصم 1 درجة)</button>
-                
-                <!-- زر التنبيهات -->
                 <button class="action-btn-danger" onclick="addWarningToStudent()">⚠️ تنبيه للطالبة (تنبيه <span id="warningCount">0</span>/4)</button>
 
-                <!-- زر إنهاء الاختبار ورصد النتيجة الجديد -->
-                <button class="action-btn-success" onclick="finishExamAndShowResult()">📋 إنهاء الاختبار ورصد النتيجة النهائية</button>
+                <button class="action-btn-success" id="nextQuestionBtn" onclick="saveAndProceedNextQuestion()">💾 حفظ درجة السؤال والانتقال التالي</button>
             </div>
 
             <h3 id="clipTitle" style="color: var(--primary-green); margin: 0;">مقطع الاختبار</h3>
@@ -515,7 +546,7 @@
             
             <div class="quran-text-hint" id="quranTextHint"></div>
             
-            <button class="action-btn-success" style="background-color: var(--gold-accent);" onclick="toggleFavoriteCurrentClip()">⭐ إضافة للمفضلة / المراجعة الخاصة</button>
+            <button class="action-btn-success" style="background-color: var(--gold-accent);" onclick="toggleFavoriteCurrentClip()">⭐ إضافة للمفضلة</button>
 
             <div style="text-align: right; font-weight: bold; color: #555; margin-bottom: 5px; margin-top:15px;">مصحف مجمع الملك فهد التفاعلي المعتمد:</div>
             <div class="embed-container">
@@ -524,22 +555,23 @@
         </div>
     </div>
 
-    <!-- صفحة تقرير النتيجة النهائية -->
+    <!-- صفحة تقرير النتيجة النهائية الفردية -->
     <div id="resultPage" class="page">
-        <button class="back-btn" onclick="showPage('detailView')">⬅ عودة للوحة الاختبار</button>
+        <button class="back-btn" onclick="showPage('detailView')">⬅ عودة للاختبار</button>
         <h2>تقرير نتيجة الاختبار النهائي</h2>
         
         <div class="stats-card" style="text-align: right;">
             <h3>بيانات التقرير المعتمد</h3>
+            <p><strong>اسم الطالبة:</strong> <span id="resStudentName">-</span></p>
             <p><strong>المستوى المختبر:</strong> <span id="resLevelTitle">-</span></p>
             <p><strong>النموذج المستخدم:</strong> <span id="resModelNum">-</span></p>
-            <p><strong>إجمالي التنبيهات المسجلة:</strong> <span id="resWarningsCount">0</span></p>
+            <p><strong>إجمالي التنبيهات:</strong> <span id="resWarningsCount">0</span></p>
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
-            <p style="font-size: 1.3rem;"><strong>الدرجة النهائية المستحقة:</strong> <span id="resFinalGrade" style="color: var(--primary-green);">100</span> / 100</p>
+            <p style="font-size: 1.3rem;"><strong>الدرجة النهائية المركبة:</strong> <span id="resFinalGrade" style="color: var(--primary-green);">100</span> / 100</p>
             <p><strong>حالة الاجتياز:</strong> <span id="resStatus" style="font-weight: bold; color: #27ae60;">اجتازت بنجاح</span></p>
         </div>
 
-        <button class="action-btn-success" onclick="alert('تم حفظ وتصدير التقرير بنجاح!')">💾 طباعة أو تصدير النتيجة كملف PDF</button>
+        <button class="action-btn-success" onclick="downloadCurrentStudentReportFile()">💾 تحميل تقرير الطالبة مباشرة (ملف TXT)</button>
     </div>
 
     <div class="bottom-nav">
@@ -581,9 +613,7 @@
             });
         };
 
-        window.logout = function() {
-            signOut(auth);
-        };
+        window.logout = function() { signOut(auth); };
 
         window.toggleTheme = function() {
             let currentTheme = document.documentElement.getAttribute("data-theme");
@@ -635,8 +665,12 @@
         let currentLevel = 1;
         let currentModel = 1;
         let currentPath = 'asc';
-        let studentGrade = 100;
-        let warningCount = 0;
+        
+        let currentClipIndex = 1;
+        let maxClipsTotal = 6;
+        let currentQuestionGrade = 100;
+        let accumulatedQuestionGrades = [];
+        let totalWarnings = 0;
         let timerInterval = null;
 
         const pathAscData = {
@@ -710,7 +744,6 @@
             const partsGrid = document.getElementById('partsGrid');
             partsGrid.innerHTML = ''; 
             const pathTitle = document.getElementById('pathTitle');
-            
             const dataSource = (path === 'asc') ? pathAscData : pathDescData;
             pathTitle.innerText = (path === 'asc') ? "مسار القياس: البدء من سورة البقرة صعوداً" : "مسار القياس: البدء من سورة الناس نزولاً";
 
@@ -757,7 +790,6 @@
                 };
                 modelsGrid.appendChild(mBox);
             }
-            
             showPage('detailView');
             document.getElementById('clipsSection').style.display = 'none';
         }
@@ -770,20 +802,32 @@
             document.getElementById('quranDisplayBox').style.display = 'none';
             
             const dataSource = (currentPath === 'asc') ? pathAscData : pathDescData;
-            let maxClips = dataSource[currentLevel].q; 
+            maxClipsTotal = dataSource[currentLevel].q; 
+            document.getElementById('clipsCountText').innerText = `مقاطع الاختبار للنموذج (عدد الأسئلة النظامي: ${maxClipsTotal}):`;
             
-            document.getElementById('clipsCountText').innerText = `مقاطع الاختبار للنموذج (عدد الأسئلة النظامي: ${maxClips}):`;
-            
-            for (let k = 1; k <= maxClips; k++) {
+            for (let k = 1; k <= maxClipsTotal; k++) {
                 let cBox = document.createElement('div');
                 cBox.className = 'box clip-box';
                 cBox.innerText = 'سؤال ' + k;
-                cBox.onclick = () => loadClipData(k);
+                cBox.onclick = () => startClipExam(k);
                 clipsGrid.appendChild(cBox);
             }
         }
 
-        function loadClipData(clipNum) {
+        function startClipExam(clipNum) {
+            let studentName = document.getElementById('studentNameInput').value.trim();
+            if(!studentName) {
+                alert("الرجاء إدخال اسم الطالبة المختبرة أولاً قبل البدء بأسئلة الاختبار!");
+                document.getElementById('studentNameInput').focus();
+                return;
+            }
+
+            currentClipIndex = clipNum;
+            if (clipNum === 1) {
+                accumulatedQuestionGrades = [];
+                totalWarnings = 0;
+            }
+
             const displayBox = document.getElementById('quranDisplayBox');
             const clipTitle = document.getElementById('clipTitle');
             const pageNumber = document.getElementById('pageNumber');
@@ -804,11 +848,9 @@
             clipTitle.innerText = 'سؤال الاختبار ' + clipNum;
             pageNumber.innerText = "صفحة المصحف المعتمدة: " + actualPageNumber;
             quranTextHint.innerText = `اقرئي من بداية الصفحة رقم (${actualPageNumber}) من سورة (${detectedSurah}).`;
-
             quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${actualPageNumber + 3}/`;
 
-            studentGrade = 100;
-            warningCount = 0;
+            currentQuestionGrade = 100;
             updateGradeUI();
             startExamTimer();
 
@@ -817,46 +859,165 @@
         }
 
         function addWarningToStudent() {
-            warningCount++;
-            if (warningCount % 4 === 0) {
-                studentGrade = Math.max(0, studentGrade - 1);
-                alert("تم الوصول إلى 4 تنبيهات! تم خصم درجة واحدة من الطالبة.");
-            } else {
-                alert(`تنبيه مسجل للطالبة (${warningCount}/4). متبقي ${4 - (warningCount % 4)} تنبيهات لخصم الدرجة القادمة.`);
-            }
+            totalWarnings++;
+            currentQuestionGrade = Math.max(0, currentQuestionGrade - 1);
+            alert(`تنبيه للطالبة (${totalWarnings}). تم خصم درجة واحدة من السؤال الحالي تلقائياً.`);
             updateGradeUI();
         }
 
         function openOnStudentScreenWithPenalty() {
-            studentGrade = Math.max(0, studentGrade - 1);
+            currentQuestionGrade = Math.max(0, currentQuestionGrade - 1);
             updateGradeUI();
-            alert(`تم فتح السؤال على شاشة الطالبة بنجاح وتم خصم درجة واحدة! الدرجة الحالية: ${studentGrade}/100.`);
+            alert(`تم الفتح على شاشة الطالبة بنجاح وتم خصم درجة من السؤال الحالي!`);
         }
 
-        function finishExamAndShowResult() {
-            const dataSource = (currentPath === 'asc') ? pathAscData : pathDescData;
-            const lvlTitle = dataSource[currentLevel].title;
+        function updateGradeUI() {
+            document.getElementById('currentGradeVal').innerText = currentQuestionGrade;
+            document.getElementById('currentClipIdx').innerText = currentClipIndex;
+            document.getElementById('totalClipIdx').innerText = maxClipsTotal;
+            document.getElementById('warningCount').innerText = totalWarnings;
+            
+            let btn = document.getElementById('nextQuestionBtn');
+            if(currentClipIndex === maxClipsTotal) {
+                btn.innerText = "📋 إنهاء الاختبار وعرض النتيجة النهائية الشاملة";
+            } else {
+                btn.innerText = `💾 حفظ درجة السؤال ${currentClipIndex} والانتقال للتالي`;
+            }
+        }
 
+        function saveAndProceedNextQuestion() {
+            // حفظ درجة السؤال الحالي في المصفوفة
+            accumulatedQuestionGrades.push(currentQuestionGrade);
+
+            if(currentClipIndex < maxClipsTotal) {
+                // الانتقال للسؤال التالي تلقائياً
+                startClipExam(currentClipIndex + 1);
+            } else {
+                // هذا هو السؤال الأخير -> تجميع النتيجة النهائية المتوسطة لجميع الأسئلة
+                calculateAndShowFinalResult();
+            }
+        }
+
+        function calculateAndShowFinalResult() {
+            let sum = accumulatedQuestionGrades.reduce((a, b) => a + b, 0);
+            let finalAvgGrade = Math.round(sum / maxClipsTotal);
+
+            let dataSource = (currentPath === 'asc') ? pathAscData : pathDescData;
+            let lvlTitle = dataSource[currentLevel].title;
+            let studentName = document.getElementById('studentNameInput').value.trim() || "طالبة غير مسماة";
+
+            document.getElementById('resStudentName').innerText = studentName;
             document.getElementById('resLevelTitle').innerText = lvlTitle;
             document.getElementById('resModelNum').innerText = "نموذج " + currentModel;
-            document.getElementById('resWarningsCount').innerText = warningCount;
-            document.getElementById('resFinalGrade').innerText = studentGrade;
+            document.getElementById('resWarningsCount').innerText = totalWarnings;
+            document.getElementById('resFinalGrade').innerText = finalAvgGrade;
 
             let statusEl = document.getElementById('resStatus');
-            if (studentGrade >= 60) {
-                statusEl.innerText = "اجتازت الاختبار بنجاح 🎉";
+            let statusText = "اجتازت بنجاح 🎉";
+            if (finalAvgGrade >= 60) {
+                statusEl.innerText = statusText;
                 statusEl.style.color = "#27ae60";
             } else {
-                statusEl.innerText = "لم تجتز الاختبار (تحتاج إعادة)";
+                statusText = "لم تجتز الاختبار";
+                statusEl.innerText = statusText;
                 statusEl.style.color = "#e74c3c";
             }
+
+            // حفظ النتيجة في الأرشيف المحلي للمعلمة لكي تتمكن من تصديرها لاحقاً
+            saveResultToArchive(studentName, lvlTitle + ' (نموذج ' + currentModel + ')', finalAvgGrade, statusText);
 
             showPage('resultPage');
         }
 
-        function updateGradeUI() {
-            document.getElementById('currentGradeVal').innerText = studentGrade;
-            document.getElementById('warningCount').innerText = warningCount;
+        function saveResultToArchive(name, level, grade, status) {
+            let records = JSON.parse(localStorage.getItem('teacher_students_results') || '[]');
+            let record = {
+                id: Date.now(),
+                name: name,
+                level: level,
+                grade: grade,
+                status: status,
+                date: new Date().toLocaleDateString('ar-SA')
+            };
+            records.push(record);
+            localStorage.setItem('teacher_students_results', JSON.stringify(records));
+        }
+
+        function downloadCurrentStudentReportFile() {
+            let studentName = document.getElementById('resStudentName').innerText;
+            let levelTitle = document.getElementById('resLevelTitle').innerText;
+            let finalGrade = document.getElementById('resFinalGrade').innerText;
+            let status = document.getElementById('resStatus').innerText;
+
+            let content = `--- تقرير اختبار القرآن الكريم الرسمى ---\n` +
+                          `اسم الطالبة: ${studentName}\n` +
+                          `المستوى: ${levelTitle}\n` +
+                          `الدرجة النهائية: ${finalGrade} / 100\n` +
+                          `حالة الاجتياز: ${status}\n` +
+                          `تاريخ الإصدار: ${new Date().toLocaleDateString('ar-SA')}`;
+
+            let blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `نتيجة_الطالبة_${studentName.replace(/\s+/g, '_')}.txt`;
+            link.click();
+            alert("تم تنزيل ملف النتيجة على جهازك بنجاح!");
+        }
+
+        function loadResultsArchiveUI() {
+            let records = JSON.parse(localStorage.getItem('teacher_students_results') || '[]');
+            let tbody = document.getElementById('archiveTableBody');
+            if(records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color: #777;">لا توجد نتائج مسجلة حتى الآن.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = '';
+            records.forEach((rec, index) => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${rec.name}</td>
+                    <td>${rec.level}</td>
+                    <td><b>${rec.grade}</b></td>
+                    <td style="color:${rec.grade >= 60 ? '#27ae60':'#e74c3c'}">${rec.status}</td>
+                    <td><button style="background:var(--primary-green); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="downloadSingleRecord(${index})">تحميل ملف TXT</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function downloadSingleRecord(index) {
+            let records = JSON.parse(localStorage.getItem('teacher_students_results') || '[]');
+            let rec = records[index];
+            if(!rec) return;
+
+            let content = `تقرير الطالبة: ${rec.name}\nالمستوى: ${rec.level}\nالدرجة: ${rec.grade}\nالحالة: ${rec.status}\nالتاريخ: ${rec.date}`;
+            let blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `ملف_الطالبة_${rec.name.replace(/\s+/g, '_')}.txt`;
+            link.click();
+        }
+
+        function downloadAllStudentsFiles() {
+            let records = JSON.parse(localStorage.getItem('teacher_students_results') || '[]');
+            if(records.length === 0) {
+                alert("لا توجد أي نتائج طالبات مسجلة للتحميل حالياً.");
+                return;
+            }
+
+            // تحميل كل ملف طالبة على حدة تلقائياً بزر واحد
+            records.forEach((rec, index) => {
+                setTimeout(() => {
+                    let content = `=== سجل تقرير رسمي ===\nاسم الطالبة: ${rec.name}\nالمستوى: ${rec.level}\nالدرجة النهائية: ${rec.grade}\nالحالة: ${rec.status}\nتاريخ الاختبار: ${rec.date}`;
+                    let blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                    let link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `طالبة_${rec.name.replace(/\s+/g, '_')}_${index+1}.txt`;
+                    link.click();
+                }, index * 400); // بفارق زمني بسيط بين كل ملف حتى يتيح المتجر تنزيلها جميعاً بدون حظر
+            });
+
+            alert(`جاري تنزيل ملفات جميع الطالبات (${records.length} طالبات) متفرقة على جهازك الآن.`);
         }
 
         function startExamTimer() {
@@ -868,7 +1029,6 @@
                 let minutes = Math.floor(timeLeft / 60);
                 let seconds = timeLeft % 60;
                 timerDisplay.innerText = `المؤقت: ${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-                
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     timerDisplay.innerText = "انتهى الوقت المخصص للسؤال!";
@@ -880,11 +1040,10 @@
         function toggleFavoriteCurrentClip() {
             let favs = JSON.parse(localStorage.getItem('user_favorites') || '[]');
             let currentItem = document.getElementById('selectedPartTitle').innerText + ' - ' + document.getElementById('clipTitle').innerText;
-            
             if(!favs.includes(currentItem)) {
                 favs.push(currentItem);
                 localStorage.setItem('user_favorites', JSON.stringify(favs));
-                alert("تم إضافة المقطع إلى المفضلة بنجاح!");
+                alert("تم إضافة المقطع للمفضلة بنجاح!");
             } else {
                 alert("المقطع موجود بالفعل في المفضلة.");
             }
@@ -915,10 +1074,8 @@
 
         function handleSmartSearch(e) {
             let query = e.target.value.trim();
-            if(query.length > 1) {
-                if(query.includes('جزء') || query.includes('مستوى') || query.includes('البقرة')) {
-                    showPage('pathSelectionPage');
-                }
+            if(query.length > 1 && (query.includes('جزء') || query.includes('مستوى') || query.includes('البقرة'))) {
+                showPage('pathSelectionPage');
             }
         }
 
