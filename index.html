@@ -140,7 +140,7 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 0 0 8px 8px;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             z-index: 100;
             display: none;
@@ -463,9 +463,9 @@
         <h1>برنامج اختبارات القرآن الكريم</h1>
         <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية</p>
         
-        <!-- حقل البحث الذكي المطور (يبحث بالسورة والأجزاء والمستويات) -->
+        <!-- حقل البحث الذكي الشامل (سور القرآن وأرقام النماذج) -->
         <div class="search-container">
-            <input type="text" class="search-bar" id="smartSearch" placeholder="ابحث عن سورة (البقرة، آل عمران، الناس...) أو جزء..." oninput="handleSmartSearch(event)" autocomplete="off">
+            <input type="text" class="search-bar" id="smartSearch" placeholder="ابحث عن أي سورة (البقرة، الملك، يس...) أو رقم نموذج (نموذج 3)..." oninput="handleSmartSearch(event)" autocomplete="off">
             <div id="searchResultsDropdown" class="search-results-dropdown"></div>
         </div>
 
@@ -504,7 +504,6 @@
         <button class="back-btn" style="color: #d9534f; border-color: #d9534f; width: 100%; margin-top: 20px;" onclick="logout()">تسجيل الخروج</button>
     </div>
 
-    <!-- صفحة إدارة نتائج الطالبات (سجل المعلمة) -->
     <div id="resultsArchivePage" class="page">
         <button class="back-btn" onclick="showPage('homePage')">⬅ عودة للرئيسية</button>
         <h2>سجل وتحميل نتائج الطالبات</h2>
@@ -553,7 +552,6 @@
         <div class="sub-grid" id="modelsGrid"></div>
 
         <div id="clipsSection" style="display:none; border-top: 2px solid var(--gold-accent); padding-top: 20px;">
-            <!-- حقل اسم الطالبة المختبرة -->
             <div style="text-align: right; margin-bottom: 15px;">
                 <label style="font-weight: bold; color: var(--primary-green); display: block; margin-bottom: 5px;">اسم الطالبة المختبرة:</label>
                 <input type="text" id="studentNameInput" class="input-field" placeholder="أدخل اسم الطالبة الثلاثي...">
@@ -592,7 +590,6 @@
         </div>
     </div>
 
-    <!-- صفحة تقرير النتيجة النهائية الفردية -->
     <div id="resultPage" class="page">
         <button class="back-btn" onclick="showPage('detailView')">⬅ عودة للاختبار</button>
         <h2>تقرير نتيجة الاختبار النهائي</h2>
@@ -705,9 +702,127 @@
         
         let currentClipIndex = 1;
         let maxClipsTotal = 6;
-        let totalRemainingGrade = 100; // رصيد الدرجة الموحد يبدأ من 100
+        let totalRemainingGrade = 100;
         let totalWarnings = 0;
         let timerInterval = null;
+
+        // قائمة شاملة لجميع سور القرآن الكريم (114 سورة) مع نطاق صفحاتها التقديري لتوجيه البحث بدقة
+        const quranSurahsList = [
+            { name: "الفاتحة", start: 1, end: 1, level: 1, path: 'desc' },
+            { name: "البقرة", start: 2, end: 49, level: 1, path: 'asc' },
+            { name: "آل عمران", start: 50, end: 76, level: 2, path: 'asc' },
+            { name: "النساء", start: 77, end: 106, level: 3, path: 'asc' },
+            { name: "المائدة", start: 107, end: 127, level: 4, path: 'asc' },
+            { name: "الأنعام", start: 128, end: 150, level: 5, path: 'asc' },
+            { name: "الأعراف", start: 151, end: 176, level: 6, path: 'asc' },
+            { name: "الأنفال", start: 177, end: 186, level: 7, path: 'asc' },
+            { name: "التوبة", start: 187, end: 207, level: 8, path: 'asc' },
+            { name: "يونس", start: 208, end: 221, level: 9, path: 'asc' },
+            { name: "هود", start: 221, end: 235, level: 10, path: 'asc' },
+            { name: "يوسف", start: 235, end: 248, level: 11, path: 'asc' },
+            { name: "الرعد", start: 249, end: 255, level: 11, path: 'asc' },
+            { name: "إبراهيم", start: 255, end: 261, level: 12, path: 'asc' },
+            { name: "الحجر", start: 262, end: 267, level: 12, path: 'asc' },
+            { name: "النحل", start: 267, end: 281, level: 12, path: 'asc' },
+            { name: "الإسراء", start: 282, end: 293, level: 13, path: 'asc' },
+            { name: "الكهف", start: 293, end: 304, level: 13, path: 'asc' },
+            { name: "مريم", start: 305, end: 312, level: 14, path: 'asc' },
+            { name: "طه", start: 312, end: 321, level: 14, path: 'asc' },
+            { name: "الأنبياء", start: 322, end: 331, level: 14, path: 'asc' },
+            { name: "الحج", start: 332, end: 341, level: 14, path: 'asc' },
+            { name: "المؤمنون", start: 342, end: 349, level: 15, path: 'asc' },
+            { name: "النور", start: 350, end: 359, level: 15, path: 'asc' },
+            { name: "الفرقان", start: 360, end: 366, level: 15, path: 'asc' },
+            { name: "الشعراء", start: 367, end: 376, level: 16, path: 'asc' },
+            { name: "النمل", start: 377, end: 385, level: 16, path: 'asc' },
+            { name: "القصص", start: 385, end: 396, level: 16, path: 'asc' },
+            { name: "العنكبوت", start: 396, end: 404, level: 17, path: 'asc' },
+            { name: "الروم", start: 404, end: 410, level: 17, path: 'asc' },
+            { name: "لقمان", start: 411, end: 414, level: 17, path: 'asc' },
+            { name: "السجدة", start: 415, end: 417, level: 17, path: 'asc' },
+            { name: "الأحزاب", start: 418, end: 427, level: 18, path: 'asc' },
+            { name: "سبأ", start: 428, end: 434, level: 18, path: 'asc' },
+            { name: "فاطر", start: 434, end: 440, level: 18, path: 'asc' },
+            { name: "يس", start: 440, end: 445, level: 19, path: 'asc' },
+            { name: "الصافات", start: 446, end: 452, level: 19, path: 'asc' },
+            { name: "ص", start: 453, end: 458, level: 19, path: 'asc' },
+            { name: "الزمر", start: 459, end: 467, level: 19, path: 'asc' },
+            { name: "غافر", start: 467, end: 476, level: 19, path: 'asc' },
+            { name: "فصلت", start: 477, end: 482, level: 19, path: 'asc' },
+            { name: "الشورى", start: 483, end: 489, level: 19, path: 'asc' },
+            { name: "الزخرف", start: 489, end: 495, level: 19, path: 'asc' },
+            { name: "الدخان", start: 496, end: 498, level: 19, path: 'asc' },
+            { name: "الجاثية", start: 499, end: 502, level: 19, path: 'asc' },
+            { name: "الأحقاف", start: 502, end: 506, level: 19, path: 'asc' },
+            { name: "محمد", start: 507, end: 510, level: 19, path: 'asc' },
+            { name: "الفتح", start: 511, end: 515, level: 19, path: 'asc' },
+            { name: "الحجرات", start: 515, end: 517, level: 19, path: 'asc' },
+            { name: "ق", start: 518, end: 520, level: 19, path: 'asc' },
+            { name: "الذاريات", start: 520, end: 523, level: 19, path: 'asc' },
+            { name: "الطور", start: 523, end: 525, level: 19, path: 'asc' },
+            { name: "النجم", start: 526, end: 528, level: 19, path: 'asc' },
+            { name: "القمر", start: 528, end: 531, level: 19, path: 'asc' },
+            { name: "الرحمن", start: 531, end: 534, level: 19, path: 'asc' },
+            { name: "الواقعة", start: 534, end: 537, level: 19, path: 'asc' },
+            { name: "الحديد", start: 537, end: 541, level: 19, path: 'asc' },
+            { name: "المجادلة", start: 542, end: 545, level: 1, path: 'desc' },
+            { name: "الحشر", start: 545, end: 548, level: 1, path: 'desc' },
+            { name: "الممتحنة", start: 549, end: 551, level: 1, path: 'desc' },
+            { name: "الصف", start: 551, end: 552, level: 1, path: 'desc' },
+            { name: "الجمعة", start: 553, end: 554, level: 1, path: 'desc' },
+            { name: "المنافقون", start: 554, end: 555, level: 1, path: 'desc' },
+            { name: "التغابن", start: 556, end: 557, level: 1, path: 'desc' },
+            { name: "الطلاق", start: 558, end: 559, level: 1, path: 'desc' },
+            { name: "التحريم", start: 560, end: 561, level: 1, path: 'desc' },
+            { name: "الملك", start: 562, end: 564, level: 2, path: 'desc' },
+            { name: "القلم", start: 564, end: 566, level: 2, path: 'desc' },
+            { name: "الحاقة", start: 566, end: 568, level: 2, path: 'desc' },
+            { name: "المعارج", start: 568, end: 570, level: 2, path: 'desc' },
+            { name: "نوح", start: 570, end: 571, level: 2, path: 'desc' },
+            { name: "الجن", start: 572, end: 573, level: 2, path: 'desc' },
+            { name: "المزمل", start: 574, end: 575, level: 2, path: 'desc' },
+            { name: "المدثر", start: 575, end: 577, level: 2, path: 'desc' },
+            { name: "القيامة", start: 577, end: 578, level: 2, path: 'desc' },
+            { name: "الإنسان", start: 578, end: 580, level: 2, path: 'desc' },
+            { name: "المرسلات", start: 580, end: 581, level: 2, path: 'desc' },
+            { name: "النبأ", start: 582, end: 583, level: 1, path: 'desc' },
+            { name: "النازعات", start: 583, end: 585, level: 1, path: 'desc' },
+            { name: "عبس", start: 585, end: 586, level: 1, path: 'desc' },
+            { name: "التكوير", start: 586, end: 587, level: 1, path: 'desc' },
+            { name: "الانفطار", start: 587, end: 587, level: 1, path: 'desc' },
+            { name: "المطففين", start: 588, end: 589, level: 1, path: 'desc' },
+            { name: "الانشقاق", start: 589, end: 590, level: 1, path: 'desc' },
+            { name: "البروج", start: 590, end: 590, level: 1, path: 'desc' },
+            { name: "الطارق", start: 591, end: 591, level: 1, path: 'desc' },
+            { name: "الأعلى", start: 591, end: 592, level: 1, path: 'desc' },
+            { name: "الغاشية", start: 592, end: 592, level: 1, path: 'desc' },
+            { name: "الفجر", start: 593, end: 594, level: 1, path: 'desc' },
+            { name: "البلد", start: 594, end: 594, level: 1, path: 'desc' },
+            { name: "الشمس", start: 595, end: 595, level: 1, path: 'desc' },
+            { name: "الليل", start: 595, end: 596, level: 1, path: 'desc' },
+            { name: "الضحى", start: 596, end: 596, level: 1, path: 'desc' },
+            { name: "الشرح", start: 596, end: 597, level: 1, path: 'desc' },
+            { name: "التين", start: 597, end: 597, level: 1, path: 'desc' },
+            { name: "العلق", start: 597, end: 598, level: 1, path: 'desc' },
+            { name: "القدر", start: 598, end: 598, level: 1, path: 'desc' },
+            { name: "البينة", start: 598, end: 599, level: 1, path: 'desc' },
+            { name: "الزلزلة", start: 599, end: 599, level: 1, path: 'desc' },
+            { name: "العاديات", start: 600, end: 600, level: 1, path: 'desc' },
+            { name: "القارعة", start: 600, end: 600, level: 1, path: 'desc' },
+            { name: "التكاثر", targe: 601, start: 601, end: 601, level: 1, path: 'desc' },
+            { name: "العصر", start: 601, end: 601, level: 1, path: 'desc' },
+            { name: "الهمزة", start: 601, end: 602, level: 1, path: 'desc' },
+            { name: "الفيل", start: 602, end: 602, level: 1, path: 'desc' },
+            { name: "قريش", start: 602, end: 602, level: 1, path: 'desc' },
+            { name: "الماعون", start: 603, end: 603, level: 1, path: 'desc' },
+            { name: "الكوثر", start: 603, end: 603, level: 1, path: 'desc' },
+            { name: "الكافرون", start: 603, end: 603, level: 1, path: 'desc' },
+            { name: "النصر", start: 604, end: 604, level: 1, path: 'desc' },
+            { name: "المسد", start: 604, end: 604, level: 1, path: 'desc' },
+            { name: "الإخلاص", start: 604, end: 604, level: 1, path: 'desc' },
+            { name: "الفلق", start: 604, end: 604, level: 1, path: 'desc' },
+            { name: "الناس", start: 604, end: 604, level: 1, path: 'desc' }
+        ];
 
         const pathAscData = {
             1: { title: "المستوى 1 (جزء 1 - البقرة)", startPage: 2, endPage: 21, q: 6, path: 'asc' },
@@ -775,7 +890,7 @@
             btn.classList.add('active');
         }
 
-        // تحسين محرك البحث السريع للسور والأجزاء والمستويات
+        // محرك البحث الشامل (جميع سور القرآن الكريم وأرقام النماذج)
         function handleSmartSearch(e) {
             let query = e.target.value.trim().toLowerCase();
             let dropdown = document.getElementById('searchResultsDropdown');
@@ -788,45 +903,73 @@
 
             let matches = [];
             
-            // البحث في مسار الصعود (البقرة)
-            for (let i in pathAscData) {
-                let item = pathAscData[i];
-                if(item.title.toLowerCase().includes(query) || (`جزء ${i}`).includes(query)) {
-                    matches.push({ title: `${item.title} (مسار البقرة صعوداً)`, level: parseInt(i), path: 'asc' });
+            // 1. البحث في جميع سور القرآن الكريم (114 سورة)
+            quranSurahsList.forEach(surah => {
+                let cleanName = surah.name.toLowerCase();
+                // إزالة أو قبول الهمزات لتسهيل البحث (مثل إبراهيم او ابراهيم)
+                if(cleanName.includes(query) || query.includes(cleanName)) {
+                    let dataSource = (surah.path === 'asc') ? pathAscData : pathDescData;
+                    let levelTitle = dataSource[surah.level] ? dataSource[surah.level].title : `المستوى ${surah.level}`;
+                    matches.push({
+                        title: `📖 سورة ${surah.name} ➔ ${levelTitle}`,
+                        level: surah.level,
+                        path: surah.path,
+                        type: 'surah'
+                    });
+                }
+            });
+
+            // 2. البحث عن أرقام النماذج (مثل: نموذج 1، نموذج 5، أو مجرد أرقام 1 إلى 10)
+            if(query.includes('نموذج') || !isNaN(query)) {
+                let modelNum = parseInt(query.replace(/\D/g, ''));
+                if(!isNaN(modelNum) && modelNum >= 1 && modelNum <= 10) {
+                    matches.push({
+                        title: `🎯 الانتقال المباشر لـ (النموذج ${modelNum}) للمستوى الحالي`,
+                        level: currentLevel,
+                        path: currentPath,
+                        model: modelNum,
+                        type: 'model'
+                    });
                 }
             }
 
-            // البحث في مسار النزول (الناس/عم)
-            for (let i in pathDescData) {
-                let item = pathDescData[i];
-                if(item.title.toLowerCase().includes(query) || (`جزء ${i}`).includes(query)) {
-                    matches.push({ title: `${item.title} (مسار الناس نزولاً)`, level: parseInt(i), path: 'desc' });
+            // إزالة التكرارات المماثلة للاسم
+            let uniqueMatches = [];
+            let seen = new Set();
+            matches.forEach(m => {
+                if(!seen.has(m.title)) {
+                    seen.add(m.title);
+                    uniqueMatches.push(m);
                 }
-            }
+            });
 
-            if(matches.length > 0) {
+            if(uniqueMatches.length > 0) {
                 dropdown.style.display = 'block';
                 dropdown.innerHTML = '';
-                // أخذ أول 6 نتائج مطابقة لتسريع الوصول
-                matches.slice(0, 6).forEach(m => {
+                uniqueMatches.slice(0, 8).forEach(m => {
                     let div = document.createElement('div');
                     div.className = 'search-result-item';
-                    div.innerHTML = `📌 <b>${m.title}</b>`;
+                    div.innerHTML = m.title;
                     div.onclick = () => {
                         dropdown.style.display = 'none';
                         document.getElementById('smartSearch').value = '';
                         loadPartsGrid(m.path);
                         openLevelDetails(m.level);
+                        if(m.type === 'model') {
+                            setTimeout(() => {
+                                let mBox = document.getElementById(`model_${m.path}_lvl_${m.level}_mod_${m.model}`);
+                                if(mBox) mBox.click();
+                            }, 100);
+                        }
                     };
                     dropdown.appendChild(div);
                 });
             } else {
                 dropdown.style.display = 'block';
-                dropdown.innerHTML = `<div class="search-result-item" style="color:#888;">عذراً، لمطابقات البحث ابحث بـ: (البقرة، آل عمران، جزء 1، جزء عم...)</div>`;
+                dropdown.innerHTML = `<div class="search-result-item" style="color:#888;">لم يتم العثور على نتيجة مطابقة. جرب اسم سورة أخرى (يس، الملك، الناس...) أو اكتب (نموذج 2)</div>`;
             }
         }
 
-        // إغلاق قائمة البحث عند النقر خارجها
         window.addEventListener('click', (e) => {
             if(!e.target.closest('.search-container')) {
                 let dropdown = document.getElementById('searchResultsDropdown');
@@ -919,7 +1062,7 @@
 
             currentClipIndex = clipNum;
             if (clipNum === 1) {
-                totalRemainingGrade = 100; // بدء الاختبار برصيد كامل 100
+                totalRemainingGrade = 100;
                 totalWarnings = 0;
             }
 
@@ -954,13 +1097,13 @@
 
         function addWarningToStudent() {
             totalWarnings++;
-            totalRemainingGrade = Math.max(0, totalRemainingGrade - 1); // خصم درجة واحدة من الدرجة الكلية 100
+            totalRemainingGrade = Math.max(0, totalRemainingGrade - 1);
             alert(`⚠️ تم تسجيل تنبيه/خطأ للطالبة. تم خصم درجة واحدة من رصيد الدرجة الكلي (المتبقي: ${totalRemainingGrade}/100).`);
             updateGradeUI();
         }
 
         function openOnStudentScreenWithPenalty() {
-            totalRemainingGrade = Math.max(0, totalRemainingGrade - 1); // خصم درجة من الدرجة الكلية 100
+            totalRemainingGrade = Math.max(0, totalRemainingGrade - 1);
             updateGradeUI();
             alert(`🖥️ تم الفتح على شاشة الطالبة بنجاح، وتم خصم درجة واحدة من رصيد الـ 100 الكلي!`);
         }
@@ -981,10 +1124,8 @@
 
         function saveAndProceedNextQuestion() {
             if(currentClipIndex < maxClipsTotal) {
-                // الانتقال للسؤال التالي مع الحفاظ على رصيد الـ 100 المتناقص
                 startClipExam(currentClipIndex + 1);
             } else {
-                // هذا هو السؤال الأخير -> إظهار النتيجة النهائية من 100
                 calculateAndShowFinalResult();
             }
         }
@@ -1013,9 +1154,7 @@
                 statusEl.style.color = "#e74c3c";
             }
 
-            // حفظ النتيجة في أرشيف المعلمة
             saveResultToArchive(studentName, lvlTitle + ' (نموذج ' + currentModel + ')', finalGrade, statusText);
-
             showPage('resultPage');
         }
 
@@ -1132,7 +1271,7 @@
             if(!favs.includes(currentItem)) {
                 favs.push(currentItem);
                 localStorage.setItem('user_favorites', JSON.stringify(favs));
-                alert("تم إضافة المقطع للمفضلة بنجاح!");
+                alert("تم إضافة للمفضلة بنجاح!");
             } else {
                 alert("المقطع موجود بالفعل في المفضلة.");
             }
