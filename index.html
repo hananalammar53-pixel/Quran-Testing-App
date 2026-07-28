@@ -10,11 +10,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="اختبارات القرآن">
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%D8%AA%D8%B7%D8%A8%D9%8A%D9%8قب%20%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%D8%A7%D9%84%D9%83%D8%B1%D9%8A%D9%85%22%2C%22short_name%22%3A%22%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fdfbf7%22%2C%22theme_color%22%3A%22%231e4d2b%22%7D">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%D8%A7%D9%84%D9%83%D8%B1%D9%8A%D9%85%22%2C%22short_name%22%3A%22%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fdfbf7%22%2C%22theme_color%22%3A%22%231e4d2b%22%7D">
 
-    <!-- استدعاء مكتبات فايربيس للإصدار المتوافق مع المتصفح مباشرة -->
+    <!-- استدعاء مكتبات فايربيس للإصدار المتوافق مع المتصفح (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
 
     <style>
         :root {
@@ -751,8 +753,9 @@
         }
     </script>
 
-    <!-- تهيئة فايربيس (إصدار Compat المباشر) -->
+    <!-- تهيئة فايربيس (Firebase & Analytics) الخاصة بك -->
     <script>
+        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDqgcR7fJIdsVK9HyVLSX0nsY94mW3-ZEs",
             authDomain: "qurantestingapp.firebaseapp.com",
@@ -763,12 +766,14 @@
             measurementId: "G-35HC2HDT4N"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const analytics = firebase.analytics(app);
         const db = firebase.firestore();
         const auth = firebase.auth();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
         
-        console.log("تم الاتصال بقاعدة بيانات فايربيس بنجاح!");
+        console.log("تم الاتصال بقاعدة بيانات فايربيس وتفعيل التحليلات بنجاح!");
 
         window.loginWithGoogle = function() {
             auth.signInWithPopup(googleProvider).catch((error) => {
