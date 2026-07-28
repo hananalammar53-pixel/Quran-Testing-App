@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق اختبارات القرآن الكريم</title>
+    <title>تطبيق اختبارات القرآن الكريم الذكي</title>
     <style>
         :root {
             --primary-green: #1e4d2b;
@@ -157,6 +157,44 @@
         }
         .search-result-item:hover {
             background: var(--gold-accent);
+            color: white;
+        }
+
+        /* نافذة خيارات المسار عند اختيار السورة من البحث */
+        #pathChoiceModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border: 2px solid var(--gold-accent);
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        .modal-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--primary-green);
+            color: var(--primary-green);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-btn:hover {
+            background: var(--primary-green);
             color: white;
         }
 
@@ -439,6 +477,17 @@
         <p>جاري تحميل التطبيق...</p>
     </div>
 
+    <!-- نافذة اختيار مسار الاختبار عند النقر على السورة من البحث -->
+    <div id="pathChoiceModal">
+        <div class="modal-content">
+            <h3 id="modalSurahTitle" style="color: var(--primary-green); margin-top:0;">اختر مسار بداية الاختبار</h3>
+            <p style="font-size: 0.9rem; color: #666;">كيف تفضل أن يبدأ اختبار هذه السورة؟</p>
+            <button class="modal-btn" onclick="selectPathFromModal('asc')">🟢 الاختبار يبدأ من الجزء الأول (تصاعدي)</button>
+            <button class="modal-btn" style="border-color: #e67e22; color: #e67e22;" onclick="selectPathFromModal('desc')">🟠 الاختبار يبدأ من الجزء الثلاثون (تنازلي)</button>
+            <button class="back-btn" style="width: 100%; margin-top: 15px; margin-bottom: 0;" onclick="closePathModal()">إلغاء</button>
+        </div>
+    </div>
+
     <div class="top-bar">
         <div class="top-controls">
             <button class="icon-btn" onclick="toggleTheme()" title="تغيير المظهر">🌓</button>
@@ -463,9 +512,9 @@
         <h1>برنامج اختبارات القرآن الكريم</h1>
         <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية</p>
         
-        <!-- حقل البحث الذكي الشامل (سور القرآن وأرقام النماذج) -->
+        <!-- حقل البحث الذكي الشامل لجميع سور القرآن والمستويات والنماذج -->
         <div class="search-container">
-            <input type="text" class="search-bar" id="smartSearch" placeholder="ابحث عن أي سورة (البقرة، الملك، يس...) أو رقم نموذج (نموذج 3)..." oninput="handleSmartSearch(event)" autocomplete="off">
+            <input type="text" class="search-bar" id="smartSearch" placeholder="ابحث عن أي سورة، أو مستوى (المستوى 5)، أو نموذج (نموذج 3)..." oninput="handleSmartSearch(event)" autocomplete="off">
             <div id="searchResultsDropdown" class="search-results-dropdown"></div>
         </div>
 
@@ -705,167 +754,92 @@
         let totalRemainingGrade = 100;
         let totalWarnings = 0;
         let timerInterval = null;
+        let selectedSurahObjForModal = null;
 
-        // قائمة شاملة لجميع سور القرآن الكريم (114 سورة) مع نطاق صفحاتها التقديري لتوجيه البحث بدقة
+        // قائمة شاملة لجميع سور القرآن الكريم (114 سورة) مع ربطها بالمستويات
         const quranSurahsList = [
-            { name: "الفاتحة", start: 1, end: 1, level: 1, path: 'desc' },
-            { name: "البقرة", start: 2, end: 49, level: 1, path: 'asc' },
-            { name: "آل عمران", start: 50, end: 76, level: 2, path: 'asc' },
-            { name: "النساء", start: 77, end: 106, level: 3, path: 'asc' },
-            { name: "المائدة", start: 107, end: 127, level: 4, path: 'asc' },
-            { name: "الأنعام", start: 128, end: 150, level: 5, path: 'asc' },
-            { name: "الأعراف", start: 151, end: 176, level: 6, path: 'asc' },
-            { name: "الأنفال", start: 177, end: 186, level: 7, path: 'asc' },
-            { name: "التوبة", start: 187, end: 207, level: 8, path: 'asc' },
-            { name: "يونس", start: 208, end: 221, level: 9, path: 'asc' },
-            { name: "هود", start: 221, end: 235, level: 10, path: 'asc' },
-            { name: "يوسف", start: 235, end: 248, level: 11, path: 'asc' },
-            { name: "الرعد", start: 249, end: 255, level: 11, path: 'asc' },
-            { name: "إبراهيم", start: 255, end: 261, level: 12, path: 'asc' },
-            { name: "الحجر", start: 262, end: 267, level: 12, path: 'asc' },
-            { name: "النحل", start: 267, end: 281, level: 12, path: 'asc' },
-            { name: "الإسراء", start: 282, end: 293, level: 13, path: 'asc' },
-            { name: "الكهف", start: 293, end: 304, level: 13, path: 'asc' },
-            { name: "مريم", start: 305, end: 312, level: 14, path: 'asc' },
-            { name: "طه", start: 312, end: 321, level: 14, path: 'asc' },
-            { name: "الأنبياء", start: 322, end: 331, level: 14, path: 'asc' },
-            { name: "الحج", start: 332, end: 341, level: 14, path: 'asc' },
-            { name: "المؤمنون", start: 342, end: 349, level: 15, path: 'asc' },
-            { name: "النور", start: 350, end: 359, level: 15, path: 'asc' },
-            { name: "الفرقان", start: 360, end: 366, level: 15, path: 'asc' },
-            { name: "الشعراء", start: 367, end: 376, level: 16, path: 'asc' },
-            { name: "النمل", start: 377, end: 385, level: 16, path: 'asc' },
-            { name: "القصص", start: 385, end: 396, level: 16, path: 'asc' },
-            { name: "العنكبوت", start: 396, end: 404, level: 17, path: 'asc' },
-            { name: "الروم", start: 404, end: 410, level: 17, path: 'asc' },
-            { name: "لقمان", start: 411, end: 414, level: 17, path: 'asc' },
-            { name: "السجدة", start: 415, end: 417, level: 17, path: 'asc' },
-            { name: "الأحزاب", start: 418, end: 427, level: 18, path: 'asc' },
-            { name: "سبأ", start: 428, end: 434, level: 18, path: 'asc' },
-            { name: "فاطر", start: 434, end: 440, level: 18, path: 'asc' },
-            { name: "يس", start: 440, end: 445, level: 19, path: 'asc' },
-            { name: "الصافات", start: 446, end: 452, level: 19, path: 'asc' },
-            { name: "ص", start: 453, end: 458, level: 19, path: 'asc' },
-            { name: "الزمر", start: 459, end: 467, level: 19, path: 'asc' },
-            { name: "غافر", start: 467, end: 476, level: 19, path: 'asc' },
-            { name: "فصلت", start: 477, end: 482, level: 19, path: 'asc' },
-            { name: "الشورى", start: 483, end: 489, level: 19, path: 'asc' },
-            { name: "الزخرف", start: 489, end: 495, level: 19, path: 'asc' },
-            { name: "الدخان", start: 496, end: 498, level: 19, path: 'asc' },
-            { name: "الجاثية", start: 499, end: 502, level: 19, path: 'asc' },
-            { name: "الأحقاف", start: 502, end: 506, level: 19, path: 'asc' },
-            { name: "محمد", start: 507, end: 510, level: 19, path: 'asc' },
-            { name: "الفتح", start: 511, end: 515, level: 19, path: 'asc' },
-            { name: "الحجرات", start: 515, end: 517, level: 19, path: 'asc' },
-            { name: "ق", start: 518, end: 520, level: 19, path: 'asc' },
-            { name: "الذاريات", start: 520, end: 523, level: 19, path: 'asc' },
-            { name: "الطور", start: 523, end: 525, level: 19, path: 'asc' },
-            { name: "النجم", start: 526, end: 528, level: 19, path: 'asc' },
-            { name: "القمر", start: 528, end: 531, level: 19, path: 'asc' },
-            { name: "الرحمن", start: 531, end: 534, level: 19, path: 'asc' },
-            { name: "الواقعة", start: 534, end: 537, level: 19, path: 'asc' },
-            { name: "الحديد", start: 537, end: 541, level: 19, path: 'asc' },
-            { name: "المجادلة", start: 542, end: 545, level: 1, path: 'desc' },
-            { name: "الحشر", start: 545, end: 548, level: 1, path: 'desc' },
-            { name: "الممتحنة", start: 549, end: 551, level: 1, path: 'desc' },
-            { name: "الصف", start: 551, end: 552, level: 1, path: 'desc' },
-            { name: "الجمعة", start: 553, end: 554, level: 1, path: 'desc' },
-            { name: "المنافقون", start: 554, end: 555, level: 1, path: 'desc' },
-            { name: "التغابن", start: 556, end: 557, level: 1, path: 'desc' },
-            { name: "الطلاق", start: 558, end: 559, level: 1, path: 'desc' },
-            { name: "التحريم", start: 560, end: 561, level: 1, path: 'desc' },
-            { name: "الملك", start: 562, end: 564, level: 2, path: 'desc' },
-            { name: "القلم", start: 564, end: 566, level: 2, path: 'desc' },
-            { name: "الحاقة", start: 566, end: 568, level: 2, path: 'desc' },
-            { name: "المعارج", start: 568, end: 570, level: 2, path: 'desc' },
-            { name: "نوح", start: 570, end: 571, level: 2, path: 'desc' },
-            { name: "الجن", start: 572, end: 573, level: 2, path: 'desc' },
-            { name: "المزمل", start: 574, end: 575, level: 2, path: 'desc' },
-            { name: "المدثر", start: 575, end: 577, level: 2, path: 'desc' },
-            { name: "القيامة", start: 577, end: 578, level: 2, path: 'desc' },
-            { name: "الإنسان", start: 578, end: 580, level: 2, path: 'desc' },
-            { name: "المرسلات", start: 580, end: 581, level: 2, path: 'desc' },
-            { name: "النبأ", start: 582, end: 583, level: 1, path: 'desc' },
-            { name: "النازعات", start: 583, end: 585, level: 1, path: 'desc' },
-            { name: "عبس", start: 585, end: 586, level: 1, path: 'desc' },
-            { name: "التكوير", start: 586, end: 587, level: 1, path: 'desc' },
-            { name: "الانفطار", start: 587, end: 587, level: 1, path: 'desc' },
-            { name: "المطففين", start: 588, end: 589, level: 1, path: 'desc' },
-            { name: "الانشقاق", start: 589, end: 590, level: 1, path: 'desc' },
-            { name: "البروج", start: 590, end: 590, level: 1, path: 'desc' },
-            { name: "الطارق", start: 591, end: 591, level: 1, path: 'desc' },
-            { name: "الأعلى", start: 591, end: 592, level: 1, path: 'desc' },
-            { name: "الغاشية", start: 592, end: 592, level: 1, path: 'desc' },
-            { name: "الفجر", start: 593, end: 594, level: 1, path: 'desc' },
-            { name: "البلد", start: 594, end: 594, level: 1, path: 'desc' },
-            { name: "الشمس", start: 595, end: 595, level: 1, path: 'desc' },
-            { name: "الليل", start: 595, end: 596, level: 1, path: 'desc' },
-            { name: "الضحى", start: 596, end: 596, level: 1, path: 'desc' },
-            { name: "الشرح", start: 596, end: 597, level: 1, path: 'desc' },
-            { name: "التين", start: 597, end: 597, level: 1, path: 'desc' },
-            { name: "العلق", start: 597, end: 598, level: 1, path: 'desc' },
-            { name: "القدر", start: 598, end: 598, level: 1, path: 'desc' },
-            { name: "البينة", start: 598, end: 599, level: 1, path: 'desc' },
-            { name: "الزلزلة", start: 599, end: 599, level: 1, path: 'desc' },
-            { name: "العاديات", start: 600, end: 600, level: 1, path: 'desc' },
-            { name: "القارعة", start: 600, end: 600, level: 1, path: 'desc' },
-            { name: "التكاثر", targe: 601, start: 601, end: 601, level: 1, path: 'desc' },
-            { name: "العصر", start: 601, end: 601, level: 1, path: 'desc' },
-            { name: "الهمزة", start: 601, end: 602, level: 1, path: 'desc' },
-            { name: "الفيل", start: 602, end: 602, level: 1, path: 'desc' },
-            { name: "قريش", start: 602, end: 602, level: 1, path: 'desc' },
-            { name: "الماعون", start: 603, end: 603, level: 1, path: 'desc' },
-            { name: "الكوثر", start: 603, end: 603, level: 1, path: 'desc' },
-            { name: "الكافرون", start: 603, end: 603, level: 1, path: 'desc' },
-            { name: "النصر", start: 604, end: 604, level: 1, path: 'desc' },
-            { name: "المسد", start: 604, end: 604, level: 1, path: 'desc' },
-            { name: "الإخلاص", start: 604, end: 604, level: 1, path: 'desc' },
-            { name: "الفلق", start: 604, end: 604, level: 1, path: 'desc' },
-            { name: "الناس", start: 604, end: 604, level: 1, path: 'desc' }
+            { name: "الفاتحة", level: 1 }, { name: "البقرة", level: 1 }, { name: "آل عمران", level: 2 },
+            { name: "النساء", level: 3 }, { name: "المائدة", level: 4 }, { name: "الأنعام", level: 5 },
+            { name: "الأعراف", level: 6 }, { name: "الأنفال", level: 7 }, { name: "التوبة", level: 8 },
+            { name: "يونس", level: 9 }, { name: "هود", level: 10 }, { name: "يوسف", level: 11 },
+            { name: "الرعد", level: 11 }, { name: "إبراهيم", level: 12 }, { name: "الحجر", level: 12 },
+            { name: "النحل", level: 12 }, { name: "الإسراء", level: 13 }, { name: "الكهف", level: 13 },
+            { name: "مريم", level: 14 }, { name: "طه", level: 14 }, { name: "الأنبياء", level: 14 },
+            { name: "الحج", level: 14 }, { name: "المؤمنون", level: 15 }, { name: "النور", level: 15 },
+            { name: "الفرقان", level: 15 }, { name: "الشعراء", level: 16 }, { name: "النمل", level: 16 },
+            { name: "القصص", level: 16 }, { name: "العنكبوت", level: 17 }, { name: "الروم", level: 17 },
+            { name: "لقمان", level: 17 }, { name: "السجدة", level: 17 }, { name: "الأحزاب", level: 18 },
+            { name: "سبأ", level: 18 }, { name: "فاطر", level: 18 }, { name: "يس", level: 19 },
+            { name: "الصافات", level: 19 }, { name: "ص", level: 19 }, { name: "الزمر", level: 19 },
+            { name: "غافر", level: 19 }, { name: "فصلت", level: 19 }, { name: "الشورى", level: 19 },
+            { name: "الزخرف", level: 19 }, { name: "الدخان", level: 19 }, { name: "الجاثية", level: 19 },
+            { name: "الأحقاف", level: 19 }, { name: "محمد", level: 19 }, { name: "الفتح", level: 19 },
+            { name: "الحجرات", level: 19 }, { name: "ق", level: 19 }, { name: "الذاريات", level: 19 },
+            { name: "الطور", level: 19 }, { name: "النجم", level: 19 }, { name: "القمر", level: 19 },
+            { name: "الرحمن", level: 19 }, { name: "الواقعة", level: 19 }, { name: "الحديد", level: 19 },
+            { name: "المجادلة", level: 1 }, { name: "الحشر", level: 1 }, { name: "الممتحنة", level: 1 },
+            { name: "الصف", level: 1 }, { name: "الجمعة", level: 1 }, { name: "المنافقون", level: 1 },
+            { name: "التغابن", level: 1 }, { name: "الطلاق", level: 1 }, { name: "التحريم", level: 1 },
+            { name: "الملك", level: 2 }, { name: "القلم", level: 2 }, { name: "الحاقة", level: 2 },
+            { name: "المعارج", level: 2 }, { name: "نوح", level: 2 }, { name: "الجن", level: 2 },
+            { name: "المزمل", level: 2 }, { name: "المدثر", level: 2 }, { name: "القيامة", level: 2 },
+            { name: "الإنسان", level: 2 }, { name: "المرسلات", level: 2 }, { name: "النبأ", level: 1 },
+            { name: "النازعات", level: 1 }, { name: "عبس", level: 1 }, { name: "التكوير", level: 1 },
+            { name: "الانفطار", level: 1 }, { name: "المطففين", level: 1 }, { name: "الانشقاق", level: 1 },
+            { name: "البروج", level: 1 }, { name: "الطارق", level: 1 }, { name: "الأعلى", level: 1 },
+            { name: "الغاشية", level: 1 }, { name: "الفجر", level: 1 }, { name: "البلد", level: 1 },
+            { name: "الشمس", level: 1 }, { name: "الليل", level: 1 }, { name: "الضحى", level: 1 },
+            { name: "الشرح", level: 1 }, { name: "التين", level: 1 }, { name: "العلق", level: 1 },
+            { name: "القدر", level: 1 }, { name: "البينة", level: 1 }, { name: "الزلزلة", level: 1 },
+            { name: "العاديات", level: 1 }, { name: "القارعة", level: 1 }, { name: "التكاثر", level: 1 },
+            { name: "العصر", level: 1 }, { name: "الهمزة", level: 1 }, { name: "الفيل", level: 1 },
+            { name: "قريش", level: 1 }, { name: "الماعون", level: 1 }, { name: "الكوثر", level: 1 },
+            { name: "الكافرون", level: 1 }, { name: "النصر", level: 1 }, { name: "المسد", level: 1 },
+            { name: "الإخلاص", level: 1 }, { name: "الفلق", level: 1 }, { name: "الناس", level: 1 }
         ];
 
         const pathAscData = {
-            1: { title: "المستوى 1 (جزء 1 - البقرة)", startPage: 2, endPage: 21, q: 6, path: 'asc' },
-            2: { title: "المستوى 2 (جزآن)", startPage: 2, endPage: 41, q: 6, path: 'asc' },
-            3: { title: "المستوى 3 (3 أجزاء)", startPage: 2, endPage: 61, q: 6, path: 'asc' },
-            4: { title: "المستوى 4 (4 أجزاء)", startPage: 2, endPage: 81, q: 6, path: 'asc' },
-            5: { title: "المستوى 5 (5 أجزاء)", startPage: 2, endPage: 101, q: 6, path: 'asc' },
-            6: { title: "المستوى 6 (6 أجزاء)", startPage: 2, endPage: 121, q: 8, path: 'asc' },
-            7: { title: "المستوى 7 (7 أجزاء)", startPage: 2, endPage: 141, q: 8, path: 'asc' },
-            8: { title: "المستوى 8 (8 أجزاء)", startPage: 2, endPage: 161, q: 8, path: 'asc' },
-            9: { title: "المستوى 9 (9 أجزاء)", startPage: 2, endPage: 181, q: 8, path: 'asc' },
-            10: { title: "المستوى 10 (10 أجزاء)", startPage: 2, endPage: 201, q: 8, path: 'asc' },
-            11: { title: "المستوى 11 (12 جزءاً)", startPage: 2, endPage: 241, q: 10, path: 'asc' },
-            12: { title: "المستوى 12 (14 جزءاً)", startPage: 2, endPage: 281, q: 10, path: 'asc' },
-            13: { title: "المستوى 13 (16 جزءاً)", startPage: 2, endPage: 321, q: 10, path: 'asc' },
-            14: { title: "المستوى 14 (18 جزءاً)", startPage: 2, endPage: 361, q: 10, path: 'asc' },
-            15: { title: "المستوى 15 (20 جزءاً)", startPage: 2, endPage: 401, q: 12, path: 'asc' },
-            16: { title: "المستوى 16 (22 جزءاً)", startPage: 2, endPage: 441, q: 12, path: 'asc' },
-            17: { title: "المستوى 17 (24 جزءاً)", startPage: 2, endPage: 481, q: 12, path: 'asc' },
-            18: { title: "المستوى 18 (26 جزءاً)", startPage: 2, endPage: 521, q: 14, path: 'asc' },
-            19: { title: "المستوى 19 (28 جزءاً)", startPage: 2, endPage: 561, q: 14, path: 'asc' }
+            1: { title: "المستوى 1 (جزء 1 - البقرة)", startPage: 2, endPage: 21, q: 6 },
+            2: { title: "المستوى 2 (جزآن)", startPage: 2, endPage: 41, q: 6 },
+            3: { title: "المستوى 3 (3 أجزاء)", startPage: 2, endPage: 61, q: 6 },
+            4: { title: "المستوى 4 (4 أجزاء)", startPage: 2, endPage: 81, q: 6 },
+            5: { title: "المستوى 5 (5 أجزاء)", startPage: 2, endPage: 101, q: 6 },
+            6: { title: "المستوى 6 (6 أجزاء)", startPage: 2, endPage: 121, q: 8 },
+            7: { title: "المستوى 7 (7 أجزاء)", startPage: 2, endPage: 141, q: 8 },
+            8: { title: "المستوى 8 (8 أجزاء)", startPage: 2, endPage: 161, q: 8 },
+            9: { title: "المستوى 9 (9 أجزاء)", startPage: 2, endPage: 181, q: 8 },
+            10: { title: "المستوى 10 (10 أجزاء)", startPage: 2, endPage: 201, q: 8 },
+            11: { title: "المستوى 11 (12 جزءاً)", startPage: 2, endPage: 241, q: 10 },
+            12: { title: "المستوى 12 (14 جزءاً)", startPage: 2, endPage: 281, q: 10 },
+            13: { title: "المستوى 13 (16 جزءاً)", startPage: 2, endPage: 321, q: 10 },
+            14: { title: "المستوى 14 (18 جزءاً)", startPage: 2, endPage: 361, q: 10 },
+            15: { title: "المستوى 15 (20 جزءاً)", startPage: 2, endPage: 401, q: 12 },
+            16: { title: "المستوى 16 (22 جزءاً)", startPage: 2, endPage: 441, q: 12 },
+            17: { title: "المستوى 17 (24 جزءاً)", startPage: 2, endPage: 481, q: 12 },
+            18: { title: "المستوى 18 (26 جزءاً)", startPage: 2, endPage: 521, q: 14 },
+            19: { title: "المستوى 19 (28 جزءاً)", startPage: 2, endPage: 561, q: 14 }
         };
 
         const pathDescData = {
-            1: { title: "المستوى 1 (جزء عم)", startPage: 582, endPage: 604, q: 6, path: 'desc' },
-            2: { title: "المستوى 2 (جزءا الملك والنبأ)", startPage: 562, endPage: 604, q: 6, path: 'desc' },
-            3: { title: "المستوى 3 (3 أجزاء)", startPage: 542, endPage: 604, q: 6, path: 'desc' },
-            4: { title: "المستوى 4 (4 أجزاء)", startPage: 522, endPage: 604, q: 6, path: 'desc' },
-            5: { title: "المستوى 5 (5 أجزاء)", startPage: 502, endPage: 604, q: 6, path: 'desc' },
-            6: { title: "المستوى 6 (6 أجزاء)", startPage: 482, endPage: 604, q: 8, path: 'desc' },
-            7: { title: "المستوى 7 (7 أجزاء)", startPage: 462, endPage: 604, q: 8, path: 'desc' },
-            8: { title: "المستوى 8 (8 أجزاء)", startPage: 442, endPage: 604, q: 8, path: 'desc' },
-            9: { title: "المستوى 9 (9 أجزاء)", startPage: 418, endPage: 604, q: 8, path: 'desc' },
-            10: { title: "المستوى 10 (10 أجزاء)", startPage: 396, endPage: 604, q: 8, path: 'desc' },
-            11: { title: "المستوى 11 (12 جزءاً)", startPage: 359, endPage: 604, q: 10, path: 'desc' },
-            12: { title: "المستوى 12 (14 جزءاً)", startPage: 322, endPage: 604, q: 10, path: 'desc' },
-            13: { title: "المستوى 13 (16 جزءاً)", startPage: 282, endPage: 604, q: 10, path: 'desc' },
-            14: { title: "المستوى 14 (18 جزءاً)", startPage: 249, endPage: 604, q: 10, path: 'desc' },
-            15: { title: "المستوى 15 (20 جزءاً)", startPage: 208, endPage: 604, q: 12, path: 'desc' },
-            16: { title: "المستوى 16 (22 جزءاً)", startPage: 177, endPage: 604, q: 12, path: 'desc' },
-            17: { title: "المستوى 17 (24 جزءاً)", startPage: 128, endPage: 604, q: 12, path: 'desc' },
-            18: { title: "المستوى 18 (26 جزءاً)", startPage: 77, endPage: 604, q: 14, path: 'desc' },
-            19: { title: "المستوى 19 (28 جزءاً)", startPage: 50, endPage: 604, q: 14, path: 'desc' }
+            1: { title: "المستوى 1 (جزء عم)", startPage: 582, endPage: 604, q: 6 },
+            2: { title: "المستوى 2 (جزءا الملك والنبأ)", startPage: 562, endPage: 604, q: 6 },
+            3: { title: "المستوى 3 (3 أجزاء)", startPage: 542, endPage: 604, q: 6 },
+            4: { title: "المستوى 4 (4 أجزاء)", startPage: 522, endPage: 604, q: 6 },
+            5: { title: "المستوى 5 (5 أجزاء)", startPage: 502, endPage: 604, q: 6 },
+            6: { title: "المستوى 6 (6 أجزاء)", startPage: 482, endPage: 604, q: 8 },
+            7: { title: "المستوى 7 (7 أجزاء)", startPage: 462, endPage: 604, q: 8 },
+            8: { title: "المستوى 8 (8 أجزاء)", startPage: 442, endPage: 604, q: 8 },
+            9: { title: "المستوى 9 (9 أجزاء)", startPage: 418, endPage: 604, q: 8 },
+            10: { title: "المستوى 10 (10 أجزاء)", startPage: 396, endPage: 604, q: 8 },
+            11: { title: "المستوى 11 (12 جزءاً)", startPage: 359, endPage: 604, q: 10 },
+            12: { title: "المستوى 12 (14 جزءاً)", startPage: 322, endPage: 604, q: 10 },
+            13: { title: "المستوى 13 (16 جزءاً)", startPage: 282, endPage: 604, q: 10 },
+            14: { title: "المستوى 14 (18 جزءاً)", startPage: 249, endPage: 604, q: 10 },
+            15: { title: "المستوى 15 (20 جزءاً)", startPage: 208, endPage: 604, q: 12 },
+            16: { title: "المستوى 16 (22 جزءاً)", startPage: 177, endPage: 604, q: 12 },
+            17: { title: "المستوى 17 (24 جزءاً)", startPage: 128, endPage: 604, q: 12 },
+            18: { title: "المستوى 18 (26 جزءاً)", startPage: 77, endPage: 604, q: 14 },
+            19: { title: "المستوى 19 (28 جزءاً)", startPage: 50, endPage: 604, q: 14 }
         };
 
         function getSurahByPage(page) {
@@ -890,7 +864,7 @@
             btn.classList.add('active');
         }
 
-        // محرك البحث الشامل (جميع سور القرآن الكريم وأرقام النماذج)
+        // محرك البحث الشامل لجميع المستويات (سور القرآن، المستويات من 1 لـ 19، والنماذج)
         function handleSmartSearch(e) {
             let query = e.target.value.trim().toLowerCase();
             let dropdown = document.getElementById('searchResultsDropdown');
@@ -903,37 +877,45 @@
 
             let matches = [];
             
-            // 1. البحث في جميع سور القرآن الكريم (114 سورة)
+            // 1. البحث في جميع المستويات (من 1 إلى 19)
+            for(let lvl = 1; lvl <= 19; lvl++) {
+                let lvlString = `المستوى ${lvl}`.toLowerCase();
+                if(lvlString.includes(query) || query.includes(`مستوى ${lvl}`)) {
+                    matches.push({
+                        title: `⭐ المستوى ${lvl} (كافة الخيارات)`,
+                        level: lvl,
+                        type: 'level'
+                    });
+                }
+            }
+
+            // 2. البحث في جميع سور القرآن الكريم (114 سورة) مع إظهار نافذة اختيار المسار
             quranSurahsList.forEach(surah => {
                 let cleanName = surah.name.toLowerCase();
-                // إزالة أو قبول الهمزات لتسهيل البحث (مثل إبراهيم او ابراهيم)
                 if(cleanName.includes(query) || query.includes(cleanName)) {
-                    let dataSource = (surah.path === 'asc') ? pathAscData : pathDescData;
-                    let levelTitle = dataSource[surah.level] ? dataSource[surah.level].title : `المستوى ${surah.level}`;
                     matches.push({
-                        title: `📖 سورة ${surah.name} ➔ ${levelTitle}`,
+                        title: `📖 سورة ${surah.name} (المستوى المقترح: ${surah.level})`,
+                        surahName: surah.name,
                         level: surah.level,
-                        path: surah.path,
                         type: 'surah'
                     });
                 }
             });
 
-            // 2. البحث عن أرقام النماذج (مثل: نموذج 1، نموذج 5، أو مجرد أرقام 1 إلى 10)
+            // 3. البحث عن أرقام النماذج (مثل: نموذج 1 إلى 10)
             if(query.includes('نموذج') || !isNaN(query)) {
                 let modelNum = parseInt(query.replace(/\D/g, ''));
                 if(!isNaN(modelNum) && modelNum >= 1 && modelNum <= 10) {
                     matches.push({
-                        title: `🎯 الانتقال المباشر لـ (النموذج ${modelNum}) للمستوى الحالي`,
+                        title: `🎯 النموذج ${modelNum} (للمستوى الحالي)`,
                         level: currentLevel,
-                        path: currentPath,
                         model: modelNum,
                         type: 'model'
                     });
                 }
             }
 
-            // إزالة التكرارات المماثلة للاسم
+            // إزالة التكرارات
             let uniqueMatches = [];
             let seen = new Set();
             matches.forEach(m => {
@@ -946,18 +928,27 @@
             if(uniqueMatches.length > 0) {
                 dropdown.style.display = 'block';
                 dropdown.innerHTML = '';
-                uniqueMatches.slice(0, 8).forEach(m => {
+                uniqueMatches.slice(0, 10).forEach(m => {
                     let div = document.createElement('div');
                     div.className = 'search-result-item';
                     div.innerHTML = m.title;
                     div.onclick = () => {
                         dropdown.style.display = 'none';
                         document.getElementById('smartSearch').value = '';
-                        loadPartsGrid(m.path);
-                        openLevelDetails(m.level);
-                        if(m.type === 'model') {
+                        
+                        if(m.type === 'surah') {
+                            // إظهار مربع الاختيار المنبثق للجزء الأول أو الجزء الثلاثون
+                            selectedSurahObjForModal = m;
+                            document.getElementById('modalSurahTitle').innerText = `سورة ${m.surahName}`;
+                            document.getElementById('pathChoiceModal').style.display = 'flex';
+                        } else if(m.type === 'level') {
+                            loadPartsGrid('asc');
+                            openLevelDetails(m.level);
+                        } else if(m.type === 'model') {
+                            loadPartsGrid(currentPath);
+                            openLevelDetails(m.level);
                             setTimeout(() => {
-                                let mBox = document.getElementById(`model_${m.path}_lvl_${m.level}_mod_${m.model}`);
+                                let mBox = document.getElementById(`model_${currentPath}_lvl_${m.level}_mod_${m.model}`);
                                 if(mBox) mBox.click();
                             }, 100);
                         }
@@ -966,12 +957,27 @@
                 });
             } else {
                 dropdown.style.display = 'block';
-                dropdown.innerHTML = `<div class="search-result-item" style="color:#888;">لم يتم العثور على نتيجة مطابقة. جرب اسم سورة أخرى (يس، الملك، الناس...) أو اكتب (نموذج 2)</div>`;
+                dropdown.innerHTML = `<div class="search-result-item" style="color:#888;">لم يتم العثور على نتيجة. جرب اسم سورة، أو (المستوى 5)، أو (نموذج 2)</div>`;
             }
         }
 
+        function selectPathFromModal(pathChoice) {
+            if(!selectedSurahObjForModal) return;
+            let targetLevel = selectedSurahObjForModal.level;
+            
+            document.getElementById('pathChoiceModal').style.display = 'none';
+            loadPartsGrid(pathChoice);
+            openLevelDetails(targetLevel);
+            selectedSurahObjForModal = null;
+        }
+
+        function closePathModal() {
+            document.getElementById('pathChoiceModal').style.display = 'none';
+            selectedSurahObjForModal = null;
+        }
+
         window.addEventListener('click', (e) => {
-            if(!e.target.closest('.search-container')) {
+            if(!e.target.closest('.search-container') && !e.target.closest('.modal-content')) {
                 let dropdown = document.getElementById('searchResultsDropdown');
                 if(dropdown) dropdown.style.display = 'none';
             }
@@ -983,7 +989,7 @@
             partsGrid.innerHTML = ''; 
             const pathTitle = document.getElementById('pathTitle');
             const dataSource = (path === 'asc') ? pathAscData : pathDescData;
-            pathTitle.innerText = (path === 'asc') ? "مسار القياس: البدء من سورة البقرة صعوداً" : "مسار القياس: البدء من سورة الناس نزولاً";
+            pathTitle.innerText = (path === 'asc') ? "مسار القياس: البدء من الجزء الأول (سورة البقرة)" : "مسار القياس: البدء من الجزء الثلاثون (سورة الناس)";
 
             for (let i in dataSource) {
                 let item = document.createElement('div');
