@@ -194,13 +194,112 @@
             width: 100%; 
             height: 100%; 
         }
+
+        .google-btn {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .google-btn:hover {
+            background-color: #357ae8;
+        }
+
+        /* تصميم كروت الاشتراكات */
+        .subscription-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .sub-card {
+            background: white;
+            border: 2px solid var(--gold-accent);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .sub-card h3 {
+            margin: 0 0 10px 0;
+        }
+        .price {
+            font-size: 1.5rem;
+            color: var(--primary-green);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .subscribe-btn {
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: 0.2s;
+        }
+        .subscribe-btn:hover {
+            background-color: #14351d;
+        }
     </style>
 </head>
 <body>
 
-    <div id="homePage" class="page active-page">
+    <!-- صفحة تسجيل الدخول الرئيسية -->
+    <div id="authPage" class="page active-page">
         <h1>برنامج اختبارات القرآن الكريم</h1>
         <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية بجمعية تحفيظ الشرقية النسائية</p>
+        <div class="main-menu" style="max-width: 350px; margin: 40px auto 0 auto;">
+            <p>الرجاء تسجيل الدخول للمتابعة</p>
+            <button class="google-btn" onclick="loginWithGoogle()">تسجيل الدخول بواسطة جوجل</button>
+        </div>
+    </div>
+
+    <!-- صفحة باقات الاشتراك (تظهر إن لم يكن المشترك مشتركاً) -->
+    <div id="subscriptionPage" class="page">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <span id="sub-user-name" style="font-weight: bold; color: var(--primary-green);"></span>
+            <button class="back-btn" style="margin: 0; color: #d9534f; border-color: #d9534f;" onclick="logout()">تسجيل الخروج</button>
+        </div>
+        <h2>اختر باقة الاشتراك المناسبة</h2>
+        <p style="color: #666;">للاستمتاع بكافة مميزات ومسارات تطبيق الاختبارات وتحفيظ الشرقية:</p>
+        
+        <div class="subscription-container">
+            <div class="sub-card">
+                <h3>الباقة الشهرية</h3>
+                <p style="color: #666; font-size: 0.9rem;">وصول كامل لجميع المسارات والمستويات</p>
+                <div class="price">29 ر.س / شهرياً</div>
+                <button class="subscribe-btn" onclick="processSubscription('شهري (29 ريال)')">اشتراك شهري</button>
+            </div>
+
+            <div class="sub-card" style="border-color: var(--primary-green); background: #faf9f5;">
+                <span style="background: var(--gold-accent); color: white; padding: 2px 10px; border-radius: 10px; font-size: 0.8rem; font-weight: bold;">الأكثر طلباً وتوفيراً</span>
+                <h3 style="margin-top: 8px;">باقة مدى الحياة</h3>
+                <p style="color: #666; font-size: 0.9rem;">دفع لمرة واحدة وتمتع بالتطبيق للأبد وتحديثاته</p>
+                <div class="price">199 ر.س / مدى الحياة</div>
+                <button class="subscribe-btn" style="background: var(--gold-accent);" onclick="processSubscription('مدى الحياة (199 ريال)')">اشتراك مدى الحياة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- الصفحة الرئيسية للبرنامج بعد الاشتراك الدائم أو الفعال -->
+    <div id="homePage" class="page">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <span id="user-name" style="font-weight: bold; color: var(--primary-green);"></span>
+            <button class="back-btn" style="margin: 0; color: #d9534f; border-color: #d9534f;" onclick="logout()">تسجيل الخروج</button>
+        </div>
+        <h1>برنامج اختبارات القرآن الكريم</h1>
+        <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية بجمعية تحفيظ الشرقية النسائية</p>
+        <div id="subscription-status-badge" style="background: #e2f0d9; color: #385723; padding: 8px; border-radius: 5px; font-weight: bold; margin: 15px 0; font-size: 0.9rem;"></div>
         <div class="main-menu">
             <div class="role-button" onclick="showPage('pathSelectionPage')">معلمة قرآن</div>
             <div class="role-button" onclick="alert('صفحة الطالبة قيد التطوير حالياً')">طالبة</div>
@@ -250,12 +349,80 @@
         </div>
     </div>
 
+    <!-- Firebase SDKs & Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDqgcR7fJIdsVK9HyVLSX0nsY94mW3-ZEs",
+            authDomain: "qurantestingapp.firebaseapp.com",
+            projectId: "qurantestingapp",
+            storageBucket: "qurantestingapp.firebasestorage.app",
+            messagingSenderId: "424710707998",
+            appId: "1:424710707998:web:3aa4295540c03c9457c70f",
+            measurementId: "G-35HC2HDT4N"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.loginWithGoogle = function() {
+            signInWithPopup(auth, provider)
+            .catch((error) => {
+                alert("حدث خطأ أثناء تسجيل الدخول: " + error.message);
+            });
+        };
+
+        window.logout = function() {
+            signOut(auth);
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // التحقق من حالة الاشتراك المحفوظة محلياً أو في قاعدة البيانات للمستخدم
+                let userSubStatus = localStorage.getItem("sub_" + user.uid);
+                
+                if (!userSubStatus) {
+                    // إذا لم يكن مشتركاً، يوجه إلى صفحة اختيار باقات الاشتراك
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+                    document.getElementById("subscriptionPage").classList.add('active-page');
+                    document.getElementById("sub-user-name").textContent = "مرحباً، " + user.displayName;
+                } else {
+                    // إذا كان مشتركاً بالفعل، يوجه للرئيسية مع إظهار نوع الباقة
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+                    document.getElementById("homePage").classList.add('active-page');
+                    document.getElementById("user-name").textContent = "مرحباً، " + user.displayName;
+                    document.getElementById("subscription-status-badge").textContent = "حالة الاشتراك: فعال (" + userSubStatus + ")";
+                }
+            } else {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+                document.getElementById("authPage").classList.add('active-page');
+            }
+        });
+
+        window.processSubscription = function(planName) {
+            let user = auth.currentUser;
+            if(user) {
+                // حفظ حالة الاشتراك للمستخدم الحالي
+                localStorage.setItem("sub_" + user.uid, planName);
+                alert("تم الاشتراك بنجاح في باقة: " + planName + " شكراً لكِ!");
+                
+                // الانتقال للوحة الرئيسية
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+                document.getElementById("homePage").classList.add('active-page');
+                document.getElementById("user-name").textContent = "مرحباً، " + user.displayName;
+                document.getElementById("subscription-status-badge").textContent = "حالة الاشتراك: فعال (" + planName + ")";
+            }
+        }
+    </script>
+
     <script>
         let currentLevel = 1;
         let currentModel = 1;
         let currentPath = 'asc';
 
-        // مسار البقرة (تصاعدي)
         const pathAscData = {
             1: { title: "المستوى 1 (جزء 1)", startPage: 2, endPage: 21, q: 6 },
             2: { title: "المستوى 2 (جزآن)", startPage: 2, endPage: 41, q: 6 },
@@ -278,7 +445,6 @@
             19: { title: "المستوى 19 (28 جزءاً)", startPage: 2, endPage: 561, q: 14 }
         };
 
-        // مسار الناس (تنازلي) - يعتمد بدقة على أرقام صفحات السور الفعلية بالمصحف الشريف
         const pathDescData = {
             1: { title: "المستوى 1 (جزء عم)", startPage: 582, endPage: 604, q: 6 },
             2: { title: "المستوى 2 (جزءا الملك والنبأ)", startPage: 562, endPage: 604, q: 6 },
@@ -499,7 +665,6 @@
 
             quranTextHint.innerText = `اقرئي من بداية الصفحة رقم (${actualPageNumber}) من سورة (${detectedSurah})، مع الالتزام بحد أقصى 7 أسطر واكتمال المعنى التام طبقاً للائحة.`;
 
-            // الحل القاطع: نجمع دائماً 3 صفحات تمهيدية في الرابط لتفادي الفهرس والغلاف، دون الالتفات لملحقات النهاية
             let embedUrlPage = actualPageNumber + 3;
             quranIframe.src = `https://qurancomplex.gov.sa/isdarat-hafs/#flipbook-df_11309/${embedUrlPage}/`;
 
