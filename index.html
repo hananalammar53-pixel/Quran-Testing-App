@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيق اختبارات القرآن الكريم الذكي</title>
+    
+    <!-- إعدادات الـ PWA ليعمل كتطبيق هاتف حقيقي -->
+    <meta name="theme-color" content="#1e4d2b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="اختبارات القرآن">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%D8%A7%D9%84%D9%83%D8%B1%D9%8A%D9%85%22%2C%22short_name%22%3A%22%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fdfbf7%22%2C%22theme_color%22%3A%22%231e4d2b%22%7D">
+
     <style>
         :root {
             --primary-green: #1e4d2b;
@@ -160,7 +168,6 @@
             color: white;
         }
 
-        /* نافذة خيارات المسار عند اختيار السورة من البحث */
         #pathChoiceModal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -477,7 +484,6 @@
         <p>جاري تحميل التطبيق...</p>
     </div>
 
-    <!-- نافذة اختيار مسار الاختبار عند النقر على السورة من البحث -->
     <div id="pathChoiceModal">
         <div class="modal-content">
             <h3 id="modalSurahTitle" style="color: var(--primary-green); margin-top:0;">اختر مسار بداية الاختبار</h3>
@@ -512,7 +518,6 @@
         <h1>برنامج اختبارات القرآن الكريم</h1>
         <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية</p>
         
-        <!-- حقل البحث الذكي الشامل لجميع سور القرآن والمستويات والنماذج -->
         <div class="search-container">
             <input type="text" class="search-bar" id="smartSearch" placeholder="ابحث عن أي سورة، أو مستوى (المستوى 5)، أو نموذج (نموذج 3)..." oninput="handleSmartSearch(event)" autocomplete="off">
             <div id="searchResultsDropdown" class="search-results-dropdown"></div>
@@ -672,6 +677,36 @@
         </button>
     </div>
 
+    <!-- تسجيل Service Worker لتمكين العمل دون إنترنت والتثبيت كتطبيق -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    self.addEventListener('install', (e) => {
+                        self.skipWaiting();
+                    });
+                    self.addEventListener('activate', (e) => {
+                        e.waitUntil(clients.claim());
+                    });
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.match(e.request).then((response) => {
+                                return response || fetch(e.request).catch(() => {
+                                    return caches.match('./');
+                                });
+                            })
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'text/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log("Service Worker Active!"))
+                    .catch((err) => console.log("SW Registration Failed", err));
+            });
+        }
+    </script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -756,7 +791,6 @@
         let timerInterval = null;
         let selectedSurahObjForModal = null;
 
-        // قائمة شاملة لجميع سور القرآن الكريم (114 سورة) مع ربطها بالمستويات
         const quranSurahsList = [
             { name: "الفاتحة", level: 1 }, { name: "البقرة", level: 1 }, { name: "آل عمران", level: 2 },
             { name: "النساء", level: 3 }, { name: "المائدة", level: 4 }, { name: "الأنعام", level: 5 },
@@ -864,7 +898,6 @@
             btn.classList.add('active');
         }
 
-        // محرك البحث الشامل لجميع المستويات (سور القرآن، المستويات من 1 لـ 19، والنماذج)
         function handleSmartSearch(e) {
             let query = e.target.value.trim().toLowerCase();
             let dropdown = document.getElementById('searchResultsDropdown');
@@ -877,7 +910,6 @@
 
             let matches = [];
             
-            // 1. البحث في جميع المستويات (من 1 إلى 19)
             for(let lvl = 1; lvl <= 19; lvl++) {
                 let lvlString = `المستوى ${lvl}`.toLowerCase();
                 if(lvlString.includes(query) || query.includes(`مستوى ${lvl}`)) {
@@ -889,7 +921,6 @@
                 }
             }
 
-            // 2. البحث في جميع سور القرآن الكريم (114 سورة) مع إظهار نافذة اختيار المسار
             quranSurahsList.forEach(surah => {
                 let cleanName = surah.name.toLowerCase();
                 if(cleanName.includes(query) || query.includes(cleanName)) {
@@ -902,7 +933,6 @@
                 }
             });
 
-            // 3. البحث عن أرقام النماذج (مثل: نموذج 1 إلى 10)
             if(query.includes('نموذج') || !isNaN(query)) {
                 let modelNum = parseInt(query.replace(/\D/g, ''));
                 if(!isNaN(modelNum) && modelNum >= 1 && modelNum <= 10) {
@@ -915,7 +945,6 @@
                 }
             }
 
-            // إزالة التكرارات
             let uniqueMatches = [];
             let seen = new Set();
             matches.forEach(m => {
@@ -937,7 +966,6 @@
                         document.getElementById('smartSearch').value = '';
                         
                         if(m.type === 'surah') {
-                            // إظهار مربع الاختيار المنبثق للجزء الأول أو الجزء الثلاثون
                             selectedSurahObjForModal = m;
                             document.getElementById('modalSurahTitle').innerText = `سورة ${m.surahName}`;
                             document.getElementById('pathChoiceModal').style.display = 'flex';
