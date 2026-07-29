@@ -5,12 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيق اختبارات القرآن الكريم الذكي</title>
     
-    <!-- إعدادات الـ PWA ليعمل كتطبيق هاتف حقيقي -->
+    <!-- إعدادات الـ PWA والأيقونات الرسمية -->
     <meta name="theme-color" content="#1e4d2b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="اختبارات القرآن">
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%D8%A7%D9%84%D9%83%D8%B1%D9%8A%D9%85%22%2C%22short_name%22%3A%22%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fdfbf7%22%2C%22theme_color%22%3A%22%231e4d2b%22%7D">
+    
+    <!-- ربط الأيقونات لتعمل عند التثبيت -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <!-- ملف Manifest الديناميكي المعرف بالصورة والمقاسات المطلوبة -->
+    <script>
+        const manifestData = {
+            "name": "تطبيق اختبارات القرآن الكريم",
+            "short_name": "اختبارات القرآن",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#fdfbf7",
+            "theme_color": "#1e4d2b",
+            "icons": [
+                {
+                    "src": "icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                },
+                {
+                    "src": "icon-512.png",
+                    "sizes": "512x512",
+                    "type": "image/png"
+                }
+            ]
+        };
+        const stringManifest = JSON.stringify(manifestData);
+        const blobManifest = new Blob([stringManifest], {type: 'application/manifest+json'});
+        const manifestURL = URL.createObjectURL(blobManifest);
+        const linkTag = document.createElement('link');
+        linkTag.rel = 'manifest';
+        linkTag.href = manifestURL;
+        document.head.appendChild(linkTag);
+    </script>
 
     <!-- استدعاء مكتبات فايربيس للإصدار المتوافق مع المتصفح (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -722,7 +756,7 @@
         </button>
     </div>
 
-    <!-- برمجة التثبيت والـ Service Worker -->
+    <!-- برمجة التثبيت وتحديث Service Worker لتجاوز الكاش -->
     <script>
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -776,7 +810,6 @@
 
     <!-- تهيئة فايربيس (Firebase & Analytics) الخاصة بك -->
     <script>
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDqgcR7fJIdsVK9HyVLSX0nsY94mW3-ZEs",
             authDomain: "qurantestingapp.firebaseapp.com",
@@ -787,15 +820,12 @@
             measurementId: "G-35HC2HDT4N"
         };
 
-        // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const analytics = firebase.analytics(app);
         const db = firebase.firestore();
         const auth = firebase.auth();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
         
-        console.log("تم الاتصال بقاعدة بيانات فايربيس وتفعيل التحليلات بنجاح!");
-
         window.loginWithGoogle = function() {
             auth.signInWithPopup(googleProvider).catch((error) => {
                 alert("حدث خطأ أثناء تسجيل الدخول: " + error.message);
@@ -825,17 +855,14 @@
             alert("تنبيه الاشتراك الشهري: موعد الدفع القادم خلال 28 يوماً.");
         };
 
-        // دالة فتح نافذة خيارات ترقية الاشتراك (شهري / مدى الحياة)
         window.openSubscriptionSettings = function() {
             document.getElementById('subscriptionModal').style.display = 'flex';
         };
 
-        // دالة إغلاق نافذة الخيارات
         window.closeSubscriptionModal = function() {
             document.getElementById('subscriptionModal').style.display = 'none';
         };
 
-        // دالة التعامل مع الخيار المختار
         window.selectSubscriptionPlan = function(planType) {
             closeSubscriptionModal();
             if(planType === 'monthly') {
