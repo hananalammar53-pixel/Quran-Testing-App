@@ -174,7 +174,7 @@
             color: white;
         }
 
-        #pathChoiceModal {
+        #pathChoiceModal, #subscriptionModal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6);
@@ -490,6 +490,7 @@
         <p>جاري تحميل التطبيق...</p>
     </div>
 
+    <!-- نافذة اختيار مسار السورة -->
     <div id="pathChoiceModal">
         <div class="modal-content">
             <h3 id="modalSurahTitle" style="color: var(--primary-green); margin-top:0;">اختر مسار بداية الاختبار</h3>
@@ -497,6 +498,26 @@
             <button class="modal-btn" onclick="selectPathFromModal('asc')">🟢 الاختبار يبدأ من الجزء الأول (تصاعدي)</button>
             <button class="modal-btn" style="border-color: #e67e22; color: #e67e22;" onclick="selectPathFromModal('desc')">🟠 الاختبار يبدأ من الجزء الثلاثون (تنازلي)</button>
             <button class="back-btn" style="width: 100%; margin-top: 15px; margin-bottom: 0;" onclick="closePathModal()">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- النافذة المنبثقة لخيارات ترقية الاشتراك (شهري / مدى الحياة) -->
+    <div id="subscriptionModal">
+        <div class="modal-content">
+            <h3 style="color: var(--primary-green); margin-top:0;">اختر خطة الاشتراك المناسبة</h3>
+            <p style="font-size: 0.9rem; color: #666;">احصل على صلاحيات كاملة واستمتع بكافة مميزات التطبيق دون توقف.</p>
+            
+            <button class="modal-btn" onclick="selectSubscriptionPlan('monthly')">
+                📅 اشتراك شهري <br>
+                <span style="font-size: 0.8rem; font-weight: normal; color: #555;">(تجديد شهري مرن)</span>
+            </button>
+            
+            <button class="modal-btn" style="border-color: #d4af37; background: #fffdf3;" onclick="selectSubscriptionPlan('lifetime')">
+                ⭐ اشتراك مدى الحياة <br>
+                <span style="font-size: 0.8rem; font-weight: normal; color: #b8860b;">(دفع مرة واحدة واستخدام أبدي)</span>
+            </button>
+
+            <button class="back-btn" style="width: 100%; margin-top: 15px; margin-bottom: 0;" onclick="closeSubscriptionModal()">إغلاق</button>
         </div>
     </div>
 
@@ -572,10 +593,10 @@
             <button class="action-btn-success" id="installAppBtn" onclick="installPWAApp()">📥 تنزيل وتثبيت التطبيق على الشاشة الرئيسية</button>
         </div>
 
-        <!-- القسم الجديد لزر إعدادات الاشتراك وترقية الاشتراك -->
+        <!-- القسم الخاص بزر إعدادات الاشتراك وترقية الاشتراك -->
         <div class="settings-card" style="border-color: var(--gold-accent); background: #fffdf3;">
             <h3>ترقية الاشتراك وباقات التطبيق</h3>
-            <p style="font-size: 0.9rem; color: #555;">يمكنك إدارة اشتراكك الحالي، تغيير خطة الدفع، أو الترقية للوصول لكافة الميزات المتقدمة والنماذج الحصرية.</p>
+            <p style="font-size: 0.9rem; color: #555;">يمكنك إدارة اشتراكك الحالي، اختيار خطة الدفع (شهري أو مدى الحياة)، أو الترقية للوصول لكافة الميزات المتقدمة.</p>
             <button class="action-btn-success" style="background-color: var(--gold-accent); color: #1e4d2b; font-weight: bold;" onclick="openSubscriptionSettings()">⚙️ إعدادات الاشتراك وترقية الاشتراك</button>
         </div>
 
@@ -804,9 +825,24 @@
             alert("تنبيه الاشتراك الشهري: موعد الدفع القادم خلال 28 يوماً.");
         };
 
-        // دالة فتح إعدادات وترقية الاشتراك الجديدة
+        // دالة فتح نافذة خيارات ترقية الاشتراك (شهري / مدى الحياة)
         window.openSubscriptionSettings = function() {
-            alert("جاري الاتصال ببوابة الدفع لإدارة الباقات وترقية اشتراكك الحالي...");
+            document.getElementById('subscriptionModal').style.display = 'flex';
+        };
+
+        // دالة إغلاق نافذة الخيارات
+        window.closeSubscriptionModal = function() {
+            document.getElementById('subscriptionModal').style.display = 'none';
+        };
+
+        // دالة التعامل مع الخيار المختار
+        window.selectSubscriptionPlan = function(planType) {
+            closeSubscriptionModal();
+            if(planType === 'monthly') {
+                alert("جاري تحويلك لبوابة الدفع للاشتراك الشهري (تجديد دوري)...");
+            } else if(planType === 'lifetime') {
+                alert("جاري تحويلك لبوابة الدفع باقة (مدى الحياة - استخدام أبدي شامل)...");
+            }
         };
 
         auth.onAuthStateChanged((user) => {
