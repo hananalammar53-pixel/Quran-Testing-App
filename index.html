@@ -108,7 +108,7 @@
         .top-bar {
             width: 100%;
             max-width: 600px;
-            display: flex;
+            display: none; /* مخفي افتراضياً لحين تسجيل الدخول */
             justify-content: space-between;
             align-items: center;
             padding: 15px 20px;
@@ -271,7 +271,8 @@
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: var(--card-bg); border-top: 1px solid var(--border-color);
-            display: flex; justify-content: space-around; padding: 10px 0;
+            display: none; /* مخفي افتراضياً لحين تسجيل الدخول */
+            justify-content: space-around; padding: 10px 0;
             z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
         .nav-item {
@@ -318,33 +319,35 @@
         </div>
     </div>
 
-    <div class="top-bar">
+    <!-- شريط علوي يظهر فقط بعد تسجيل الدخول -->
+    <div class="top-bar" id="appTopBar">
         <div class="top-controls">
             <button class="icon-btn" onclick="toggleTheme()" title="تغيير المظهر">🌓</button>
             <div class="icon-btn" onclick="showNotificationDetails()" title="التنبيهات">
                 🔔
-                <span class="notification-badge" id="timerBadge">28ي</span>
+                <span class="notification-badge" id="timerBadge">2 днів</span>
             </div>
         </div>
-        <!-- تم تعديل العرض ليظهر "مرحباً" بجانب اسم المستخدم -->
         <div id="topUserGreeting" style="font-weight: bold; font-size: 0.9rem;"></div>
     </div>
 
+    <!-- صفحة تسجيل الدخول (الصفحة الوحيدة المرئية للمستخدم غير المسجل) -->
     <div id="authPage" class="page active-page">
         <h1>برنامج اختبارات القرآن الكريم</h1>
         <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية للجمعيات النسائية</p>
         <div class="main-menu" style="max-width: 350px; margin: 40px auto 0 auto;">
-            <p>الرجاء تسجيل الدخول للمتابعة</p>
+            <p>الرجاء تسجيل الدخول للمتابعة واستخدام التطبيق</p>
             <button class="google-btn" onclick="loginWithGoogle()">تسجيل الدخول بواسطة جوجل</button>
         </div>
     </div>
 
+    <!-- باقي صفحات التطبيق (محمية ولا تظهر إلا بعد تسجيل الدخول) -->
     <div id="homePage" class="page">
         <h1>برنامج اختبارات القرآن الكريم</h1>
         <p style="color: #7f8c8d;">مطابق للائحة الاختبارات الرسمية</p>
         
         <div class="search-container">
-            <input type="text" class="search-bar" id="smartSearch" placeholder="ابحث عن أي سورة، أو مستوى (المستوى 5)، أو نموذج (نموذج 3)..." oninput="handleSmartSearch(event)" autocomplete="off">
+            <input type="text" class="search-bar" id="smartSearch" placeholder="ابحث عن أي سورة، أو مستوى، أو نموذج..." oninput="handleSmartSearch(event)" autocomplete="off">
             <div id="searchResultsDropdown" class="search-results-dropdown"></div>
         </div>
 
@@ -500,7 +503,8 @@
         <button class="action-btn-success" onclick="downloadCurrentStudentReportFile()">💾 تحميل تقرير الطالبة مباشرة (ملف TXT)</button>
     </div>
 
-    <div class="bottom-nav">
+    <!-- شريط التنقل السفلي يظهر فقط بعد تسجيل الدخول -->
+    <div class="bottom-nav" id="appBottomNav">
         <button class="nav-item active" onclick="showPage('homePage'); setActiveNav(this)">
             <span>🏠</span>الرئيسية
         </button>
@@ -574,7 +578,32 @@
             results: []
         };
 
+        // طلب إذن الإشعارات عند تصفح التطبيق
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+        }
+
+        function showAppNotification(title, bodyText) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                try {
+                    navigator.serviceWorker.ready.then(registration => {
+                        registration.showNotification(title, {
+                            body: bodyText,
+                            icon: 'icon-192.png',
+                            badge: 'icon-192.png',
+                            dir: 'rtl'
+                        });
+                    });
+                } catch(e) {
+                    new Notification(title, { body: bodyText });
+                }
+            }
+        }
+
         window.loginWithGoogle = function() {
+            requestNotificationPermission();
             auth.signInWithPopup(googleProvider).catch((error) => {
                 alert("حدث خطأ أثناء تسجيل الدخول: " + error.message);
             });
@@ -598,7 +627,7 @@
         }
 
         window.showNotificationDetails = function() {
-            alert("تنبيه الاشتراك الشهري: موعد الدفع القادم خلال 28 يوماً.");
+            alert("تنبيه: سينتهي اشتراكك خلال يومين.");
         };
 
         window.openSubscriptionSettings = function() {
@@ -614,21 +643,33 @@
             alert(planType === 'monthly' ? "جاري تحويلك للاشتراك الشهري..." : "جاري تحويلك لباقة مدى الحياة...");
         };
 
-        // مزامنة البيانات مع السحابة عند تسجيل الدخول
+        // حالة المصادقة وحماية الشاشات (منع ظهور أي شيء غير شاشة تسجيل الدخول إذا لم يكن مسجلاً)
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // عرض كلمة مرحباً بجانب اسم المستخدم
+                // إظهار شريط التنقل العلوي والسفلي عند تسجيل الدخول
+                document.getElementById("appTopBar").style.display = "flex";
+                document.getElementById("appBottomNav").style.display = "flex";
+
                 document.getElementById("topUserGreeting").textContent = `مرحباً، ${user.displayName}`;
                 document.getElementById("settingUserName").textContent = user.displayName;
                 document.getElementById("settingUserEmail").textContent = user.email || "غير متوفر";
                 document.getElementById("subscription-status-badge").textContent = "حالة الاشتراك: فعال (عبر متجر سلة)";
 
-                // جلب التقدم المحفوظ من السحابة (Firestore)
                 await fetchUserDataFromCloud(user.uid);
 
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
                 document.getElementById("homePage").classList.add('active-page');
+
+                // إشعار تنبيه باقتراب انتهاء الاشتراك قبل يومين
+                setTimeout(() => {
+                    showAppNotification("تنبيه انتهاء الاشتراك", "تنبيه: سينتهي اشتراكك خلال يومين القادمين.");
+                }, 3000);
+
             } else {
+                // إخفاء الأشرطة تماماً وقصر العرض على صفحة تسجيل الدخول فقط
+                document.getElementById("appTopBar").style.display = "none";
+                document.getElementById("appBottomNav").style.display = "none";
+
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
                 document.getElementById("authPage").classList.add('active-page');
                 document.getElementById("topUserGreeting").textContent = "";
@@ -917,7 +958,6 @@
                 mBox.innerText = 'نموذج ' + j;
                 mBox.id = `model_${currentPath}_lvl_${levelNum}_mod_${j}`; 
                 
-                // فحص التقدم من السحابة بدلاً من المحلي فقط
                 if (cloudUserData.testedModels && cloudUserData.testedModels[mBox.id] === 'tested') {
                     mBox.classList.add('tested');
                     mBox.innerText = 'نموذج ' + j + ' (تم)';
@@ -932,7 +972,7 @@
                     
                     if(!cloudUserData.testedModels) cloudUserData.testedModels = {};
                     cloudUserData.testedModels[currentTarget.id] = 'tested';
-                    await saveUserDataToCloud(); // الحفظ السحابي المباشر للتقدم
+                    await saveUserDataToCloud();
 
                     showClips(j);
                 };
@@ -1058,6 +1098,10 @@
             statusEl.style.color = finalGrade >= 60 ? "#27ae60" : "#e74c3c";
 
             await saveResultToCloudArchive(studentName, lvlTitle + ' (نموذج ' + currentModel + ')', finalGrade, statusText);
+            
+            // إظهار إشعار التطبيق بانهاء الاختبار وحفظ النتيجة باسم الطالبة
+            showAppNotification("حفظ النتيجة", `تم إنهاء اختبار ${studentName} وحفظت النتيجة`);
+
             showPage('resultPage');
         }
 
