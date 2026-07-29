@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيق اختبارات القرآن الكريم الذكي</title>
     
-    <!-- إعدادات الـ PWA والأيقونات الرسمية -->
     <meta name="theme-color" content="#1e4d2b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="اختبارات القرآن">
     
-    <!-- ربط الأيقونات لتعمل عند التثبيت -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
 
-    <!-- ملف Manifest الديناميكي المعرف بالصورة والمقاسات المطلوبة -->
     <script>
         const manifestData = {
             "name": "تطبيق اختبارات القرآن الكريم",
@@ -25,16 +22,8 @@
             "background_color": "#fdfbf7",
             "theme_color": "#1e4d2b",
             "icons": [
-                {
-                    "src": "icon-192.png",
-                    "sizes": "192x192",
-                    "type": "image/png"
-                },
-                {
-                    "src": "icon-512.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
-                }
+                { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+                { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
             ]
         };
         const stringManifest = JSON.stringify(manifestData);
@@ -46,7 +35,6 @@
         document.head.appendChild(linkTag);
     </script>
 
-    <!-- استدعاء مكتبات فايربيس للإصدار المتوافق مع المتصفح (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -108,9 +96,7 @@
             animation: fadeIn 0.3s ease-in-out;
         }
 
-        .active-page {
-            display: block;
-        }
+        .active-page { display: block; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
@@ -146,375 +132,163 @@
             position: relative;
             transition: 0.2s;
         }
-        .icon-btn:hover {
-            background: var(--primary-green);
-            color: white;
-        }
+        .icon-btn:hover { background: var(--primary-green); color: white; }
 
         .notification-badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #e74c3c;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 5px;
-            border-radius: 50px;
-            font-weight: bold;
+            top: -5px; right: -5px;
+            background: #e74c3c; color: white;
+            font-size: 0.7rem; padding: 2px 5px;
+            border-radius: 50px; font-weight: bold;
         }
 
-        .search-container {
-            position: relative;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
+        .search-container { position: relative; width: 100%; margin-bottom: 15px; }
         .search-bar, .input-field {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
+            width: 100%; padding: 12px; border-radius: 8px;
             border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            color: var(--text-color);
-            box-sizing: border-box;
-            font-size: 1rem;
+            background: var(--card-bg); color: var(--text-color);
+            box-sizing: border-box; font-size: 1rem;
         }
 
         .search-results-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0 0 8px 8px;
-            max-height: 250px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-            text-align: right;
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 0 0 8px 8px; max-height: 250px; overflow-y: auto;
+            z-index: 100; display: none; text-align: right;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .search-result-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-            font-size: 0.95rem;
-            transition: 0.2s;
+            padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #eee;
+            font-size: 0.95rem; transition: 0.2s;
         }
-        .search-result-item:hover {
-            background: var(--gold-accent);
-            color: white;
-        }
+        .search-result-item:hover { background: var(--gold-accent); color: white; }
 
         #pathChoiceModal, #subscriptionModal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: none;
+            justify-content: center; align-items: center; z-index: 10000;
         }
         .modal-content {
-            background: var(--card-bg);
-            border: 2px solid var(--gold-accent);
-            padding: 25px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            background: var(--card-bg); border: 2px solid var(--gold-accent);
+            padding: 25px; border-radius: 15px; width: 90%; max-width: 400px;
+            text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
         .modal-btn {
-            background: var(--card-bg);
-            border: 2px solid var(--primary-green);
-            color: var(--primary-green);
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            width: 100%;
-            margin-top: 12px;
-            cursor: pointer;
-            transition: 0.2s;
+            background: var(--card-bg); border: 2px solid var(--primary-green);
+            color: var(--primary-green); padding: 12px; border-radius: 10px;
+            font-size: 1.1rem; font-weight: bold; width: 100%;
+            margin-top: 12px; cursor: pointer; transition: 0.2s;
         }
-        .modal-btn:hover {
-            background: var(--primary-green);
-            color: white;
-        }
+        .modal-btn:hover { background: var(--primary-green); color: white; }
 
-        .main-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 15px;
-        }
+        .main-menu { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
 
         .role-button, .path-button {
-            background: var(--card-bg);
-            border: 2px solid var(--primary-green);
-            padding: 20px;
-            border-radius: 15px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: var(--primary-green);
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background: var(--card-bg); border: 2px solid var(--primary-green);
+            padding: 20px; border-radius: 15px; font-size: 1.3rem;
+            font-weight: bold; color: var(--primary-green); cursor: pointer;
+            transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-
         .role-button:hover, .path-button:hover {
-            background: var(--primary-green);
-            color: white;
-            transform: translateY(-3px);
+            background: var(--primary-green); color: white; transform: translateY(-3px);
         }
 
-        .parts-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
+        .parts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
         .part-item {
-            background: var(--card-bg);
-            border: 1px solid var(--gold-accent);
-            color: var(--text-color);
-            padding: 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
+            background: var(--card-bg); border: 1px solid var(--gold-accent);
+            color: var(--text-color); padding: 15px; border-radius: 10px;
+            cursor: pointer; font-weight: bold; transition: 0.2s;
         }
+        .part-item:hover { background: var(--gold-accent); color: white; }
 
-        .part-item:hover {
-            background: var(--gold-accent);
-            color: white;
-        }
-
-        .sub-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-
+        .sub-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
         .box {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: bold;
-            transition: 0.2s;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            color: var(--text-color); padding: 10px; border-radius: 5px;
+            cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: 0.2s;
         }
-
-        .box.tested {
-            background: #7f8c8d !important;
-            color: white !important;
-            border: 1px dashed #7f8c8d;
-        }
-
-        .box.active {
-            background: var(--primary-green);
-            color: white;
-        }
+        .box.tested { background: #7f8c8d !important; color: white !important; border: 1px dashed #7f8c8d; }
+        .box.active { background: var(--primary-green); color: white; }
 
         .clip-box {
-            background: var(--card-bg);
-            border: 2px solid var(--gold-accent);
-            color: var(--primary-green);
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
+            background: var(--card-bg); border: 2px solid var(--gold-accent);
+            color: var(--primary-green); padding: 12px; border-radius: 8px; font-weight: bold;
         }
-
-        .clip-box:hover {
-            background: var(--gold-accent);
-            color: white;
-        }
+        .clip-box:hover { background: var(--gold-accent); color: white; }
 
         .back-btn {
-            background: none;
-            border: 1px solid #ccc;
-            color: var(--text-color);
-            padding: 8px 15px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            font-weight: bold;
+            background: none; border: 1px solid #ccc; color: var(--text-color);
+            padding: 8px 15px; cursor: pointer; margin-bottom: 20px;
+            border-radius: 5px; font-weight: bold;
         }
 
         .exam-control-panel {
-            background: var(--card-bg);
-            border: 2px solid var(--gold-accent);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            text-align: right;
+            background: var(--card-bg); border: 2px solid var(--gold-accent);
+            padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: right;
         }
-
         .grade-display {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--primary-green);
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            font-size: 1.1rem; font-weight: bold; color: var(--primary-green);
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
         }
-
         .action-btn-danger {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.85rem;
-            transition: 0.2s;
-            width: 100%;
-            margin-bottom: 8px;
+            background-color: #e74c3c; color: white; border: none; padding: 8px 12px;
+            border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem;
+            transition: 0.2s; width: 100%; margin-bottom: 8px;
         }
         .action-btn-danger:hover { background-color: #c0392b; }
-
         .action-btn-success {
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            margin-top: 10px;
+            background-color: #27ae60; color: white; border: none; padding: 10px;
+            border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
         }
-
         .timer-box {
-            background: #e67e22;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 10px;
+            background: #e67e22; color: white; padding: 5px 10px; border-radius: 5px;
+            font-size: 0.9rem; font-weight: bold; display: inline-block; margin-bottom: 10px;
         }
 
         .quran-display-box {
-            display: none;
-            margin-top: 25px;
-            padding: 20px;
-            border: 2px dashed var(--gold-accent);
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: none; margin-top: 25px; padding: 20px;
+            border: 2px dashed var(--gold-accent); background: var(--card-bg);
+            border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
         .quran-text-hint {
-            font-size: 1.1rem;
-            color: #c0392b;
-            margin: 10px 0 20px 0;
-            font-weight: bold;
-            line-height: 1.6;
-            background: #fce4d6;
-            padding: 10px;
-            border-radius: 5px;
+            font-size: 1.1rem; color: #c0392b; margin: 10px 0 20px 0;
+            font-weight: bold; line-height: 1.6; background: #fce4d6; padding: 10px; border-radius: 5px;
         }
-
         .embed-container { 
-            position: relative; 
-            padding-bottom: 130%; 
-            height: 0; 
-            overflow: hidden; 
-            max-width: 100%; 
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            margin-top: 15px;
-            background: #fff;
+            position: relative; padding-bottom: 130%; height: 0; overflow: hidden; 
+            max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: 15px; background: #fff;
         } 
-        .embed-container iframe { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-        }
+        .embed-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
         .google-btn {
-            background-color: #4285F4;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 15px;
-            font-weight: bold;
+            background-color: #4285F4; color: white; border: none; padding: 12px 20px;
+            font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; font-weight: bold;
         }
         .google-btn:hover { background-color: #357ae8; }
 
         .bottom-nav {
-            position: fixed;
-            bottom: 0; left: 0; width: 100%;
-            background: var(--card-bg);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            z-index: 1000;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--card-bg); border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-around; padding: 10px 0;
+            z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
-
         .nav-item {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            transition: 0.2s;
+            background: none; border: none; color: var(--text-color);
+            font-size: 0.85rem; font-weight: bold; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 3px; transition: 0.2s;
         }
-        .nav-item:hover, .nav-item.active {
-            color: var(--primary-green);
-        }
+        .nav-item:hover, .nav-item.active { color: var(--primary-green); }
 
         .settings-card, .stats-card {
-            background: var(--card-bg);
-            border: 2px solid var(--gold-accent);
-            padding: 20px;
-            border-radius: 12px;
-            text-align: right;
-            margin-bottom: 15px;
+            background: var(--card-bg); border: 2px solid var(--gold-accent);
+            padding: 20px; border-radius: 12px; text-align: right; margin-bottom: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background: var(--card-bg);
-            font-size: 0.9rem;
-        }
-        .results-table th, .results-table td {
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            text-align: center;
-        }
-        .results-table th {
-            background: var(--primary-green);
-            color: white;
-        }
+        .results-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: var(--card-bg); font-size: 0.9rem; }
+        .results-table th, .results-table td { border: 1px solid var(--border-color); padding: 8px; text-align: center; }
+        .results-table th { background: var(--primary-green); color: white; }
     </style>
 </head>
 <body>
@@ -524,7 +298,6 @@
         <p>جاري تحميل التطبيق...</p>
     </div>
 
-    <!-- نافذة اختيار مسار السورة -->
     <div id="pathChoiceModal">
         <div class="modal-content">
             <h3 id="modalSurahTitle" style="color: var(--primary-green); margin-top:0;">اختر مسار بداية الاختبار</h3>
@@ -535,22 +308,12 @@
         </div>
     </div>
 
-    <!-- النافذة المنبثقة لخيارات ترقية الاشتراك (شهري / مدى الحياة) -->
     <div id="subscriptionModal">
         <div class="modal-content">
             <h3 style="color: var(--primary-green); margin-top:0;">اختر خطة الاشتراك المناسبة</h3>
             <p style="font-size: 0.9rem; color: #666;">احصل على صلاحيات كاملة واستمتع بكافة مميزات التطبيق دون توقف.</p>
-            
-            <button class="modal-btn" onclick="selectSubscriptionPlan('monthly')">
-                📅 اشتراك شهري <br>
-                <span style="font-size: 0.8rem; font-weight: normal; color: #555;">(تجديد شهري مرن)</span>
-            </button>
-            
-            <button class="modal-btn" style="border-color: #d4af37; background: #fffdf3;" onclick="selectSubscriptionPlan('lifetime')">
-                ⭐ اشتراك مدى الحياة <br>
-                <span style="font-size: 0.8rem; font-weight: normal; color: #b8860b;">(دفع مرة واحدة واستخدام أبدي)</span>
-            </button>
-
+            <button class="modal-btn" onclick="selectSubscriptionPlan('monthly')">📅 اشتراك شهري <br><span style="font-size: 0.8rem; font-weight: normal; color: #555;">(تجديد شهري مرن)</span></button>
+            <button class="modal-btn" style="border-color: #d4af37; background: #fffdf3;" onclick="selectSubscriptionPlan('lifetime')">⭐ اشتراك مدى الحياة <br><span style="font-size: 0.8rem; font-weight: normal; color: #b8860b;">(دفع مرة واحدة واستخدام أبدي)</span></button>
             <button class="back-btn" style="width: 100%; margin-top: 15px; margin-bottom: 0;" onclick="closeSubscriptionModal()">إغلاق</button>
         </div>
     </div>
@@ -563,6 +326,7 @@
                 <span class="notification-badge" id="timerBadge">28ي</span>
             </div>
         </div>
+        <!-- تم تعديل العرض ليظهر "مرحباً" بجانب اسم المستخدم -->
         <div id="topUserGreeting" style="font-weight: bold; font-size: 0.9rem;"></div>
     </div>
 
@@ -595,7 +359,7 @@
     <div id="statsPage" class="page">
         <h2>إحصائيات الملف الشخصي</h2>
         <div class="stats-card">
-            <h3>ملخص الإنجاز</h3>
+            <h3>ملخص الإنجاز (محفوظ سحابياً)</h3>
             <p><strong>المستويات المختبرة:</strong> <span id="statCompletedLevels">0</span> من 19</p>
             <p><strong>نسبة الإنجاز الكلية:</strong> <span id="statProgressPercent">0%</span></p>
         </div>
@@ -608,10 +372,8 @@
         </div>
     </div>
 
-    <!-- صفحة إدارة الاشتراك والإعدادات -->
     <div id="subscriptionPage" class="page">
         <h2>إعدادات الحساب وإدارة الاشتراك</h2>
-        
         <div class="settings-card">
             <h3>معلومات الحساب</h3>
             <p><strong>الاسم:</strong> <span id="settingUserName"></span></p>
@@ -620,14 +382,12 @@
             <button class="action-btn-success" style="background-color: #2980b9; margin-top: 10px;" onclick="alert('جاري التحقق من حالة الاشتراك وتحديث البيانات من متجر سلة...')">🔄 تحديث حالة الاشتراك من سلة</button>
         </div>
 
-        <!-- زر التنزيل والتثبيت PWA المباشر -->
         <div class="settings-card" style="border-color: var(--primary-green); background: #f2f9f4;">
             <h3>تثبيت التطبيق على الهاتف</h3>
             <p style="font-size: 0.9rem; color: #555;">قم بتثبيت التطبيق على شاشة هاتفك الرئيسية للوصول إليه بسرعة وبدون شريط المتصفح.</p>
             <button class="action-btn-success" id="installAppBtn" onclick="installPWAApp()">📥 تنزيل وتثبيت التطبيق على الشاشة الرئيسية</button>
         </div>
 
-        <!-- القسم الخاص بزر إعدادات الاشتراك وترقية الاشتراك -->
         <div class="settings-card" style="border-color: var(--gold-accent); background: #fffdf3;">
             <h3>ترقية الاشتراك وباقات التطبيق</h3>
             <p style="font-size: 0.9rem; color: #555;">يمكنك إدارة اشتراكك الحالي، اختيار خطة الدفع (شهري أو مدى الحياة)، أو الترقية للوصول لكافة الميزات المتقدمة.</p>
@@ -639,8 +399,8 @@
 
     <div id="resultsArchivePage" class="page">
         <button class="back-btn" onclick="showPage('homePage')">⬅ عودة للرئيسية</button>
-        <h2>سجل وتحميل نتائج الطالبات</h2>
-        <p style="color: #7f8c8d; font-size: 0.9rem;">يمكنك متابعة النتائج المرصودة وتحميل ملفات الطالبات أو تنزيل جميع الملفات دفعة واحدة.</p>
+        <h2>سجل وتحميل نتائج الطالبات (سحابي)</h2>
+        <p style="color: #7f8c8d; font-size: 0.9rem;">النتائج مسجلة ومزامنة بشكل آمن على السحابة.</p>
         
         <button class="action-btn-success" style="background-color: #2980b9; margin-bottom: 15px;" onclick="downloadAllStudentsFiles()">📥 تحميل نتائج جميع الطالبات (ملفات منفصلة TXT)</button>
 
@@ -695,7 +455,6 @@
         </div>
 
         <div id="quranDisplayBox" class="quran-display-box">
-            
             <div class="exam-control-panel">
                 <div class="timer-box" id="examTimer">المؤقت: 02:00</div>
                 <div class="grade-display">
@@ -756,7 +515,6 @@
         </button>
     </div>
 
-    <!-- برمجة التثبيت وتحديث Service Worker لتجاوز الكاش -->
     <script>
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -770,45 +528,29 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                    }
                     deferredPrompt = null;
                 });
             } else {
-                alert("لإضافة التطبيق، افتح إعدادات المتصفح (النقاط الثلاث في الأعلى) واضغط على خيار 'إضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.");
+                alert("لإضافة التطبيق، افتح إعدادات المتصفح واضغط على خيار 'إضافة إلى الشاشة الرئيسية'.");
             }
         }
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swCode = `
-                    self.addEventListener('install', (e) => {
-                        self.skipWaiting();
-                    });
-                    self.addEventListener('activate', (e) => {
-                        e.waitUntil(clients.claim());
-                    });
+                    self.addEventListener('install', (e) => { self.skipWaiting(); });
+                    self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
                     self.addEventListener('fetch', (e) => {
-                        e.respondWith(
-                            caches.match(e.request).then((response) => {
-                                return response || fetch(e.request).catch(() => {
-                                    return caches.match('./');
-                                });
-                            })
-                        );
+                        e.respondWith(caches.match(e.request).then((response) => { return response || fetch(e.request); }));
                     });
                 `;
                 const blob = new Blob([swCode], { type: 'text/javascript' });
                 const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl)
-                    .then(() => console.log("Service Worker Active!"))
-                    .catch((err) => console.log("SW Registration Failed", err));
+                navigator.serviceWorker.register(swUrl).catch(() => {});
             });
         }
     </script>
 
-    <!-- تهيئة فايربيس (Firebase & Analytics) الخاصة بك -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDqgcR7fJIdsVK9HyVLSX0nsY94mW3-ZEs",
@@ -826,15 +568,19 @@
         const auth = firebase.auth();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
         
+        let cloudUserData = {
+            testedModels: {},
+            favorites: [],
+            results: []
+        };
+
         window.loginWithGoogle = function() {
             auth.signInWithPopup(googleProvider).catch((error) => {
                 alert("حدث خطأ أثناء تسجيل الدخول: " + error.message);
             });
         };
 
-        window.logout = function() { 
-            auth.signOut(); 
-        };
+        window.logout = function() { auth.signOut(); };
 
         window.toggleTheme = function() {
             let currentTheme = document.documentElement.getAttribute("data-theme");
@@ -865,19 +611,20 @@
 
         window.selectSubscriptionPlan = function(planType) {
             closeSubscriptionModal();
-            if(planType === 'monthly') {
-                alert("جاري تحويلك لبوابة الدفع للاشتراك الشهري (تجديد دوري)...");
-            } else if(planType === 'lifetime') {
-                alert("جاري تحويلك لبوابة الدفع باقة (مدى الحياة - استخدام أبدي شامل)...");
-            }
+            alert(planType === 'monthly' ? "جاري تحويلك للاشتراك الشهري..." : "جاري تحويلك لباقة مدى الحياة...");
         };
 
-        auth.onAuthStateChanged((user) => {
+        // مزامنة البيانات مع السحابة عند تسجيل الدخول
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
-                document.getElementById("topUserGreeting").textContent = user.displayName;
+                // عرض كلمة مرحباً بجانب اسم المستخدم
+                document.getElementById("topUserGreeting").textContent = `مرحباً، ${user.displayName}`;
                 document.getElementById("settingUserName").textContent = user.displayName;
                 document.getElementById("settingUserEmail").textContent = user.email || "غير متوفر";
                 document.getElementById("subscription-status-badge").textContent = "حالة الاشتراك: فعال (عبر متجر سلة)";
+
+                // جلب التقدم المحفوظ من السحابة (Firestore)
+                await fetchUserDataFromCloud(user.uid);
 
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
                 document.getElementById("homePage").classList.add('active-page');
@@ -887,6 +634,31 @@
                 document.getElementById("topUserGreeting").textContent = "";
             }
         });
+
+        async function fetchUserDataFromCloud(uid) {
+            try {
+                let docRef = db.collection("users_progress").doc(uid);
+                let doc = await docRef.get();
+                if (doc.exists) {
+                    cloudUserData = doc.data();
+                } else {
+                    cloudUserData = { testedModels: {}, favorites: [], results: [] };
+                    await docRef.set(cloudUserData);
+                }
+            } catch (e) {
+                console.error("Error fetching cloud data:", e);
+            }
+        }
+
+        async function saveUserDataToCloud() {
+            let user = auth.currentUser;
+            if (!user) return;
+            try {
+                await db.collection("users_progress").doc(user.uid).set(cloudUserData, { merge: true });
+            } catch (e) {
+                console.error("Error saving to cloud:", e);
+            }
+        }
     </script>
 
     <script>
@@ -903,7 +675,6 @@
         let currentLevel = 1;
         let currentModel = 1;
         let currentPath = 'asc';
-        
         let currentClipIndex = 1;
         let maxClipsTotal = 6;
         let totalRemainingGrade = 100;
@@ -1029,49 +800,31 @@
             }
 
             let matches = [];
-            
             for(let lvl = 1; lvl <= 19; lvl++) {
                 let lvlString = `المستوى ${lvl}`.toLowerCase();
                 if(lvlString.includes(query) || query.includes(`مستوى ${lvl}`)) {
-                    matches.push({
-                        title: `⭐ المستوى ${lvl} (كافة الخيارات)`,
-                        level: lvl,
-                        type: 'level'
-                    });
+                    matches.push({ title: `⭐ المستوى ${lvl} (كافة الخيارات)`, level: lvl, type: 'level' });
                 }
             }
 
             quranSurahsList.forEach(surah => {
                 let cleanName = surah.name.toLowerCase();
                 if(cleanName.includes(query) || query.includes(cleanName)) {
-                    matches.push({
-                        title: `📖 سورة ${surah.name} (المستوى المقترح: ${surah.level})`,
-                        surahName: surah.name,
-                        level: surah.level,
-                        type: 'surah'
-                    });
+                    matches.push({ title: `📖 سورة ${surah.name} (المستوى المقترح: ${surah.level})`, surahName: surah.name, level: surah.level, type: 'surah' });
                 }
             });
 
             if(query.includes('نموذج') || !isNaN(query)) {
                 let modelNum = parseInt(query.replace(/\D/g, ''));
                 if(!isNaN(modelNum) && modelNum >= 1 && modelNum <= 10) {
-                    matches.push({
-                        title: `🎯 النموذج ${modelNum} (للمستوى الحالي)`,
-                        level: currentLevel,
-                        model: modelNum,
-                        type: 'model'
-                    });
+                    matches.push({ title: `🎯 النموذج ${modelNum} (للمستوى الحالي)`, level: currentLevel, model: modelNum, type: 'model' });
                 }
             }
 
             let uniqueMatches = [];
             let seen = new Set();
             matches.forEach(m => {
-                if(!seen.has(m.title)) {
-                    seen.add(m.title);
-                    uniqueMatches.push(m);
-                }
+                if(!seen.has(m.title)) { seen.add(m.title); uniqueMatches.push(m); }
             });
 
             if(uniqueMatches.length > 0) {
@@ -1084,7 +837,6 @@
                     div.onclick = () => {
                         dropdown.style.display = 'none';
                         document.getElementById('smartSearch').value = '';
-                        
                         if(m.type === 'surah') {
                             selectedSurahObjForModal = m;
                             document.getElementById('modalSurahTitle').innerText = `سورة ${m.surahName}`;
@@ -1105,14 +857,13 @@
                 });
             } else {
                 dropdown.style.display = 'block';
-                dropdown.innerHTML = `<div class="search-result-item" style="color:#888;">لم يتم العثور على نتيجة. جرب اسم سورة، أو (المستوى 5)، أو (نموذج 2)</div>`;
+                dropdown.innerHTML = `<div class="search-result-item" style="color:#888;">لم يتم العثور على نتيجة.</div>`;
             }
         }
 
         function selectPathFromModal(pathChoice) {
             if(!selectedSurahObjForModal) return;
             let targetLevel = selectedSurahObjForModal.level;
-            
             document.getElementById('pathChoiceModal').style.display = 'none';
             loadPartsGrid(pathChoice);
             openLevelDetails(targetLevel);
@@ -1166,18 +917,23 @@
                 mBox.innerText = 'نموذج ' + j;
                 mBox.id = `model_${currentPath}_lvl_${levelNum}_mod_${j}`; 
                 
-                if (localStorage.getItem(mBox.id) === 'tested') {
+                // فحص التقدم من السحابة بدلاً من المحلي فقط
+                if (cloudUserData.testedModels && cloudUserData.testedModels[mBox.id] === 'tested') {
                     mBox.classList.add('tested');
                     mBox.innerText = 'نموذج ' + j + ' (تم)';
                 }
 
-                mBox.onclick = (e) => {
+                mBox.onclick = async (e) => {
                     document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
                     let currentTarget = e.currentTarget;
                     currentTarget.classList.add('tested');
                     currentTarget.classList.add('active');
                     currentTarget.innerText = 'نموذج ' + j + ' (تم)';
-                    localStorage.setItem(currentTarget.id, 'tested');
+                    
+                    if(!cloudUserData.testedModels) cloudUserData.testedModels = {};
+                    cloudUserData.testedModels[currentTarget.id] = 'tested';
+                    await saveUserDataToCloud(); // الحفظ السحابي المباشر للتقدم
+
                     showClips(j);
                 };
                 modelsGrid.appendChild(mBox);
@@ -1252,7 +1008,7 @@
         function addWarningToStudent() {
             totalWarnings++;
             totalRemainingGrade = Math.max(0, totalRemainingGrade - 1);
-            alert(`⚠️ تم تسجيل تنبيه/خطأ للطالبة. تم خصم درجة واحدة من رصيد الدرجة الكلي (المتبقي: ${totalRemainingGrade}/100).`);
+            alert(`⚠️ تم تسجيل تنبيه للطالبة. تم خصم درجة واحدة (المتبقي: ${totalRemainingGrade}/100).`);
             updateGradeUI();
         }
 
@@ -1284,9 +1040,8 @@
             }
         }
 
-        function calculateAndShowFinalResult() {
+        async function calculateAndShowFinalResult() {
             let finalGrade = Math.max(0, totalRemainingGrade);
-
             let dataSource = (currentPath === 'asc') ? pathAscData : pathDescData;
             let lvlTitle = dataSource[currentLevel].title;
             let studentName = document.getElementById('studentNameInput').value.trim() || "طالبة غير مسماة";
@@ -1298,22 +1053,15 @@
             document.getElementById('resFinalGrade').innerText = finalGrade;
 
             let statusEl = document.getElementById('resStatus');
-            let statusText = "اجتازت بنجاح 🎉";
-            if (finalGrade >= 60) {
-                statusEl.innerText = statusText;
-                statusEl.style.color = "#27ae60";
-            } else {
-                statusText = "لم تجتز الاختبار";
-                statusEl.innerText = statusText;
-                statusEl.style.color = "#e74c3c";
-            }
+            let statusText = finalGrade >= 60 ? "اجتازت بنجاح 🎉" : "لم تجتز الاختبار";
+            statusEl.innerText = statusText;
+            statusEl.style.color = finalGrade >= 60 ? "#27ae60" : "#e74c3c";
 
-            saveResultToArchive(studentName, lvlTitle + ' (نموذج ' + currentModel + ')', finalGrade, statusText);
+            await saveResultToCloudArchive(studentName, lvlTitle + ' (نموذج ' + currentModel + ')', finalGrade, statusText);
             showPage('resultPage');
         }
 
-        function saveResultToArchive(name, level, grade, status) {
-            let records = JSON.parse(localStorage.getItem('teacher_students_results') || '[]');
+        async function saveResultToCloudArchive(name, level, grade, status) {
             let record = {
                 id: Date.now(),
                 name: name,
@@ -1322,8 +1070,9 @@
                 status: status,
                 date: new Date().toLocaleDateString('ar-SA')
             };
-            records.push(record);
-            localStorage.setItem('teacher_students_results', JSON.stringify(records));
+            if(!cloudUserData.results) cloudUserData.results = [];
+            cloudUserData.results.push(record);
+            await saveUserDataToCloud();
         }
 
         function downloadCurrentStudentReportFile() {
@@ -1332,7 +1081,7 @@
             let finalGrade = document.getElementById('resFinalGrade').innerText;
             let status = document.getElementById('resStatus').innerText;
 
-            let content = `--- تقرير اختبار القرآن الكريم الرسمى ---\n` +
+            let content = `--- تقرير اختبار القرآن الكريم الرسمي ---\n` +
                           `اسم الطالبة: ${studentName}\n` +
                           `المستوى: ${levelTitle}\n` +
                           `الدرجة النهائية (من 100): ${finalGrade} / 100\n` +
@@ -1344,14 +1093,13 @@
             link.href = URL.createObjectURL(blob);
             link.download = `نتيجة_الطالبة_${studentName.replace(/\s+/g, '_')}.txt`;
             link.click();
-            alert("تم تنزيل ملف النتيجة على جهازك بنجاح!");
         }
 
         function loadResultsArchiveUI() {
-            let records = JSON.parse(localStorage.getItem('teacher_students_results') || '[]');
+            let records = cloudUserData.results || [];
             let tbody = document.getElementById('archiveTableBody');
             if(records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="color: #777;">لا توجد نتائج مسجلة حتى الآن.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="color: #777;">لا توجد نتائج مسجلة سحابياً حتى الآن.</td></tr>`;
                 return;
             }
             tbody.innerHTML = '';
@@ -1369,7 +1117,7 @@
         }
 
         function downloadSingleRecord(index) {
-            let records = JSON.parse(localStorage.getItem('teacher_students_results') || '[]');
+            let records = cloudUserData.results || [];
             let rec = records[index];
             if(!rec) return;
 
@@ -1382,12 +1130,11 @@
         }
 
         function downloadAllStudentsFiles() {
-            let records = JSON.parse(localStorage.getItem('teacher_students_results') || '[]');
+            let records = cloudUserData.results || [];
             if(records.length === 0) {
-                alert("لا توجد أي نتائج طالبات مسجلة للتحميل حالياً.");
+                alert("لا توجد نتائج طالبات مسجلة للتحميل.");
                 return;
             }
-
             records.forEach((rec, index) => {
                 setTimeout(() => {
                     let content = `=== سجل تقرير رسمي ===\nاسم الطالبة: ${rec.name}\nالمستوى: ${rec.level}\nالدرجة النهائية من 100: ${rec.grade}\nالحالة: ${rec.status}\nتاريخ الاختبار: ${rec.date}`;
@@ -1398,15 +1145,13 @@
                     link.click();
                 }, index * 400);
             });
-
-            alert(`جاري تنزيل ملفات جميع الطالبات (${records.length} طالبات) متفرقة على جهازك الآن.`);
+            alert(`جاري تنزيل ملفات جميع الطالبات السحابية (${records.length} طالبات).`);
         }
 
         function startExamTimer() {
             if(timerInterval) clearInterval(timerInterval);
             let timeLeft = 120;
             const timerDisplay = document.getElementById('examTimer');
-            
             timerInterval = setInterval(() => {
                 let minutes = Math.floor(timeLeft / 60);
                 let seconds = timeLeft % 60;
@@ -1419,20 +1164,20 @@
             }, 1000);
         }
 
-        function toggleFavoriteCurrentClip() {
-            let favs = JSON.parse(localStorage.getItem('user_favorites') || '[]');
+        async function toggleFavoriteCurrentClip() {
+            if(!cloudUserData.favorites) cloudUserData.favorites = [];
             let currentItem = document.getElementById('selectedPartTitle').innerText + ' - ' + document.getElementById('clipTitle').innerText;
-            if(!favs.includes(currentItem)) {
-                favs.push(currentItem);
-                localStorage.setItem('user_favorites', JSON.stringify(favs));
-                alert("تم إضافة للمفضلة بنجاح!");
+            if(!cloudUserData.favorites.includes(currentItem)) {
+                cloudUserData.favorites.push(currentItem);
+                await saveUserDataToCloud();
+                alert("تم إضافة للمفضلة وحفظها سحابياً بنجاح!");
             } else {
                 alert("المقطع موجود بالفعل في المفضلة.");
             }
         }
 
         function loadFavoritesUI() {
-            let favs = JSON.parse(localStorage.getItem('user_favorites') || '[]');
+            let favs = cloudUserData.favorites || [];
             let listContainer = document.getElementById('favoritesList');
             if(favs.length === 0) {
                 listContainer.innerHTML = '<p style="color: #888;">لا توجد مقاطع مفضلة مضافة حالياً.</p>';
@@ -1447,18 +1192,18 @@
             });
         }
 
-        function removeFavorite(index) {
-            let favs = JSON.parse(localStorage.getItem('user_favorites') || '[]');
-            favs.splice(index, 1);
-            localStorage.setItem('user_favorites', JSON.stringify(favs));
+        async function removeFavorite(index) {
+            if(!cloudUserData.favorites) cloudUserData.favorites = [];
+            cloudUserData.favorites.splice(index, 1);
+            await saveUserDataToCloud();
             loadFavoritesUI();
         }
 
         function updateStatsData() {
             let completed = 0;
-            for(let i=0; i<localStorage.length; i++) {
-                let key = localStorage.key(i);
-                if(key && key.includes('_mod_') && localStorage.getItem(key) === 'tested') {
+            let testedModels = cloudUserData.testedModels || {};
+            for(let key in testedModels) {
+                if(testedModels[key] === 'tested') {
                     completed++;
                 }
             }
